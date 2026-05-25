@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Domain.Interfaces;
+using RadianciaKS.Domain.Models;
 
 namespace RadianciaKS.Infrastructure.Context
 {
@@ -17,11 +18,14 @@ namespace RadianciaKS.Infrastructure.Context
             _tenantProvider = tenantProvider;
         }
 
-        //TODO: DbSets
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
