@@ -1,6 +1,0 @@
-@RadianciaKS.Api_HostAddress = http://localhost:5228
-
-GET {{RadianciaKS.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
