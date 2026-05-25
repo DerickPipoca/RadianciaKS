@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="RadianciaKS.Api/RadianciaKS.Api.csproj" />
+  <Project Path="RadianciaKS.Application/RadianciaKS.Application.csproj" />
+  <Project Path="RadianciaKS.Domain/RadianciaKS.Domain.csproj" />
+  <Project Path="RadianciaKS.Infrastructure/RadianciaKS.Infrastructure.csproj" />
+</Solution>
