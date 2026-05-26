@@ -5,7 +5,7 @@ using RadianciaKS.Domain.Models;
 
 namespace RadianciaKS.Infrastructure.Context
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         private readonly ITenantProvider _tenantProvider;
 
@@ -41,8 +41,6 @@ namespace RadianciaKS.Infrastructure.Context
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-
-
             Guid tenantId = _tenantProvider.GetTenantId();
             var entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added && e.Entity is IMustHaveTenant);
 
