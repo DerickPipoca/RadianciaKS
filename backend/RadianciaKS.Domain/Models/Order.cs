@@ -9,6 +9,6 @@ namespace RadianciaKS.Domain.Models
         public decimal TotalAmount { get; set; }
 
         public virtual ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
-        public virtual ICollection<Payment> Payment { get; set; } = new List<Payment>();
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 }
