@@ -23,7 +23,15 @@ namespace RadianciaKS.Application.Services
         public async Task<ProductResponseDto> CreateProduct(ProductRequestDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
+
+            var category = await _context.Categories.FindAsync(dto.CategoryId);
+            if (category == null)
+                throw new ArgumentException("A Categoria informada não existe.");
+
             var productToAdd = _mapper.ToEntity(dto);
+
+            productToAdd.Category = category;
+
             var product = _context.Products.Add(productToAdd);
             await _context.SaveChangesAsync();
             return _mapper.ToDto(product.Entity);
@@ -31,7 +39,9 @@ namespace RadianciaKS.Application.Services
 
         public async Task<IEnumerable<ProductResponseDto>> GetAllProducts()
         {
-            var products = await _context.Products.ToListAsync();
+            var products = await _context.Products
+                            .Include(p => p.Category)
+                            .ToListAsync();
             return products.Select(p => _mapper.ToDto(p));
         }
     }
