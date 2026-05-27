@@ -18,7 +18,7 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.Property(p => p.Method);
 
             builder.HasOne(p => p.Order)
-                .WithMany(o => o.Payment)
+                .WithMany(o => o.Payments)
                 .HasForeignKey(p => p.OrderId);
 
             builder.HasIndex(o => o.TenantId);
