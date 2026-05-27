@@ -21,6 +21,20 @@ namespace RadianciaKS.Api.Controllers
             return CreatedAtAction(nameof(CreateOrder), new { id = order.Id }, order);
         }
 
+        [HttpPost("{orderId}/items")]
+        public async Task<IActionResult> AddItemToOrder(Guid orderId, [FromBody] OrderItemRequestDto itemDto)
+        {
+            var order = await _orderService.AddItemToOrder(orderId, itemDto);
+            return CreatedAtAction(nameof(AddItemToOrder), new { id = order.Id }, order);
+        }
+
+        [HttpPost("{orderId}/checkout")]
+        public async Task<IActionResult> CheckoutOrder(Guid orderId, [FromBody] CheckoutRequestDto checkoutDto)
+        {
+            var order = await _orderService.CheckoutOrder(orderId, checkoutDto);
+            return Ok(order);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {

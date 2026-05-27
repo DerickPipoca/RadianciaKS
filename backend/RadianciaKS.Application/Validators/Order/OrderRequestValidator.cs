@@ -8,10 +8,8 @@ namespace RadianciaKS.Application.Validators.Order
     {
         public OrderRequestValidator()
         {
-            RuleFor(x => x.Items)
-                .NotEmpty().WithMessage("Ao menos um item é necessário.");
-            RuleFor(x => x.Payments)
-                .NotEmpty().WithMessage("Ao menos um pagamento é necessário.");
+            RuleFor(x => x.TableNumber)
+                .MaximumLength(32).WithMessage("O nome da mesa não pode exceder 32 caracteres.");
             RuleForEach(x => x.Items)
                 .SetValidator(new OrderItemRequestValidator());
             RuleForEach(x => x.Payments)
