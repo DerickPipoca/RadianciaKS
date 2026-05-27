@@ -7,6 +7,7 @@ namespace RadianciaKS.Application.Interfaces
     {
         DbSet<Category> Categories { get; }
         DbSet<Product> Products { get; }
+        DbSet<Order> Orders { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }
