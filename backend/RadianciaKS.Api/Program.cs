@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Api.Hubs;
+using RadianciaKS.Api.Middlewares;
 using RadianciaKS.Api.Services;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Services;
@@ -46,6 +47,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapHub<KdsHub>("/hubs/kds");
 
