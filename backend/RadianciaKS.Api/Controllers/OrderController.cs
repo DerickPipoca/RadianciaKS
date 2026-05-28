@@ -42,5 +42,19 @@ namespace RadianciaKS.Api.Controllers
 
             return Ok(orders);
         }
+
+        [HttpPut("{orderId}/cancel")]
+        public async Task<IActionResult> CancelOrder(Guid orderId)
+        {
+            var order = await _orderService.CancelOrder(orderId);
+            return Ok(order);
+        }
+
+        [HttpDelete("{orderId}/items/{itemId}")]
+        public async Task<IActionResult> RemoveItemFromOrder(Guid orderId, Guid itemId)
+        {
+            var order = await _orderService.RemoveItemFromOrder(orderId, itemId);
+            return Ok(order);
+        }
     }
 }

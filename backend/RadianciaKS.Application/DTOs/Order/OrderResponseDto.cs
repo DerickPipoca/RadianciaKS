@@ -10,6 +10,7 @@ namespace RadianciaKS.Application.DTOs.Order
         public string? ReceiptUrl { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public Decimal TotalAmount { get; set; }
+        public Decimal ChangeAmount { get; set; }
 
         public List<OrderItemResponseDto> Items { get; set; } = [];
         public List<PaymentResponseDto> Payments { get; set; } = [];

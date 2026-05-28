@@ -22,7 +22,7 @@ namespace RadianciaKS.Api.Controllers
         [HttpPut("{orderId}/items/{itemId}/status")]
         public async Task<IActionResult> UpdateItemStatus(Guid orderId, Guid itemId, [FromBody] KdsStatus status)
         {
-            var result = await _orderService.UpdateItemStatusAsync(orderId, itemId, status);
+            var result = await _orderService.UpdateItemStatus(orderId, itemId, status);
             return Ok(result);
         }
     }

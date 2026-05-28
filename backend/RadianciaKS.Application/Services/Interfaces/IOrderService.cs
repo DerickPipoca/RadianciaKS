@@ -9,6 +9,8 @@ namespace RadianciaKS.Application.Services.Interfaces
         Task<IEnumerable<OrderResponseDto>> GetAllOrders();
         Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto);
         Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto);
-        Task<OrderResponseDto> UpdateItemStatusAsync(Guid orderId, Guid itemId, KdsStatus status);
+        Task<OrderResponseDto> UpdateItemStatus(Guid orderId, Guid itemId, KdsStatus status);
+        Task<OrderResponseDto> RemoveItemFromOrder(Guid orderId, Guid itemId);
+        Task<OrderResponseDto> CancelOrder(Guid orderId);
     }
 }

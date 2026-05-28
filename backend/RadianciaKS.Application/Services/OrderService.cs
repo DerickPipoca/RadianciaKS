@@ -33,12 +33,8 @@ namespace RadianciaKS.Application.Services
         public async Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto)
         {
             var order = await FindOrderByIdAsync(orderId);
-            if (order == null)
-                throw new ArgumentException($"Operação não encontrada.");
 
             var product = await FindProductByIdAsync(itemDto.ProductId);
-            if (product == null)
-                throw new ArgumentException($"Produto não encontrado.");
 
             var newItem = _orderItemMapper.ToEntity(itemDto);
 
@@ -59,8 +55,6 @@ namespace RadianciaKS.Application.Services
         public async Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto)
         {
             var order = await FindOrderByIdAsync(orderId);
-            if (order == null)
-                throw new ArgumentException($"Operação não encontrada.");
 
             if (order.OrderStatus == OrderStatus.Paid)
                 throw new ArgumentException($"Pedido já encerrado.");
@@ -75,6 +69,7 @@ namespace RadianciaKS.Application.Services
                 order.Payments.Add(payment);
                 _context.Payments.Add(payment);
             }
+
             if (totalValue < order.TotalAmount)
                 throw new ArgumentException($"Valor pago é insuficiente.");
 
@@ -83,7 +78,13 @@ namespace RadianciaKS.Application.Services
             order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
 
             await _context.SaveChangesAsync();
-            return _mapper.ToDto(order);
+
+            var orderResponse = _mapper.ToDto(order);
+
+            var changeAmount = totalValue - order.TotalAmount;
+            orderResponse.ChangeAmount = changeAmount;
+
+            return orderResponse;
         }
 
         public async Task<OrderResponseDto> CreateOrder(OrderRequestDto dto)
@@ -95,8 +96,6 @@ namespace RadianciaKS.Application.Services
             foreach (var item in orderToAdd.Items)
             {
                 var product = await FindProductByIdAsync(item.ProductId);
-                if (product == null)
-                    throw new ArgumentException($"Produto não encontrado.");
 
                 item.UnitPrice = product.Price;
                 totalPrice += product.Price * item.Quantity;
@@ -116,17 +115,36 @@ namespace RadianciaKS.Application.Services
             return orders.Select(c => _mapper.ToDto(c));
         }
 
-        public async Task<OrderResponseDto> UpdateItemStatusAsync(Guid orderId, Guid itemId, KdsStatus status)
+        public async Task<OrderResponseDto> RemoveItemFromOrder(Guid orderId, Guid itemId)
         {
             var order = await FindOrderByIdAsync(orderId);
-            if (order == null)
-                throw new ArgumentException($"Pedido não encontrado.");
 
-            var item = order.Items.FirstOrDefault(i => i.Id == itemId);
-            if (item == null)
-                throw new ArgumentException($"Item não encontrado no pedido.");
+            if (order.OrderStatus == OrderStatus.Canceled || order.OrderStatus == OrderStatus.Paid)
+                throw new ArgumentException("Incapaz de remover qualquer item deste pedido.");
+
+            var item = await FindItemByIdAsync(order, itemId);
+
+            order.Items.Remove(item);
+
+            order.TotalAmount -= (item.UnitPrice * item.Quantity);
+
+            await _context.SaveChangesAsync();
+            return _mapper.ToDto(order);
+        }
+
+        public async Task<OrderResponseDto> UpdateItemStatus(Guid orderId, Guid itemId, KdsStatus status)
+        {
+            var order = await FindOrderByIdAsync(orderId);
+            var item = await FindItemByIdAsync(order, itemId);
 
             item.KdsStatus = status;
+
+            bool isAllItemsDone = order.Items.All(i => i.KdsStatus == KdsStatus.Done);
+
+            if (isAllItemsDone && order.OrderStatus != OrderStatus.Paid)
+            {
+                order.OrderStatus = OrderStatus.ReadyToServe;
+            }
 
             await _context.SaveChangesAsync();
 
@@ -136,14 +154,40 @@ namespace RadianciaKS.Application.Services
             return _mapper.ToDto(order);
         }
 
-        private async Task<Order?> FindOrderByIdAsync(Guid orderId)
+        public async Task<OrderResponseDto> CancelOrder(Guid orderId)
         {
-            return await _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == orderId);
+            var order = await FindOrderByIdAsync(orderId);
+            if (order.OrderStatus == OrderStatus.Paid)
+                throw new ArgumentException("Não é possível cancelar um pedido já pago.");
+
+            order.OrderStatus = OrderStatus.Canceled;
+
+            await _context.SaveChangesAsync();
+            return _mapper.ToDto(order);
         }
 
-        private async Task<Product?> FindProductByIdAsync(Guid productId)
+        private async Task<Order> FindOrderByIdAsync(Guid orderId)
         {
-            return await _context.Products.FindAsync(productId);
+            var order = await _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null)
+                throw new ArgumentException($"Pedido não encontrado.");
+            return order;
+        }
+
+        private async Task<Product> FindProductByIdAsync(Guid productId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
+                throw new ArgumentException($"Produto não encontrado.");
+            return product;
+        }
+
+        private async Task<OrderItem> FindItemByIdAsync(Order order, Guid itemId)
+        {
+            var item = order.Items.FirstOrDefault(i => i.Id == itemId);
+            if (item == null)
+                throw new ArgumentException($"Item não encontrado no pedido.");
+            return item;
         }
     }
 }
