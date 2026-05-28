@@ -36,6 +36,7 @@ namespace RadianciaKS.Api.Middlewares
                 var errors = validationException.Errors.Select(e => e.ErrorMessage);
                 var result = JsonSerializer.Serialize(new { error = "Erro de validação.", details = errors });
 
+                return httpContext.Response.WriteAsync(result);
             }
 
             if (ex is ArgumentException)
