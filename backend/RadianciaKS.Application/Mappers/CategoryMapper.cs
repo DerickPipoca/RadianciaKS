@@ -9,6 +9,7 @@ namespace RadianciaKS.Application.Mappers
     {
         [MapperIgnoreSource("TenantId")]
         [MapperIgnoreSource("CreatedAt")]
+        [MapperIgnoreSource("Active")]
         public partial CategoryResponseDto ToDto(Category category);
 
         [MapperIgnoreTarget("Id")]
