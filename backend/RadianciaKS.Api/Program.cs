@@ -1,10 +1,12 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using RadianciaKS.Api.Hubs;
 using RadianciaKS.Api.Services;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Services;
 using RadianciaKS.Application.Services.Interfaces;
 using RadianciaKS.Infrastructure.Context;
+using RadianciaKS.Infrastructure.Gateways;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +18,16 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddSignalR();
+
 //Dependency Injections
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>();
+
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ITaxService, MockTaxService>();
 
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryService).Assembly);
 
@@ -39,6 +46,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapHub<KdsHub>("/hubs/kds");
 
 app.MapControllers();
 

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.DTOs.Order;
@@ -17,14 +16,18 @@ namespace RadianciaKS.Application.Services
         private readonly OrderMapper _mapper;
         private readonly OrderItemMapper _orderItemMapper;
         private readonly PaymentMapper _paymentMapper;
+        private readonly ITaxService _taxService;
+        private readonly IKdsNotificationService _kdsNotification;
 
-        public OrderService(IApplicationDbContext applicationDbContext, IValidator<OrderRequestDto> validator)
+        public OrderService(IApplicationDbContext applicationDbContext, IValidator<OrderRequestDto> validator, ITaxService taxService, IKdsNotificationService kdsNotificationService)
         {
             _context = applicationDbContext;
             _validator = validator;
             _mapper = new OrderMapper();
             _orderItemMapper = new OrderItemMapper();
             _paymentMapper = new PaymentMapper();
+            _taxService = taxService;
+            _kdsNotification = kdsNotificationService;
         }
 
         public async Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto)
@@ -45,6 +48,10 @@ namespace RadianciaKS.Application.Services
             order.Items.Add(newItem);
             order.TotalAmount += newItem.UnitPrice * newItem.Quantity;
 
+            var tenantId = order.TenantId.ToString();
+            var itemResponse = _orderItemMapper.ToDto(newItem);
+            await _kdsNotification.NotifyNewItemAsync(tenantId, itemResponse);
+
             await _context.SaveChangesAsync();
             return _mapper.ToDto(order);
         }
@@ -59,15 +66,22 @@ namespace RadianciaKS.Application.Services
                 throw new ArgumentException($"Pedido já encerrado.");
 
             decimal totalValue = 0;
-            foreach (var payment in checkoutDto.Payments)
+            foreach (var paymentDto in checkoutDto.Payments)
             {
-                totalValue += payment.Amount;
-                order.Payments.Add(_paymentMapper.ToEntity(payment));
+                totalValue += paymentDto.Amount;
+
+                var payment = _paymentMapper.ToEntity(paymentDto);
+
+                order.Payments.Add(payment);
+                _context.Payments.Add(payment);
             }
             if (totalValue < order.TotalAmount)
                 throw new ArgumentException($"Valor pago é insuficiente.");
 
             order.OrderStatus = OrderStatus.Paid;
+
+            order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
+
             await _context.SaveChangesAsync();
             return _mapper.ToDto(order);
         }
@@ -102,9 +116,14 @@ namespace RadianciaKS.Application.Services
             return orders.Select(c => _mapper.ToDto(c));
         }
 
+        public Task<OrderResponseDto> UpdateItemStatusAsync(Guid orderId, Guid itemId, KdsStatus status)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task<Order?> FindOrderByIdAsync(Guid orderId)
         {
-            return await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == orderId);
+            return await _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
         private async Task<Product?> FindProductByIdAsync(Guid productId)

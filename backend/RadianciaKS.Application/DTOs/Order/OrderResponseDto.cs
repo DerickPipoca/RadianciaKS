@@ -7,6 +7,7 @@ namespace RadianciaKS.Application.DTOs.Order
     {
         public Guid Id { get; set; }
         public string? TableNumber { get; set; }
+        public string? ReceiptUrl { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public Decimal TotalAmount { get; set; }
 

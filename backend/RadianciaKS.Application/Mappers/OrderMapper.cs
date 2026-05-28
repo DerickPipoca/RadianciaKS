@@ -23,6 +23,7 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreTarget("Active")]
         [MapperIgnoreTarget("OrderStatus")]
         [MapperIgnoreTarget("TotalAmount")]
+        [MapperIgnoreTarget("ReceiptUrl")]
         public partial Order ToEntity(OrderRequestDto dto);
 
     }

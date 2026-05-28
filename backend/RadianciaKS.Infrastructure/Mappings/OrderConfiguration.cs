@@ -15,6 +15,8 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.Property(o => o.TableNumber)
                 .HasMaxLength(32);
 
+            builder.Property(o => o.ReceiptUrl);
+
             builder.Property(o => o.OrderStatus);
 
             builder.Property(o => o.TotalAmount)
