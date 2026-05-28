@@ -40,6 +40,17 @@ builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequir
 
 builder.Services.AddControllers();
 
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -50,6 +61,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseCors("AllowAngularApp");
 app.MapHub<KdsHub>("/hubs/kds");
 
 app.MapControllers();
