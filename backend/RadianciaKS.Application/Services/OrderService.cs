@@ -124,7 +124,7 @@ namespace RadianciaKS.Application.Services
 
             var item = await FindItemByIdAsync(order, itemId);
 
-            order.Items.Remove(item);
+            _context.OrderItems.Remove(item);
 
             order.TotalAmount -= (item.UnitPrice * item.Quantity);
 
