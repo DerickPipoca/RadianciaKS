@@ -30,6 +30,13 @@ namespace RadianciaKS.Api.Middlewares
         private static Task HandleExceptionAsync(HttpContext httpContext, Exception ex)
         {
             httpContext.Response.ContentType = "applicaton/json";
+            if (ex is FluentValidation.ValidationException validationException)
+            {
+                httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                var errors = validationException.Errors.Select(e => e.ErrorMessage);
+                var result = JsonSerializer.Serialize(new { error = "Erro de validação.", details = errors });
+
+            }
 
             if (ex is ArgumentException)
             {
