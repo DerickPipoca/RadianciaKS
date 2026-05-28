@@ -116,9 +116,24 @@ namespace RadianciaKS.Application.Services
             return orders.Select(c => _mapper.ToDto(c));
         }
 
-        public Task<OrderResponseDto> UpdateItemStatusAsync(Guid orderId, Guid itemId, KdsStatus status)
+        public async Task<OrderResponseDto> UpdateItemStatusAsync(Guid orderId, Guid itemId, KdsStatus status)
         {
-            throw new NotImplementedException();
+            var order = await FindOrderByIdAsync(orderId);
+            if (order == null)
+                throw new ArgumentException($"Pedido não encontrado.");
+
+            var item = order.Items.FirstOrDefault(i => i.Id == itemId);
+            if (item == null)
+                throw new ArgumentException($"Item não encontrado no pedido.");
+
+            item.KdsStatus = status;
+
+            await _context.SaveChangesAsync();
+
+            var itemResponse = _orderItemMapper.ToDto(item);
+            await _kdsNotification.NotifyItemReadyAsync(order.TenantId.ToString(), itemResponse);
+
+            return _mapper.ToDto(order);
         }
 
         private async Task<Order?> FindOrderByIdAsync(Guid orderId)
