@@ -29,10 +29,37 @@ namespace RadianciaKS.Application.Services
             return _mapper.ToDto(category.Entity);
         }
 
+        public async Task DeleteCategory(Guid id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+                throw new ArgumentException("A categoria informada não existe.");
+
+            category.Active = false;
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<CategoryResponseDto>> GetAllCategories()
         {
             var categories = await _context.Categories.ToListAsync();
             return categories.Select(c => _mapper.ToDto(c));
+        }
+
+        public async Task<CategoryResponseDto> UpdateCategory(Guid id, CategoryRequestDto dto)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+                throw new ArgumentException("A categoria informada não existe.");
+
+            category.Update(
+                dto.Name,
+                dto.ImagePath,
+                dto.Priority
+            );
+
+            await _context.SaveChangesAsync();
+            return _mapper.ToDto(category);
         }
     }
 }

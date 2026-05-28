@@ -7,6 +7,5 @@ namespace RadianciaKS.Application.DTOs.Product
         public string? ImagePath { get; set; }
         public decimal Price { get; set; }
         public Guid CategoryId { get; set; }
-
     }
 }

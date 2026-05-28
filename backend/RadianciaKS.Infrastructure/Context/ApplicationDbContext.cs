@@ -28,13 +28,17 @@ namespace RadianciaKS.Infrastructure.Context
 
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                if (typeof(IMustHaveTenant).IsAssignableFrom(entity.ClrType))
+
+                bool hasActiveProperty = entity.FindProperty("Active") is not null;
+                bool hasTenant = typeof(IMustHaveTenant).IsAssignableFrom(entity.ClrType);
+
+                if (hasActiveProperty || hasTenant)
                 {
                     var method = typeof(ApplicationDbContext)
-                        .GetMethod(nameof(ConfigureTenantFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?
+                        .GetMethod(nameof(ConfigureGlobalFilters), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?
                         .MakeGenericMethod(entity.ClrType);
 
-                    method?.Invoke(this, new object[] { modelBuilder });
+                    method?.Invoke(this, new object[] { modelBuilder, hasTenant, hasActiveProperty });
                 }
             }
         }
@@ -42,22 +46,43 @@ namespace RadianciaKS.Infrastructure.Context
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             Guid tenantId = _tenantProvider.GetTenantId();
-            var entries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added && e.Entity is IMustHaveTenant);
 
-            foreach (var entry in entries)
+            var addedEntries = ChangeTracker.Entries().Where(e => e.State == EntityState.Added && e.Entity is IMustHaveTenant);
+            foreach (var entry in addedEntries)
             {
-                if (entry.Entity is IMustHaveTenant entryTenant)
+                if (entry.Entity is IMustHaveTenant entryTenant && entryTenant.TenantId == Guid.Empty)
                 {
                     entryTenant.TenantId = tenantId;
                 }
             }
 
+            var deletedEntries = ChangeTracker.Entries().Where(e => e.State == EntityState.Deleted && e.Metadata.FindProperty("Active") != null);
+
+            foreach (var entry in deletedEntries)
+            {
+                entry.State = EntityState.Modified;
+                entry.Property("Active").CurrentValue = false;
+            }
+
             return base.SaveChangesAsync(cancellationToken);
         }
 
-        private void ConfigureTenantFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class, IMustHaveTenant
+        private void ConfigureGlobalFilters<TEntity>(ModelBuilder modelBuilder, bool hasTenant, bool hasSoftDelete) where TEntity : class
         {
-            modelBuilder.Entity<TEntity>().HasQueryFilter(e => e.TenantId == _tenantProvider.GetTenantId());
+            if (hasTenant && hasSoftDelete)
+            {
+                modelBuilder.Entity<TEntity>().HasQueryFilter(e =>
+                    ((IMustHaveTenant)e).TenantId == _tenantProvider.GetTenantId() &&
+                    EF.Property<bool>(e, "Active") == true);
+            }
+            else if (hasTenant)
+            {
+                modelBuilder.Entity<TEntity>().HasQueryFilter(e => ((IMustHaveTenant)e).TenantId == _tenantProvider.GetTenantId());
+            }
+            else if (hasSoftDelete)
+            {
+                modelBuilder.Entity<TEntity>().HasQueryFilter(e => EF.Property<bool>(e, "Active") == true);
+            }
         }
     }
 }

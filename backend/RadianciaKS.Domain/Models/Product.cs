@@ -9,5 +9,14 @@ namespace RadianciaKS.Domain.Models
 
         public Guid CategoryId { get; set; }
         public Category Category { get; set; } = null!;
+
+        public void Update(string name, string? imagePath, string? description, decimal price, Guid categoryId)
+        {
+            Name = name;
+            ImagePath = imagePath;
+            Description = description;
+            Price = price;
+            CategoryId = categoryId;
+        }
     }
 }

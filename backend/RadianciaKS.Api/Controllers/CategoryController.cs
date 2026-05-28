@@ -28,5 +28,21 @@ namespace RadianciaKS.Api.Controllers
 
             return Ok(categories);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CategoryRequestDto dto)
+        {
+            var category = await _categoryService.UpdateCategory(id, dto);
+
+            return Ok(category);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            await _categoryService.DeleteCategory(id);
+
+            return NoContent();
+        }
     }
 }

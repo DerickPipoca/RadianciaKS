@@ -28,5 +28,22 @@ namespace RadianciaKS.Api.Controllers
 
             return Ok(products);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductRequestDto dto)
+        {
+            var product = await _productService.UpdateProduct(id, dto);
+
+            return Ok(product);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(Guid id)
+        {
+            await _productService.DeleteProduct(id);
+
+            return NoContent();
+        }
+
     }
 }

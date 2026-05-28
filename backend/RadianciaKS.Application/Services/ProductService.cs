@@ -37,12 +37,44 @@ namespace RadianciaKS.Application.Services
             return _mapper.ToDto(product.Entity);
         }
 
+        public async Task DeleteProduct(Guid id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                throw new ArgumentException("O Produto informado não existe.");
+
+            product.Active = false;
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<ProductResponseDto>> GetAllProducts()
         {
             var products = await _context.Products
                             .Include(p => p.Category)
                             .ToListAsync();
             return products.Select(p => _mapper.ToDto(p));
+        }
+
+        public async Task<ProductResponseDto> UpdateProduct(Guid id, ProductRequestDto dto)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                throw new ArgumentException("O Produto informado não existe.");
+
+            var category = await _context.Categories.FindAsync(dto.CategoryId);
+            if (category == null)
+                throw new ArgumentException("A Categoria informada não existe.");
+
+            product.Update(
+                dto.Name,
+                dto.ImagePath,
+                dto.Description,
+                dto.Price,
+                dto.CategoryId);
+
+            await _context.SaveChangesAsync();
+            return _mapper.ToDto(product);
         }
     }
 }
