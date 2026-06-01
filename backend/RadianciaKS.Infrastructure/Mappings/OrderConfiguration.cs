@@ -11,6 +11,9 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.ToTable("Orders");
 
             builder.HasKey(o => o.Id);
+            builder.Property(p => p.CreatedAt);
+            builder.Property(p => p.Active);
+            builder.HasIndex(o => o.TenantId);
 
             builder.Property(o => o.TableNumber)
                 .HasMaxLength(32);
@@ -21,8 +24,6 @@ namespace RadianciaKS.Infrastructure.Mappings
 
             builder.Property(o => o.TotalAmount)
                 .HasColumnType("numeric(10,2)");
-
-            builder.HasIndex(o => o.TenantId);
         }
     }
 }

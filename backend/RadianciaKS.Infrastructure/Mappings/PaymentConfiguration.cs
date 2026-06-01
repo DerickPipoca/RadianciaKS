@@ -8,9 +8,12 @@ namespace RadianciaKS.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Payment> builder)
         {
-            builder.ToTable("Payment");
+            builder.ToTable("Payments");
 
             builder.HasKey(p => p.Id);
+            builder.Property(p => p.CreatedAt);
+            builder.Property(p => p.Active);
+            builder.HasIndex(o => o.TenantId);
 
             builder.Property(p => p.Amount)
                 .HasColumnType("numeric(10,2)");
@@ -20,8 +23,6 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.HasOne(p => p.Order)
                 .WithMany(o => o.Payments)
                 .HasForeignKey(p => p.OrderId);
-
-            builder.HasIndex(o => o.TenantId);
         }
     }
 }

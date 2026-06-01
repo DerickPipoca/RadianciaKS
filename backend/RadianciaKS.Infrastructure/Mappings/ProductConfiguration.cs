@@ -26,6 +26,11 @@ namespace RadianciaKS.Infrastructure.Mappings
                 .HasColumnType("numeric(10,2)");
 
             builder.HasOne(p => p.Category).WithMany().HasForeignKey(p => p.CategoryId);
+
+            builder.HasMany(p => p.ModifierGroups)
+                   .WithOne(m => m.Product)
+                   .HasForeignKey(m => m.ProductId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

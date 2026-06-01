@@ -34,12 +34,7 @@ namespace RadianciaKS.Application.Services
         {
             var order = await FindOrderByIdAsync(orderId);
 
-            var product = await FindProductByIdAsync(itemDto.ProductId);
-
-            var newItem = _orderItemMapper.ToEntity(itemDto);
-
-            newItem.UnitPrice = product.Price;
-            newItem.Product = product;
+            var newItem = await BuildOrderItemAsync(itemDto);
 
             order.Items.Add(newItem);
             order.TotalAmount += newItem.UnitPrice * newItem.Quantity;
@@ -90,16 +85,19 @@ namespace RadianciaKS.Application.Services
         public async Task<OrderResponseDto> CreateOrder(OrderRequestDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
+
             var orderToAdd = _mapper.ToEntity(dto);
+            orderToAdd.Items.Clear();
 
             decimal totalPrice = 0;
-            foreach (var item in orderToAdd.Items)
+
+            foreach (var item in dto.Items)
             {
                 var product = await FindProductByIdAsync(item.ProductId);
 
-                item.UnitPrice = product.Price;
-                totalPrice += product.Price * item.Quantity;
-                item.Product = product;
+                var newItem = await BuildOrderItemAsync(item);
+                orderToAdd.Items.Add(newItem);
+                totalPrice += (newItem.UnitPrice * newItem.Quantity);
             }
 
             orderToAdd.TotalAmount = totalPrice;
@@ -111,7 +109,11 @@ namespace RadianciaKS.Application.Services
 
         public async Task<IEnumerable<OrderResponseDto>> GetAllOrders()
         {
-            var orders = await _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).Include(o => o.Payments).ToListAsync();
+            var orders = await _context.Orders
+                .Include(o => o.Items).ThenInclude(i => i.Product)
+                .Include(o => o.Items).ThenInclude(i => i.SelectedModifiers)
+                .Include(o => o.Payments)
+                .ToListAsync();
             return orders.Select(c => _mapper.ToDto(c));
         }
 
@@ -166,9 +168,44 @@ namespace RadianciaKS.Application.Services
             return _mapper.ToDto(order);
         }
 
+        private async Task<OrderItem> BuildOrderItemAsync(OrderItemRequestDto itemDto)
+        {
+            var product = await FindProductByIdAsync(itemDto.ProductId);
+            var newItem = _orderItemMapper.ToEntity(itemDto);
+
+            newItem.Product = product;
+            decimal modifiersTotal = 0;
+
+            if (itemDto.SelectedModifierIds != null && itemDto.SelectedModifierIds.Count != 0)
+            {
+                foreach (var modId in itemDto.SelectedModifierIds)
+                {
+                    var modifierOption = await _context.ModifierOptions.FindAsync(modId);
+                    if (modifierOption == null)
+                        throw new ArgumentException("Opção adicional não encontrada.");
+
+                    newItem.SelectedModifiers.Add(new OrderItemModifier
+                    {
+                        Name = modifierOption.Name,
+                        AdditionalPrice = modifierOption.AdditionalPrice
+                    });
+
+                    modifiersTotal += modifierOption.AdditionalPrice;
+                }
+            }
+            newItem.UnitPrice = product.Price + modifiersTotal;
+
+            return newItem;
+        }
+
         private async Task<Order> FindOrderByIdAsync(Guid orderId)
         {
-            var order = await _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == orderId);
+            var order = await _context.Orders
+            .Include(o => o.Items).ThenInclude(i => i.Product)
+            .Include(o => o.Items).ThenInclude(i => i.SelectedModifiers)
+            .Include(o => o.Payments)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
             if (order == null)
                 throw new ArgumentException($"Pedido não encontrado.");
             return order;

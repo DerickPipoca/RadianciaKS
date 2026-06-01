@@ -11,6 +11,9 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.ToTable("OrderItems");
 
             builder.HasKey(oi => oi.Id);
+            builder.Property(p => p.CreatedAt);
+            builder.Property(p => p.Active);
+            builder.HasIndex(o => o.TenantId);
 
             builder.Property(oi => oi.Quantity);
 
@@ -23,8 +26,6 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.Property(oi => oi.KdsStatus);
 
             builder.HasOne(oi => oi.Order).WithMany(o => o.Items).HasForeignKey(oi => oi.OrderId);
-
-            builder.HasIndex(oi => oi.TenantId);
         }
     }
 }

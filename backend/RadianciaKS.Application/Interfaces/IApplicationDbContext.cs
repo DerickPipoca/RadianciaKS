@@ -10,6 +10,9 @@ namespace RadianciaKS.Application.Interfaces
         DbSet<Order> Orders { get; }
         DbSet<OrderItem> OrderItems { get; }
         DbSet<Payment> Payments { get; }
+        DbSet<ModifierGroup> ModifierGroups { get; }
+        DbSet<ModifierOption> ModifierOptions { get; }
+        DbSet<OrderItemModifier> OrderItemModifiers { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

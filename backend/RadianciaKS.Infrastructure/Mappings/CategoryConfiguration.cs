@@ -11,6 +11,9 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.ToTable("Categories");
 
             builder.HasKey(c => c.Id);
+            builder.Property(p => p.CreatedAt);
+            builder.Property(p => p.Active);
+            builder.HasIndex(o => o.TenantId);
 
             builder.Property(c => c.Name)
                 .IsRequired()
@@ -18,8 +21,6 @@ namespace RadianciaKS.Infrastructure.Mappings
 
             builder.Property(c => c.ImagePath)
                 .HasMaxLength(256);
-
-            builder.HasIndex(c => c.TenantId);
         }
     }
 }
