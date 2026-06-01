@@ -29,6 +29,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITaxService, MockTaxService>();
+builder.Services.AddScoped<IModifierService, ModifierService>();
 
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryService).Assembly);
 

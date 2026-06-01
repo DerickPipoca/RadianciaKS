@@ -1,3 +1,5 @@
+using RadianciaKS.Application.DTOs.Modifier;
+
 namespace RadianciaKS.Application.DTOs.Product
 {
     public class ProductResponseDto
@@ -12,5 +14,6 @@ namespace RadianciaKS.Application.DTOs.Product
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
 
+        public List<ModifierGroupResponseDto> ModifierGroups { get; set; } = new();
     }
 }

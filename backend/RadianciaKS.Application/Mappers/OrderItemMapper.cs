@@ -1,3 +1,4 @@
+using RadianciaKS.Application.DTOs.Modifier;
 using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Domain.Models;
 using Riok.Mapperly.Abstractions;
@@ -7,7 +8,6 @@ namespace RadianciaKS.Application.Mappers
     [Mapper]
     public partial class OrderItemMapper
     {
-        [MapperIgnoreSource("UnitPrice")]
         [MapperIgnoreSource("OrderId")]
         [MapperIgnoreSource("Order")]
         [MapperIgnoreSource("ProductId")]
@@ -15,6 +15,13 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreSource("Active")]
         [MapperIgnoreSource("CreatedAt")]
         public partial OrderItemResponseDto ToDto(OrderItem item);
+
+        [MapperIgnoreSource("OrderItemId")]
+        [MapperIgnoreSource("OrderItem")]
+        [MapperIgnoreSource("TenantId")]
+        [MapperIgnoreSource("Active")]
+        [MapperIgnoreSource("CreatedAt")]
+        public partial OrderItemModifierResponseDto ModifierToDto(OrderItemModifier modifier);
 
         [MapperIgnoreTarget("Id")]
         [MapperIgnoreTarget("TenantId")]
@@ -25,6 +32,8 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreTarget("Product")]
         [MapperIgnoreTarget("OrderId")]
         [MapperIgnoreTarget("KdsStatus")]
+        [MapperIgnoreTarget("SelectedModifiers")]
+        [MapperIgnoreSource("SelectedModifierIds")]
         public partial OrderItem ToEntity(OrderItemRequestDto dto);
 
     }
