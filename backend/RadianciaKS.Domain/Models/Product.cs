@@ -10,6 +10,8 @@ namespace RadianciaKS.Domain.Models
         public Guid CategoryId { get; set; }
         public Category Category { get; set; } = null!;
 
+        public ICollection<ModifierGroup> ModifierGroups { get; set; } = new List<ModifierGroup>();
+
         public void Update(string name, string? imagePath, string? description, decimal price, Guid categoryId)
         {
             Name = name;
