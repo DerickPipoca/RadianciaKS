@@ -11,7 +11,7 @@ namespace RadianciaKS.Application.DTOs.Order
         public string? Notes { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public string KdsStatus { get; set; } = string.Empty;
+        public KdsStatus KdsStatus { get; set; }
 
         public List<OrderItemModifierResponseDto> SelectedModifiers { get; set; } = new();
     }
