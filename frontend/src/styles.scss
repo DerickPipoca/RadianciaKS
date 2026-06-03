@@ -1,1 +1,40 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Space+Grotesk&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root {
+  --primary-color: #ffd369;
+
+  --green-status: #22c55e;
+  --orange-status: #e59c5b;
+  --red-status: #ff6969;
+
+  --bg-dark-base: #1e1e1e;
+  --bg-dark-surface: #32353b;
+  --bg-dark-elevated: #393e46;
+
+  --bg-light-base: #e5e5e5;
+  --bg-light-surface: #e3e3e3;
+
+  --text-primary-dark: #e5e5e5;
+  --text-secondary-dark: #e3e3e3;
+  --text-primary-light: #1e1e1e;
+  --text-secondary-light: #393e46;
+
+  --border-color-dark: #393e46;
+  --border-color-light: #e5e5e5;
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-pill: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background-color: var(--bg-dark-surface);
+  color: var(--text-primary-dark);
+  -webkit-font-smoothing: antialiased;
+}
