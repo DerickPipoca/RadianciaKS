@@ -117,6 +117,12 @@ namespace RadianciaKS.Application.Services
             return orders.Select(c => _mapper.ToDto(c));
         }
 
+        public async Task<OrderResponseDto> GetOrderById(Guid orderId)
+        {
+            var order = await FindOrderByIdAsync(orderId);
+            return _mapper.ToDto(order);
+        }
+
         public async Task<OrderResponseDto> RemoveItemFromOrder(Guid orderId, Guid itemId)
         {
             var order = await FindOrderByIdAsync(orderId);
