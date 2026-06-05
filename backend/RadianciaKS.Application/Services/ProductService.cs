@@ -52,6 +52,7 @@ namespace RadianciaKS.Application.Services
         {
             var products = await _context.Products
                             .Include(p => p.Category)
+                            .Include(p => p.ModifierGroups).ThenInclude(m => m.Options)
                             .ToListAsync();
             return products.Select(p => _mapper.ToDto(p));
         }
