@@ -25,13 +25,13 @@ export interface OrderItemResponse {
   selectedModifiers: OrderItemModifierResponse[];
 }
 
-export interface OrderRequestDto {
+export interface OrderRequest {
   tableNumber?: string;
   items: OrderItemRequest[];
   payments: PaymentRequest[];
 }
 
-export interface OrderResponseDto {
+export interface OrderResponse {
   id: string;
   tableNumber?: string;
   receiptUrl?: string;
