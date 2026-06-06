@@ -12,7 +12,7 @@ export interface OrderItemRequestDto {
   notes?: string;
   productId: string;
 
-  selectedModifiersIds: string[];
+  selectedModifierIds: string[];
 }
 
 export interface OrderItemResponseDto {

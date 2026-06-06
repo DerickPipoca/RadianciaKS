@@ -1,13 +1,15 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CategoryService } from '../../../../core/services/category-service';
 import { ProductService } from '../../../../core/services/product-service';
-import { CategoryResponse } from '../../../../core/models/category.model';
+import { CategoryResponseDto } from '../../../../core/models/category.model';
 import { ProductResponse } from '../../../../core/models/product.model';
 import { CartService } from '../../../../core/services/cart-service';
+import { CommonModule } from '@angular/common';
+import { ModifierModal } from '../../components/modifier-modal/modifier-modal';
 
 @Component({
   selector: 'app-catalog',
-  imports: [],
+  imports: [CommonModule, ModifierModal],
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss',
 })
@@ -16,10 +18,11 @@ export class Catalog implements OnInit {
   private productService = inject(ProductService);
   private cartService = inject(CartService);
 
-  categories: CategoryResponse[] = [];
+  categories: CategoryResponseDto[] = [];
   products: ProductResponse[] = [];
   filteredProducts: ProductResponse[] = [];
   activeCategoryId: string | null = null;
+  selectedProductForModal: ProductResponse | null = null;
 
   ngOnInit(): void {
     this.loadData();
@@ -51,7 +54,10 @@ export class Catalog implements OnInit {
   }
 
   onProductClick(product: ProductResponse): void {
-    this.cartService.addProduct(product);
-    console.log(`Adicionado: ${product.name}. Total no carrinho:`, this.cartService.subTotal());
+    if (product.modifierGroups && product.modifierGroups.length > 0) {
+      this.selectedProductForModal = product;
+    } else {
+      this.cartService.addProduct(product);
+    }
   }
 }

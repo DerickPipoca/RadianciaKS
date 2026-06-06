@@ -39,3 +39,8 @@
     }
   </main>
 </div>
+
+@if (selectedProductForModal) {
+  <app-modifier-modal [product]="selectedProductForModal" (close)="selectedProductForModal = null">
+  </app-modifier-modal>
+}

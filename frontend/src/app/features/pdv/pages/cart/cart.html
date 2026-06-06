@@ -44,3 +44,7 @@
     </button>
   </footer>
 </div>
+
+@if (showCheckoutModal) {
+  <app-checkout-modal (close)="showCheckoutModal = false"></app-checkout-modal>
+}

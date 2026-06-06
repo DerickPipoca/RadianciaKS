@@ -1,11 +1,11 @@
 import {
-  ModifierGroupRequest,
-  ModifierOptionRequest,
-  ModifierOptionResponse,
+  ModifierGroupRequestDto,
+  ModifierOptionRequestDto,
+  ModifierOptionResponseDto,
 } from './../models/modifier.model';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ModifierGroupResponse } from '../models/modifier.model';
+import { ModifierGroupResponseDto } from '../models/modifier.model';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -15,18 +15,21 @@ export class ModifierService {
   private http = inject(HttpClient);
   private readonly endPoint = 'modifier';
 
-  createGroup(group: ModifierGroupRequest): Observable<ModifierGroupResponse> {
-    return this.http.post<ModifierGroupResponse>(this.endPoint, group);
+  createGroup(group: ModifierGroupRequestDto): Observable<ModifierGroupResponseDto> {
+    return this.http.post<ModifierGroupResponseDto>(this.endPoint, group);
   }
 
-  addOptionToGroup(id: string, option: ModifierOptionRequest): Observable<ModifierOptionResponse> {
+  addOptionToGroup(
+    id: string,
+    option: ModifierOptionRequestDto,
+  ): Observable<ModifierOptionResponseDto> {
     const urlEndPoint = `${this.endPoint}/groups/${id}/options`;
-    return this.http.post<ModifierOptionResponse>(urlEndPoint, option);
+    return this.http.post<ModifierOptionResponseDto>(urlEndPoint, option);
   }
 
-  getGroupsByProduct(id: string): Observable<ModifierGroupResponse[]> {
+  getGroupsByProduct(id: string): Observable<ModifierGroupResponseDto[]> {
     const urlEndPoint = `${this.endPoint}/products/${id}`;
-    return this.http.get<ModifierGroupResponse[]>(id);
+    return this.http.get<ModifierGroupResponseDto[]>(id);
   }
 
   deleteGroup(id: string): Observable<void> {

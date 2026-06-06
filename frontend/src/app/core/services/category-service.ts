@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CategoryRequest, CategoryResponse } from '../models/category.model';
+import { CategoryRequestDto, CategoryResponseDto } from '../models/category.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,17 +10,17 @@ export class CategoryService {
   private http = inject(HttpClient);
   private readonly endPoint = 'category';
 
-  getAll(): Observable<CategoryResponse[]> {
-    return this.http.get<CategoryResponse[]>(this.endPoint);
+  getAll(): Observable<CategoryResponseDto[]> {
+    return this.http.get<CategoryResponseDto[]>(this.endPoint);
   }
 
-  create(category: CategoryRequest): Observable<CategoryResponse> {
-    return this.http.post<CategoryResponse>(this.endPoint, category);
+  create(category: CategoryRequestDto): Observable<CategoryResponseDto> {
+    return this.http.post<CategoryResponseDto>(this.endPoint, category);
   }
 
-  update(id: string, category: CategoryRequest): Observable<CategoryResponse> {
+  update(id: string, category: CategoryRequestDto): Observable<CategoryResponseDto> {
     const urlEndPoint = `${this.endPoint}/${id}`;
-    return this.http.put<CategoryResponse>(urlEndPoint, category);
+    return this.http.put<CategoryResponseDto>(urlEndPoint, category);
   }
 
   delete(id: string): Observable<void> {

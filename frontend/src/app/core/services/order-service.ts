@@ -1,7 +1,7 @@
-import { CheckoutRequest } from './../models/order.model';
+import { CheckoutRequestDto } from './../models/order.model';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { OrderItemRequest, OrderRequest, OrderResponse } from '../models/order.model';
+import { OrderItemRequestDto, OrderRequestDto, OrderResponseDto } from '../models/order.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -11,41 +11,41 @@ export class OrderService {
   private http = inject(HttpClient);
   private readonly endPoint = 'order';
 
-  getAll(): Observable<OrderResponse[]> {
-    return this.http.get<OrderResponse[]>(this.endPoint);
+  getAll(): Observable<OrderResponseDto[]> {
+    return this.http.get<OrderResponseDto[]>(this.endPoint);
   }
 
-  getById(id: string): Observable<OrderResponse> {
+  getById(id: string): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${id}`;
-    return this.http.get<OrderResponse>(urlEndPoint);
+    return this.http.get<OrderResponseDto>(urlEndPoint);
   }
 
-  create(order: OrderRequest): Observable<OrderResponse> {
-    return this.http.post<OrderResponse>(this.endPoint, order);
+  create(order: OrderRequestDto): Observable<OrderResponseDto> {
+    return this.http.post<OrderResponseDto>(this.endPoint, order);
   }
 
-  addItemToOrder(orderId: string, orderItem: OrderItemRequest): Observable<OrderResponse> {
+  addItemToOrder(orderId: string, orderItem: OrderItemRequestDto): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${orderId}/items`;
-    return this.http.post<OrderResponse>(urlEndPoint, orderItem);
+    return this.http.post<OrderResponseDto>(urlEndPoint, orderItem);
   }
 
-  checkoutOrder(orderId: string, checkout: CheckoutRequest): Observable<OrderResponse> {
+  checkoutOrder(orderId: string, checkout: CheckoutRequestDto): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${orderId}/checkout`;
-    return this.http.put<OrderResponse>(urlEndPoint, checkout);
+    return this.http.put<OrderResponseDto>(urlEndPoint, checkout);
   }
 
-  cancelOrder(orderId: string): Observable<OrderResponse> {
+  cancelOrder(orderId: string): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${orderId}/cancel`;
-    return this.http.put<OrderResponse>(urlEndPoint, null);
+    return this.http.put<OrderResponseDto>(urlEndPoint, null);
   }
 
-  update(id: string, order: OrderRequest): Observable<OrderResponse> {
+  update(id: string, order: OrderRequestDto): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${id}`;
-    return this.http.put<OrderResponse>(urlEndPoint, order);
+    return this.http.put<OrderResponseDto>(urlEndPoint, order);
   }
 
-  removeItemFromOrder(orderId: string, itemId: string): Observable<OrderResponse> {
+  removeItemFromOrder(orderId: string, itemId: string): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${orderId}/items/${itemId}`;
-    return this.http.delete<OrderResponse>(urlEndPoint);
+    return this.http.delete<OrderResponseDto>(urlEndPoint);
   }
 }

@@ -1,12 +1,13 @@
+import { OrderItemModifierResponseDto } from './../models/modifier.model';
 import { computed, Injectable, signal } from '@angular/core';
-import { CartItem } from '../models/cart-item.model';
+import { CartItemDto } from '../models/cart-item.model';
 import { ProductResponse } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  private cartItemsSignal = signal<CartItem[]>([]);
+  private cartItemsSignal = signal<CartItemDto[]>([]);
 
   public items = this.cartItemsSignal.asReadonly();
 
@@ -18,16 +19,26 @@ export class CartService {
     return this.cartItemsSignal().reduce((acc, item) => acc + item.totalPrice, 0);
   });
 
-  public addProduct(product: ProductResponse, quantity: number = 1): void {
+  public addProduct(
+    product: ProductResponse,
+    quantity: number = 1,
+    selectedModifiers: OrderItemModifierResponseDto[] = [],
+    notes?: string,
+  ): void {
     const randomId = Math.random().toString(36).substring(2, 9);
 
-    const newItem: CartItem = {
+    const modifiersTotal = selectedModifiers.reduce((sum, mod) => sum + mod.additionalPrice, 0);
+    const unitPricewithModifiers = product.price + modifiersTotal;
+    const totalPrice = unitPricewithModifiers * quantity;
+
+    const newItem: CartItemDto = {
       id: randomId,
       product: product,
       quantity: quantity,
-      selectedModifiers: [],
+      selectedModifiers: selectedModifiers,
+      notes: notes,
       unitPrice: product.price,
-      totalPrice: product.price * quantity,
+      totalPrice: totalPrice,
     };
 
     this.cartItemsSignal.update((items) => [...items, newItem]);
