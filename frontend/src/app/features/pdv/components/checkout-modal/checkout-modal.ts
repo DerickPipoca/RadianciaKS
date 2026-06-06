@@ -31,6 +31,7 @@ export class CheckoutModal {
   }
 
   get changeAmount(): number {
+    const received = Number(this.amountReceived);
     if (this.selectedMethod !== PaymentMethod.Cash || this.amountReceived <= this.total) {
       return 0;
     }
@@ -39,8 +40,12 @@ export class CheckoutModal {
 
   get isFormValid(): boolean {
     if (this.selectedMethod === null) return false;
-    if (this.selectedMethod === PaymentMethod.Cash && this.amountReceived < this.total)
+
+    const received = Number(this.amountReceived);
+
+    if (this.selectedMethod === PaymentMethod.Cash && received < this.total) {
       return false;
+    }
     return true;
   }
 

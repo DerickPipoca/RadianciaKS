@@ -104,6 +104,15 @@ namespace RadianciaKS.Application.Services
 
             var order = _context.Orders.Add(orderToAdd);
             await _context.SaveChangesAsync();
+
+            var tenantId = order.Entity.TenantId.ToString();
+            
+            foreach (var item in order.Entity.Items)
+            {
+                var itemResponse = _orderItemMapper.ToDto(item);
+                await _kdsNotification.NotifyNewItemAsync(tenantId, itemResponse);
+            }
+
             return _mapper.ToDto(order.Entity);
         }
 

@@ -1,12 +1,22 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SignalrService } from './core/services/signalr-service';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('frontend');
+export class App implements OnInit, OnDestroy {
+  private signalRService = inject(SignalrService);
+
+  protected readonly title = signal('RadianciaKS');
+
+  ngOnDestroy(): void {
+    this.signalRService.stopConnection();
+  }
+  ngOnInit(): void {
+    this.signalRService.startConnection();
+  }
 }

@@ -1,0 +1,63 @@
+<div class="kds-container">
+  <header class="kds-header">
+    <h1>👨‍🍳 KDS - Cozinha</h1>
+  </header>
+
+  <div class="kanban-board">
+    <div class="kanban-column pending-column">
+      <h2>Fila de Produção ({{ pendingItems.length }})</h2>
+
+      <div class="ticket-list">
+        @for (item of pendingItems; track item.id) {
+          <div class="ticket-card pending">
+            <div class="ticket-header">
+              <span class="qty">{{ item.quantity }}x</span>
+              <h3>{{ item.productName || 'Item do Pedido' }}</h3>
+            </div>
+
+            @if (item.notes || (item.selectedModifiers && item.selectedModifiers.length > 0)) {
+              <div class="ticket-body">
+                @if (item.notes) {
+                  <p class="notes"><strong>Obs:</strong> {{ item.notes }}</p>
+                }
+                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                  <ul class="modifiers">
+                    @for (mod of item.selectedModifiers; track mod.id) {
+                      <li>+ {{ mod.name }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+
+            <div class="ticket-footer">
+              <button class="btn-ready" (click)="markAsReady(item)">✓ Marcar Pronto</button>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">Nenhum pedido na fila. Ufa!</div>
+        }
+      </div>
+    </div>
+
+    <div class="kanban-column ready-column">
+      <h2>Prontos ({{ readyItems.length }})</h2>
+
+      <div class="ticket-list">
+        @for (item of readyItems; track item.id) {
+          <div class="ticket-card ready">
+            <div class="ticket-header">
+              <span class="qty">{{ item.quantity }}x</span>
+              <h3>{{ item.productName || 'Item do Pedido' }}</h3>
+            </div>
+            <div class="ticket-footer">
+              <span class="status-badge">Pronto para Entrega</span>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">Nenhum pedido finalizado ainda.</div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
