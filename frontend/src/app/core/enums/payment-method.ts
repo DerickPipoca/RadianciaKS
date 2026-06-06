@@ -1,7 +1,7 @@
 export enum PaymentMethod {
-  Cash = 0,
-  CreditCard = 1,
-  DebitCard = 2,
-  Pix = 3,
-  Other = 4,
+  Cash = 1,
+  CreditCard = 2,
+  DebitCard = 3,
+  Pix = 4,
+  Other = 5,
 }
