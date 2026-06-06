@@ -1,30 +1,30 @@
-export interface ModifierGroupRequest {
+export interface ModifierGroupRequestDto {
   productId: string;
   name: string;
   minChoices: number;
   maxChoices: number;
 }
 
-export interface ModifierGroupResponse {
+export interface ModifierGroupResponseDto {
   id: string;
   name: string;
   minChoices: number;
   maxChoices: number;
-  options: ModifierOptionResponse[];
+  options: ModifierOptionResponseDto[];
 }
 
-export interface ModifierOptionRequest {
+export interface ModifierOptionRequestDto {
   name: string;
   additionalPrice: number;
 }
 
-export interface ModifierOptionResponse {
+export interface ModifierOptionResponseDto {
   id: string;
   name: string;
   additionalPrice: number;
 }
 
-export interface OrderItemModifierResponse {
+export interface OrderItemModifierResponseDto {
   id: string;
   name: string;
   additionalPrice: number;

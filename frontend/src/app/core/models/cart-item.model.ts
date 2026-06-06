@@ -1,12 +1,12 @@
-import { OrderItemModifierResponse } from './modifier.model';
+import { OrderItemModifierResponseDto } from './modifier.model';
 import { ProductResponse } from './product.model';
 
-export interface CartItem {
+export interface CartItemDto {
   id: string;
   product: ProductResponse;
   quantity: number;
   notes?: string;
-  selectedModifiers: OrderItemModifierResponse[];
+  selectedModifiers: OrderItemModifierResponseDto[];
   unitPrice: number;
   totalPrice: number;
 }

@@ -1,11 +1,11 @@
 import { PaymentMethod } from '../enums/payment-method';
 
-export interface PaymentRequest {
+export interface PaymentRequestDto {
   amount: number;
   method: PaymentMethod;
 }
 
-export interface PaymentResponse {
+export interface PaymentResponseDto {
   amount: number;
   method: PaymentMethod;
 }

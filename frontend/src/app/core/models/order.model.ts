@@ -1,12 +1,13 @@
 import { OrderStatus } from '../enums/order-status';
 import { KdsStatus } from './../enums/kds-status';
-import { OrderItemModifierResponse } from './modifier.model';
+import { OrderItemModifierResponseDto } from './modifier.model';
+import { PaymentRequestDto, PaymentResponseDto } from './payment.model';
 
-export interface CheckoutRequest {
-  payments: PaymentRequest[];
+export interface CheckoutRequestDto {
+  payments: PaymentResponseDto[];
 }
 
-export interface OrderItemRequest {
+export interface OrderItemRequestDto {
   quantity: number;
   notes?: string;
   productId: string;
@@ -14,7 +15,7 @@ export interface OrderItemRequest {
   selectedModifiersIds: string[];
 }
 
-export interface OrderItemResponse {
+export interface OrderItemResponseDto {
   id: string;
   productId: string;
   productName: string;
@@ -22,16 +23,16 @@ export interface OrderItemResponse {
   quantity: number;
   unitPrice: number;
   kdsStatus: KdsStatus;
-  selectedModifiers: OrderItemModifierResponse[];
+  selectedModifiers: OrderItemModifierResponseDto[];
 }
 
-export interface OrderRequest {
+export interface OrderRequestDto {
   tableNumber?: string;
-  items: OrderItemRequest[];
-  payments: PaymentRequest[];
+  items: OrderItemRequestDto[];
+  payments: PaymentRequestDto[];
 }
 
-export interface OrderResponse {
+export interface OrderResponseDto {
   id: string;
   tableNumber?: string;
   receiptUrl?: string;
@@ -39,6 +40,6 @@ export interface OrderResponse {
   totalAmount: number;
   changeAmount: number;
 
-  items: OrderItemResponse[];
-  payments: PaymentResponse[];
+  items: OrderItemResponseDto[];
+  payments: PaymentResponseDto[];
 }

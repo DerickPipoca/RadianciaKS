@@ -1,4 +1,4 @@
-import { ModifierGroupResponse } from './modifier.model';
+import { ModifierGroupResponseDto } from './modifier.model';
 
 export interface ProductResponse {
   id: string;
@@ -8,10 +8,10 @@ export interface ProductResponse {
   imagePath?: string;
   categoryId: string;
   categoryName: string;
-  modifierGroups: ModifierGroupResponse[];
+  modifierGroups: ModifierGroupResponseDto[];
 }
 
-export interface ProductRequest {
+export interface ProductRequestDto {
   name: string;
   description?: string;
   price: number;
