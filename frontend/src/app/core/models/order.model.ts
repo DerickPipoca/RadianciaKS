@@ -17,6 +17,7 @@ export interface OrderItemRequestDto {
 
 export interface OrderItemResponseDto {
   id: string;
+  orderId: string;
   productId: string;
   productName: string;
   notes?: string;

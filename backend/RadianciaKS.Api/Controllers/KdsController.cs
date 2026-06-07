@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RadianciaKS.Application.Services.Interfaces;
 using RadianciaKS.Domain.Enums;
@@ -17,6 +13,13 @@ namespace RadianciaKS.Api.Controllers
         public KdsController(IOrderService orderService)
         {
             _orderService = orderService;
+        }
+
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPendingItems()
+        {
+            var items = await _orderService.GetPendingKdsItemsAsync();
+            return Ok(items);
         }
 
         [HttpPut("{orderId}/items/{itemId}/status")]

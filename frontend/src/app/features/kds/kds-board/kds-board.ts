@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, inject, OnInit } from '@angular/core';
 import { SignalrService } from '../../../core/services/signalr-service';
 import { OrderItemResponseDto } from '../../../core/models/order.model';
+import { KdsService } from '../../../core/services/kds-service';
+import { KdsStatus } from '../../../core/enums/kds-status';
 
 @Component({
   selector: 'app-kds-board',
@@ -11,6 +13,7 @@ import { OrderItemResponseDto } from '../../../core/models/order.model';
 })
 export class KdsBoard implements OnInit {
   private signalRService = inject(SignalrService);
+  private kdsService = inject(KdsService);
 
   pendingItems: OrderItemResponseDto[] = [];
   readyItems: OrderItemResponseDto[] = [];
@@ -33,11 +36,25 @@ export class KdsBoard implements OnInit {
     });
   }
   markAsReady(item: OrderItemResponseDto): void {
-    this.moveItemToReadyLocal(item);
+    if (!item.orderId || !item.id) return;
+
+    const kdsStatus = KdsStatus.Done;
+
+    this.kdsService.updateItemStatus(item.orderId, item.id, kdsStatus).subscribe({
+      next: () => {
+        this.moveItemToReadyLocal(item);
+      },
+      error: (err) => console.error('Erro ao atualizar status na API:', err),
+    });
   }
 
   ngOnInit(): void {
-    throw new Error('Method not implemented.');
+    this.kdsService.getPendingItems().subscribe({
+      next: (items) => {
+        this.pendingItems = items;
+      },
+      error: (err) => console.error('Erro ao carregar fila da cozinha:', err),
+    });
   }
 
   private moveItemToReadyLocal(item: OrderItemResponseDto): void {

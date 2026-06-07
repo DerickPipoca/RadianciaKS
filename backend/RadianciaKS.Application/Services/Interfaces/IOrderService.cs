@@ -7,6 +7,7 @@ namespace RadianciaKS.Application.Services.Interfaces
     {
         Task<OrderResponseDto> CreateOrder(OrderRequestDto dto);
         Task<IEnumerable<OrderResponseDto>> GetAllOrders();
+        Task<IEnumerable<OrderItemResponseDto>> GetPendingKdsItemsAsync();
         Task<OrderResponseDto> GetOrderById(Guid orderId);
         Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto);
         Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto);

@@ -8,7 +8,6 @@ namespace RadianciaKS.Application.Mappers
     [Mapper]
     public partial class OrderItemMapper
     {
-        [MapperIgnoreSource("OrderId")]
         [MapperIgnoreSource("Order")]
         [MapperIgnoreSource("ProductId")]
         [MapperIgnoreSource("TenantId")]

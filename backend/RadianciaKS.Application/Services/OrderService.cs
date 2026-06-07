@@ -106,7 +106,7 @@ namespace RadianciaKS.Application.Services
             await _context.SaveChangesAsync();
 
             var tenantId = order.Entity.TenantId.ToString();
-            
+
             foreach (var item in order.Entity.Items)
             {
                 var itemResponse = _orderItemMapper.ToDto(item);
@@ -169,6 +169,20 @@ namespace RadianciaKS.Application.Services
             await _kdsNotification.NotifyItemReadyAsync(order.TenantId.ToString(), itemResponse);
 
             return _mapper.ToDto(order);
+        }
+
+        public async Task<IEnumerable<OrderItemResponseDto>> GetPendingKdsItemsAsync()
+        {
+            var items = await _context.OrderItems
+                        .Include(x => x.Product)
+                        .Include(x => x.SelectedModifiers)
+                        .Where(x => x.KdsStatus == KdsStatus.Pending).ToListAsync();
+            List<OrderItemResponseDto> itemsDto = [];
+            foreach (var item in items)
+            {
+                itemsDto.Add(_orderItemMapper.ToDto(item));
+            }
+            return itemsDto;
         }
 
         public async Task<OrderResponseDto> CancelOrder(Guid orderId)

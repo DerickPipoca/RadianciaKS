@@ -16,7 +16,7 @@ namespace RadianciaKS.Api.Services
             var headerValue = _context.HttpContext?.Request.Headers["X-Tenant-Id"].FirstOrDefault();
 
             if (string.IsNullOrEmpty(headerValue))
-                throw new ArgumentException("Tentant não informado.");
+                throw new ArgumentException("Tenant não informado.");
 
             if (!Guid.TryParse(headerValue, out var tenantId))
                 throw new ArgumentException("Formato de Tenant inválido.");
