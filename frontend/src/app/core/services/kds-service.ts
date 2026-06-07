@@ -9,13 +9,13 @@ import { KdsStatus } from '../enums/kds-status';
 })
 export class KdsService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'https://localhost:7047/api/kds';
+  private readonly endPoint = 'kds';
 
   getPendingItems(): Observable<OrderItemResponseDto[]> {
-    return this.http.get<OrderItemResponseDto[]>(`${this.apiUrl}/pending`);
+    return this.http.get<OrderItemResponseDto[]>(`${this.endPoint}/pending`);
   }
 
   updateItemStatus(orderId: string, itemId: string, status: KdsStatus): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${orderId}/items/${itemId}/status`, status);
+    return this.http.put(`${this.endPoint}/${orderId}/items/${itemId}/status`, status);
   }
 }
