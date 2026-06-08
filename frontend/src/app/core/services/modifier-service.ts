@@ -16,7 +16,8 @@ export class ModifierService {
   private readonly endPoint = 'modifier';
 
   createGroup(group: ModifierGroupRequestDto): Observable<ModifierGroupResponseDto> {
-    return this.http.post<ModifierGroupResponseDto>(this.endPoint, group);
+    const urlEndPoint = `${this.endPoint}/groups`;
+    return this.http.post<ModifierGroupResponseDto>(urlEndPoint, group);
   }
 
   addOptionToGroup(

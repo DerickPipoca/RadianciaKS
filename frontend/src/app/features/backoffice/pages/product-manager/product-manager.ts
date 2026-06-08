@@ -7,6 +7,7 @@ import { ICrudService } from '../../../../core/interfaces/crud-service.interface
 import { ProductService } from '../../../../core/services/product-service';
 import { CategoryService } from '../../../../core/services/category-service';
 import { CategoryResponseDto } from '../../../../core/models/category.model';
+import { ModifierService } from '../../../../core/services/modifier-service';
 
 @Component({
   selector: 'app-product-manager',
@@ -20,8 +21,12 @@ export class ProductManager
 {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private modifierService = inject(ModifierService);
 
   categories: CategoryResponseDto[] = [];
+  productModifiers: any[] = [];
+  newGroup = { name: '', minChoices: 0, maxChoices: 1 };
+  newOptions: { [groupId: string]: { name: string; price: number } } = {};
 
   protected override get crudService(): ICrudService<
     ProductRequestDto,
@@ -57,7 +62,7 @@ export class ProductManager
   }
 
   protected override mapToRequest(item: ProductResponseDto): ProductRequestDto {
-    console.log('📦 Dados do produto recebidos do C#:', item);
+    console.log('Dados do produto recebidos do C#:', item);
     return {
       name: item.name,
       description: item.description ?? '',
@@ -66,6 +71,7 @@ export class ProductManager
       categoryId: item.categoryId,
     };
   }
+  
   protected override validateSave(item: ProductRequestDto): boolean {
     if (!item.name || item.name.trim() === '') {
       alert('O nome do produto é obrigatório.');
@@ -80,5 +86,78 @@ export class ProductManager
       return false;
     }
     return true;
+  }
+
+  override openEditModal(item: ProductResponseDto): void {
+    super.openEditModal(item);
+
+    this.productModifiers = item.modifierGroups
+      ? JSON.parse(JSON.stringify(item.modifierGroups))
+      : [];
+  }
+
+  addGroup(): void {
+    if (!this.newGroup.name || !this.editingId) return;
+
+    const dto = {
+      name: this.newGroup.name,
+      minChoices: this.newGroup.minChoices,
+      maxChoices: this.newGroup.maxChoices,
+      productId: this.editingId,
+    };
+
+    this.modifierService.createGroup(dto as any).subscribe({
+      next: (res) => {
+        this.productModifiers.push({ ...res, options: [] });
+        this.newGroup = { name: '', minChoices: 0, maxChoices: 1 };
+        this.loadData();
+      },
+      error: () => alert('Erro ao criar grupo.'),
+    });
+  }
+
+  deleteGroup(groupId: string): void {
+    if (confirm('Apagar este grupo e todas as suas opções?')) {
+      this.modifierService.deleteGroup(groupId).subscribe({
+        next: () => {
+          this.productModifiers = this.productModifiers.filter((g) => g.id !== groupId);
+          this.loadData();
+        },
+      });
+    }
+  }
+
+  addOption(groupId: string): void {
+    if (!this.newOptions[groupId]) this.newOptions[groupId] = { name: '', price: 0 };
+
+    const opt = this.newOptions[groupId];
+    if (!opt.name) return;
+
+    const dto = { name: opt.name, additionalPrice: opt.price };
+
+    this.modifierService.addOptionToGroup(groupId, dto as any).subscribe({
+      next: (res) => {
+        const group = this.productModifiers.find((g) => g.id === groupId);
+        if (group) {
+          if (!group.options) group.options = [];
+          group.options.push(res);
+        }
+        this.newOptions[groupId] = { name: '', price: 0 };
+        this.loadData();
+      },
+      error: () => alert('Erro ao adicionar opção.'),
+    });
+  }
+
+  deleteOption(groupId: string, optionId: string): void {
+    this.modifierService.deleteOption(optionId).subscribe({
+      next: () => {
+        const group = this.productModifiers.find((g) => g.id === groupId);
+        if (group) {
+          group.options = group.options.filter((o: any) => o.id !== optionId);
+        }
+        this.loadData();
+      },
+    });
   }
 }

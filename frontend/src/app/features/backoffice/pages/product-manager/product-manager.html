@@ -120,6 +120,113 @@
             autocomplete="off"
           />
         </div>
+        <div class="form-group">
+          <label for="prodImagePath">Caminho da Imagem</label>
+          <input
+            type="text"
+            id="prodImagePath"
+            [(ngModel)]="currentItem.imagePath"
+            placeholder="Ex: doce.jpg"
+          />
+        </div>
+
+        <hr class="divider" />
+
+        <h3 class="section-title">➕ Modificadores e Adicionais</h3>
+
+        @if (!isEditing) {
+          <div class="info-alert">
+            Para adicionar modificadores (ex: Tamanho, Adicionais Extras, Ponto da Carne), primeiro
+            preencha os dados acima e clique em <strong>"Salvar Produto"</strong>. Depois, edite o
+            produto para adicionar as opções.
+          </div>
+        } @else {
+          <div
+            class="add-inline-form"
+            style="margin-bottom: 20px; background: #f1f5f9; padding: 10px; border-radius: 6px"
+          >
+            <div style="flex: 2">
+              <label style="font-size: 0.75rem">Nome do Grupo (Ex: Escolha o Molho)</label>
+              <input type="text" [(ngModel)]="newGroup.name" placeholder="Nome do grupo..." />
+            </div>
+            <div style="flex: 1">
+              <label style="font-size: 0.75rem">Mín. Escolhas</label>
+              <input type="number" [(ngModel)]="newGroup.minChoices" min="0" />
+            </div>
+            <div style="flex: 1">
+              <label style="font-size: 0.75rem">Máx. Escolhas</label>
+              <input type="number" [(ngModel)]="newGroup.maxChoices" min="1" />
+            </div>
+            <button class="btn-sm" style="background: #10b981" (click)="addGroup()">
+              Adicionar Grupo
+            </button>
+          </div>
+
+          @for (group of productModifiers; track group.id) {
+            <div class="modifier-group-card">
+              <div class="group-header">
+                <h4>
+                  {{ group.name }}
+                  <span class="group-rules"
+                    >Mín: {{ group.minChoices }} | Máx: {{ group.maxChoices }}</span
+                  >
+                </h4>
+                <button class="btn-action btn-delete" (click)="deleteGroup(group.id)">
+                  🗑️ Apagar Grupo
+                </button>
+              </div>
+
+              <ul class="options-list">
+                @for (opt of group.options; track opt.id) {
+                  <li>
+                    <span>{{ opt.name }}</span>
+                    <div>
+                      <span class="opt-price"
+                        >+ R$ {{ opt.additionalPrice | number: '1.2-2' }}</span
+                      >
+                      <button
+                        class="btn-action btn-delete"
+                        style="padding: 2px 6px; margin-left: 10px"
+                        (click)="deleteOption(group.id, opt.id)"
+                      >
+                        x
+                      </button>
+                    </div>
+                  </li>
+                } @empty {
+                  <li style="color: #94a3b8; font-style: italic; border: none">
+                    Nenhuma opção adicionada neste grupo.
+                  </li>
+                }
+              </ul>
+
+              <div class="add-inline-form">
+                <input
+                  type="text"
+                  [ngModel]="newOptions[group.id]?.name"
+                  (ngModelChange)="
+                    newOptions[group.id] = newOptions[group.id] || { name: '', price: 0 };
+                    newOptions[group.id].name = $event
+                  "
+                  placeholder="Nova Opção (ex: Cheddar)"
+                />
+                <input
+                  type="number"
+                  [ngModel]="newOptions[group.id]?.price"
+                  (ngModelChange)="
+                    newOptions[group.id] = newOptions[group.id] || { name: '', price: 0 };
+                    newOptions[group.id].price = $event
+                  "
+                  placeholder="+ R$ 0,00"
+                  step="0.50"
+                  min="0"
+                  style="width: 100px; flex: none"
+                />
+                <button class="btn-sm" (click)="addOption(group.id)">+ Opção</button>
+              </div>
+            </div>
+          }
+        }
       </div>
 
       <div class="modal-footer">
