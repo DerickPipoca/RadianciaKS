@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CategoryService } from '../../../../core/services/category-service';
 import { ProductService } from '../../../../core/services/product-service';
 import { CategoryResponseDto } from '../../../../core/models/category.model';
-import { ProductResponse } from '../../../../core/models/product.model';
+import { ProductResponseDto } from '../../../../core/models/product.model';
 import { CartService } from '../../../../core/services/cart-service';
 import { CommonModule } from '@angular/common';
 import { ModifierModal } from '../../components/modifier-modal/modifier-modal';
@@ -19,10 +19,10 @@ export class Catalog implements OnInit {
   private cartService = inject(CartService);
 
   categories: CategoryResponseDto[] = [];
-  products: ProductResponse[] = [];
-  filteredProducts: ProductResponse[] = [];
+  products: ProductResponseDto[] = [];
+  filteredProducts: ProductResponseDto[] = [];
   activeCategoryId: string | null = null;
-  selectedProductForModal: ProductResponse | null = null;
+  selectedProductForModal: ProductResponseDto | null = null;
 
   ngOnInit(): void {
     this.loadData();
@@ -53,7 +53,7 @@ export class Catalog implements OnInit {
     }
   }
 
-  onProductClick(product: ProductResponse): void {
+  onProductClick(product: ProductResponseDto): void {
     if (product.modifierGroups && product.modifierGroups.length > 0) {
       this.selectedProductForModal = product;
     } else {

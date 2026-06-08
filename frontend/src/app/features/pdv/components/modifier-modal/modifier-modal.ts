@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
-import { ProductResponse } from '../../../../core/models/product.model';
+import { ProductResponseDto } from '../../../../core/models/product.model';
 import { CartService } from '../../../../core/services/cart-service';
 import {
   ModifierGroupResponseDto,
@@ -15,7 +15,7 @@ import {
   styleUrl: './modifier-modal.scss',
 })
 export class ModifierModal implements OnInit {
-  @Input({ required: true }) product!: ProductResponse;
+  @Input({ required: true }) product!: ProductResponseDto;
 
   @Output() close = new EventEmitter<void>();
 

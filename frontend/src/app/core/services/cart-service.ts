@@ -1,7 +1,7 @@
 import { OrderItemModifierResponseDto } from './../models/modifier.model';
 import { computed, Injectable, signal } from '@angular/core';
 import { CartItemDto } from '../models/cart-item.model';
-import { ProductResponse } from '../models/product.model';
+import { ProductResponseDto } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,7 @@ export class CartService {
   });
 
   public addProduct(
-    product: ProductResponse,
+    product: ProductResponseDto,
     quantity: number = 1,
     selectedModifiers: OrderItemModifierResponseDto[] = [],
     notes?: string,

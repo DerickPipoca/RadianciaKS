@@ -1,9 +1,9 @@
 import { OrderItemModifierResponseDto } from './modifier.model';
-import { ProductResponse } from './product.model';
+import { ProductResponseDto } from './product.model';
 
 export interface CartItemDto {
   id: string;
-  product: ProductResponse;
+  product: ProductResponseDto;
   quantity: number;
   notes?: string;
   selectedModifiers: OrderItemModifierResponseDto[];

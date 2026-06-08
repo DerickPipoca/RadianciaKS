@@ -1,6 +1,6 @@
 import { ModifierGroupResponseDto } from './modifier.model';
 
-export interface ProductResponse {
+export interface ProductResponseDto {
   id: string;
   name: string;
   description?: string;

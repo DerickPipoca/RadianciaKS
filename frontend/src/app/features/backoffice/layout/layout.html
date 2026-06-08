@@ -1,0 +1,36 @@
+<div class="admin-container">
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>Radiancia<span>KS</span></h2>
+      <span class="badge">Backoffice</span>
+    </div>
+
+    <nav class="nav-menu">
+      <div class="menu-section">GESTÃO</div>
+      <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">📊 Dashboard</a>
+
+      <div class="menu-section">CATÁLOGO</div>
+      <a routerLink="/admin/categorias" routerLinkActive="active" class="nav-link">📁 Categorias</a>
+      <a routerLink="/admin/produtos" routerLinkActive="active" class="nav-link">🍔 Produtos</a>
+      <a routerLink="/admin/modificadores" routerLinkActive="active" class="nav-link"
+        >➕ Modificadores</a
+      >
+    </nav>
+
+    <div class="sidebar-footer">
+      <a routerLink="/pdv" class="btn-return">⬅️ Voltar ao PDV</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="user-info">
+        <span>Olá, Administrador 👋</span>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

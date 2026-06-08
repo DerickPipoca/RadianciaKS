@@ -1,0 +1,16 @@
+import { Routes } from '@angular/router';
+import { Layout } from './layout/layout';
+import { CategoryManager } from './pages/category-manager/category-manager';
+import { ProductManager } from './pages/product-manager/product-manager';
+
+export const BACKOFFICE_ROUTES: Routes = [
+  {
+    path: '',
+    component: Layout,
+    children: [
+      { path: '', redirectTo: 'categorias', pathMatch: 'full' },
+      { path: 'categorias', component: CategoryManager },
+      { path: 'produtos', component: ProductManager },
+    ],
+  },
+];

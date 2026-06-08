@@ -1,0 +1,131 @@
+<div class="page-header">
+  <div class="header-title">
+    <h1>🍔 Gestão de Produtos</h1>
+    <p>Gere os itens do cardápio, preços e vinculação de categorias</p>
+  </div>
+  <button class="btn-primary" (click)="openNewModal()">➕ Novo Produto</button>
+</div>
+
+<div class="card-table">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Categoria</th>
+        <th>Preço</th>
+        <th>Status</th>
+        <th class="actions-column">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of dataList; track product.id) {
+        <tr>
+          <td>
+            <div class="product-info-cell">
+              @if (product.imagePath) {
+                <img [src]="product.imagePath" class="product-thumb-preview" alt="Preview" />
+              } @else {
+                <div class="product-thumb-placeholder">🍔</div>
+              }
+              <div>
+                <strong class="product-name">{{ product.name }}</strong>
+                <span class="product-desc">{{ product.description || 'Sem descrição' }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge-category">{{ product.categoryName }}</span>
+          </td>
+          <td>
+            <strong class="product-price">R$ {{ product.price | number: '1.2-2' }}</strong>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-action btn-edit" (click)="openEditModal(product)">✏️ Editar</button>
+            <button class="btn-action btn-delete" (click)="delete(product.id)">🗑️ Apagar</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5" class="empty-row">
+            Nenhum produto encontrado. Cadastra o teu primeiro item!
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (showModal) {
+  <div class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>{{ isEditing ? '✏️ Editar Produto' : '➕ Novo Produto' }}</h2>
+        <button class="btn-close" (click)="closeModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="prodName">Nome do Produto *</label>
+          <input
+            type="text"
+            id="prodName"
+            [(ngModel)]="currentItem.name"
+            placeholder="Ex: Burger Bacon Supremo, Coca-Cola 350ml"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="prodCategory">Categoria *</label>
+            <select id="prodCategory" [(ngModel)]="currentItem.categoryId">
+              <option value="" disabled selected>Selecione uma categoria...</option>
+              @for (cat of categories; track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="prodPrice">Preço de Venda (R$) *</label>
+            <input
+              type="number"
+              id="prodPrice"
+              [(ngModel)]="currentItem.price"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="prodDescription">Descrição / Ingredientes</label>
+          <textarea
+            id="prodDescription"
+            rows="3"
+            [(ngModel)]="currentItem.description"
+            placeholder="Ex: Pão brioche, blend de 150g, queijo cheddar derretido e molho artesanal..."
+          >
+          </textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="prodImagePath">Caminho da Imagem</label>
+          <input
+            type="text"
+            id="prodImagePath"
+            [(ngModel)]="currentItem.imagePath"
+            placeholder="Ex: assets/images/bacon-burger.jpg"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button class="btn-primary" (click)="save()">Salvar Produto</button>
+      </div>
+    </div>
+  </div>
+}

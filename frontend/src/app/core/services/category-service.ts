@@ -1,17 +1,25 @@
+import { CategoryResponseDto, CategoryRequestDto } from './../models/category.model';
+import { ICrudService } from './../interfaces/crud-service.interface';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CategoryRequestDto, CategoryResponseDto } from '../models/category.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CategoryService {
+export class CategoryService
+  implements ICrudService<CategoryRequestDto, CategoryResponseDto, string>
+{
   private http = inject(HttpClient);
   private readonly endPoint = 'category';
 
   getAll(): Observable<CategoryResponseDto[]> {
     return this.http.get<CategoryResponseDto[]>(this.endPoint);
+  }
+
+  getById(id: string): Observable<CategoryResponseDto> {
+    const urlEndPoint = `${this.endPoint}/${id}`;
+    return this.http.get<CategoryResponseDto>(urlEndPoint);
   }
 
   create(category: CategoryRequestDto): Observable<CategoryResponseDto> {

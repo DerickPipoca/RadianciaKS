@@ -57,6 +57,17 @@ namespace RadianciaKS.Application.Services
             return products.Select(p => _mapper.ToDto(p));
         }
 
+        public async Task<ProductResponseDto> GetProductById(Guid id)
+        {
+            var product = await _context.Products
+                            .Include(p => p.Category)
+                            .Include(p => p.ModifierGroups).ThenInclude(m => m.Options)
+                            .FirstOrDefaultAsync(x => x.Id == id);
+            if (product == null)
+                throw new ArgumentException("O Produto informado não existe.");
+            return _mapper.ToDto(product);
+        }
+
         public async Task<ProductResponseDto> UpdateProduct(Guid id, ProductRequestDto dto)
         {
             var product = await _context.Products.FindAsync(id);

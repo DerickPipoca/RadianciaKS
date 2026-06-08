@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/pdv/pdv.routes').then((m) => m.PDV_ROUTES),
   },
   {
+    path: 'admin',
+    loadChildren: () =>
+      import('./features/backoffice/backoffice.routes').then((m) => m.BACKOFFICE_ROUTES),
+  },
+  {
     path: 'kds',
     component: KdsBoard,
   },

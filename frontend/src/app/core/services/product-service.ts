@@ -1,26 +1,32 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ProductRequestDto, ProductResponse } from '../models/product.model';
+import { ProductRequestDto, ProductResponseDto } from '../models/product.model';
 import { Observable } from 'rxjs';
+import { ICrudService } from '../interfaces/crud-service.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ProductService {
+export class ProductService implements ICrudService<ProductRequestDto, ProductResponseDto, string> {
   private http = inject(HttpClient);
   private readonly endPoint = 'product';
 
-  getAll(): Observable<ProductResponse[]> {
-    return this.http.get<ProductResponse[]>(this.endPoint);
+  getAll(): Observable<ProductResponseDto[]> {
+    return this.http.get<ProductResponseDto[]>(this.endPoint);
   }
 
-  create(product: ProductRequestDto): Observable<ProductResponse> {
-    return this.http.post<ProductResponse>(this.endPoint, product);
-  }
-
-  update(id: string, product: ProductRequestDto): Observable<ProductResponse> {
+  getById(id: string): Observable<ProductResponseDto> {
     const urlEndPoint = `${this.endPoint}/${id}`;
-    return this.http.put<ProductResponse>(urlEndPoint, product);
+    return this.http.get<ProductResponseDto>(urlEndPoint);
+  }
+
+  create(product: ProductRequestDto): Observable<ProductResponseDto> {
+    return this.http.post<ProductResponseDto>(this.endPoint, product);
+  }
+
+  update(id: string, product: ProductRequestDto): Observable<ProductResponseDto> {
+    const urlEndPoint = `${this.endPoint}/${id}`;
+    return this.http.put<ProductResponseDto>(urlEndPoint, product);
   }
 
   delete(id: string): Observable<void> {
