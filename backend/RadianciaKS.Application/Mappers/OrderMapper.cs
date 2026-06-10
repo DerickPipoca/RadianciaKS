@@ -16,6 +16,7 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreSource("CreatedAt")]
         [MapperIgnoreSource("Active")]
         [MapperIgnoreTarget("ChangeAmount")]
+        [MapperIgnoreSource("Employee")]
         public partial OrderResponseDto ToDto(Order order);
 
         [MapperIgnoreTarget("Id")]
@@ -25,6 +26,7 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreTarget("OrderStatus")]
         [MapperIgnoreTarget("TotalAmount")]
         [MapperIgnoreTarget("ReceiptUrl")]
+        [MapperIgnoreTarget("Employee")]
         public partial Order ToEntity(OrderRequestDto dto);
 
     }
