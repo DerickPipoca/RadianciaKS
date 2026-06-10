@@ -5,6 +5,7 @@ using RadianciaKS.Api.Middlewares;
 using RadianciaKS.Api.Services;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Services;
+using RadianciaKS.Application.Services.Auth;
 using RadianciaKS.Application.Services.Interfaces;
 using RadianciaKS.Infrastructure.Context;
 using RadianciaKS.Infrastructure.Gateways;
@@ -27,9 +28,12 @@ builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>(
 
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITaxService, MockTaxService>();
 builder.Services.AddScoped<IModifierService, ModifierService>();
+
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryService).Assembly);
 
