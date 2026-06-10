@@ -20,7 +20,13 @@ namespace RadianciaKS.Infrastructure.Mappings
                 .HasMaxLength(100);
 
             builder.Property(p => p.Birthday);
-            builder.Property(p => p.CPF);
+
+            builder.Property(p => p.CPF)
+                .IsRequired()
+                .HasMaxLength(11)
+                .IsFixedLength();
+
+            builder.HasIndex(e => new { e.TenantId, e.CPF }).IsUnique();
 
             builder.Property(p => p.Role);
 

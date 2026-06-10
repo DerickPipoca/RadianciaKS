@@ -18,8 +18,9 @@ namespace RadianciaKS.Application.Services
         private readonly PaymentMapper _paymentMapper;
         private readonly ITaxService _taxService;
         private readonly IKdsNotificationService _kdsNotification;
+        private readonly IUserProvider _userProvider;
 
-        public OrderService(IApplicationDbContext applicationDbContext, IValidator<OrderRequestDto> validator, ITaxService taxService, IKdsNotificationService kdsNotificationService)
+        public OrderService(IApplicationDbContext applicationDbContext, IValidator<OrderRequestDto> validator, ITaxService taxService, IKdsNotificationService kdsNotificationService, IUserProvider userProvider)
         {
             _context = applicationDbContext;
             _validator = validator;
@@ -28,6 +29,7 @@ namespace RadianciaKS.Application.Services
             _paymentMapper = new PaymentMapper();
             _taxService = taxService;
             _kdsNotification = kdsNotificationService;
+            _userProvider = userProvider;
         }
 
         public async Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto)
@@ -84,6 +86,8 @@ namespace RadianciaKS.Application.Services
 
         public async Task<OrderResponseDto> CreateOrder(OrderRequestDto dto)
         {
+            var employeeId = _userProvider.GetUserId() ?? throw new UnauthorizedAccessException("Usuário não autenticado.");
+
             await _validator.ValidateAndThrowAsync(dto);
 
             var orderToAdd = _mapper.ToEntity(dto);
@@ -101,6 +105,7 @@ namespace RadianciaKS.Application.Services
             }
 
             orderToAdd.TotalAmount = totalPrice;
+            orderToAdd.EmployeeId = employeeId;
 
             var order = _context.Orders.Add(orderToAdd);
             await _context.SaveChangesAsync();

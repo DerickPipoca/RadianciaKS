@@ -84,6 +84,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<IUserProvider, UserProvider>();
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

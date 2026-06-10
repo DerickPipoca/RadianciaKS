@@ -7,7 +7,7 @@ namespace RadianciaKS.Domain.Models
         public string Name { get; set; } = string.Empty;
 
         public DateOnly? Birthday { get; set; }
-        public string? CPF { get; set; } = string.Empty;
+        public string CPF { get; set; } = string.Empty;
 
         public EmployeeRole Role { get; set; }
 
