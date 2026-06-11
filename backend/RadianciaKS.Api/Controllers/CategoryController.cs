@@ -17,6 +17,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryRequestDto dto)
         {
             var category = await _categoryService.CreateCategory(dto);
@@ -40,6 +41,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CategoryRequestDto dto)
         {
             var category = await _categoryService.UpdateCategory(id, dto);
@@ -48,6 +50,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             await _categoryService.DeleteCategory(id);

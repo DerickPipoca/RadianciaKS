@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RadianciaKS.Application.DTOs.Product;
 using RadianciaKS.Application.Services.Interfaces;
@@ -6,6 +7,7 @@ namespace RadianciaKS.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -15,6 +17,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequestDto dto)
         {
             var product = await _productService.CreateProduct(dto);
@@ -38,6 +41,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductRequestDto dto)
         {
             var product = await _productService.UpdateProduct(id, dto);
@@ -46,6 +50,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
             await _productService.DeleteProduct(id);

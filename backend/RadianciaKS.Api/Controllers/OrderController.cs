@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Application.Services.Interfaces;
@@ -6,6 +7,7 @@ namespace RadianciaKS.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;

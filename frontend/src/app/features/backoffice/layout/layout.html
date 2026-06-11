@@ -18,6 +18,23 @@
     <div class="sidebar-footer">
       <a routerLink="/pdv" class="btn-return">⬅️ Voltar ao PDV</a>
     </div>
+    <div class="sidebar-footer" style="margin-top: auto; padding: 15px">
+      <button
+        (click)="logout()"
+        style="
+          width: 100%;
+          padding: 8px;
+          background: #ef4444;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 600;
+        "
+      >
+        🚪 Sair / Logout
+      </button>
+    </div>
   </aside>
 
   <main class="main-content">

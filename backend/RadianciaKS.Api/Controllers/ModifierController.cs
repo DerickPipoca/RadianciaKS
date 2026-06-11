@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RadianciaKS.Application.DTOs.Modifier;
 using RadianciaKS.Application.Services.Interfaces;
@@ -6,6 +7,7 @@ namespace RadianciaKS.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ModifierController : ControllerBase
     {
         private readonly IModifierService _modifierService;
@@ -16,6 +18,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost("groups")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> CreateGroup([FromBody] ModifierGroupRequestDto dto)
         {
             var group = await _modifierService.CreateGroupAsync(dto);
@@ -23,6 +26,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost("groups/{groupId}/options")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> AddOptionToGroup(Guid groupId, [FromBody] ModifierOptionRequestDto dto)
         {
             var option = await _modifierService.AddOptionToGroupAsync(groupId, dto);
@@ -37,6 +41,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpDelete("groups/{groupId}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteGroup(Guid groupId)
         {
             await _modifierService.DeleteGroupAsync(groupId);
@@ -44,6 +49,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpDelete("options/{optionId}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteOption(Guid optionId)
         {
             await _modifierService.DeleteOptionAsync(optionId);
