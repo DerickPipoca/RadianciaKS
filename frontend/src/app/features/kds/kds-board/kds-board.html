@@ -1,63 +1,46 @@
 <div class="kds-container">
-  <header class="kds-header">
-    <h1>👨‍🍳 KDS - Cozinha</h1>
-  </header>
+  <div class="kds-header">
+    <h1>👨‍🍳 Cozinha - KDS</h1>
+    <div class="kds-badge">Pendentes: {{ pendingItems.length }}</div>
+  </div>
 
-  <div class="kanban-board">
-    <div class="kanban-column pending-column">
-      <h2>Fila de Produção ({{ pendingItems.length }})</h2>
+  <div class="kds-grid">
+    @for (item of pendingItems; track item.id) {
+      <div class="kds-card" [class.is-preparing]="item.kdsStatus === KdsStatus.Preparing">
+        <div class="card-header">
+          <span class="quantity">{{ item.quantity || 1 }}x</span>
+          <span class="product-name">{{ item.productName }}</span>
+        </div>
 
-      <div class="ticket-list">
-        @for (item of pendingItems; track item.id) {
-          <div class="ticket-card pending">
-            <div class="ticket-header">
-              <span class="qty">{{ item.quantity }}x</span>
-              <h3>{{ item.productName || 'Item do Pedido' }}</h3>
-            </div>
+        <div class="card-body">
+          @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+            <ul class="modifier-list">
+              @for (mod of item.selectedModifiers; track mod.id) {
+                <li>+ {{ mod.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="no-modifiers">Sem observações</p>
+          }
+        </div>
 
-            @if (item.notes || (item.selectedModifiers && item.selectedModifiers.length > 0)) {
-              <div class="ticket-body">
-                @if (item.notes) {
-                  <p class="notes"><strong>Obs:</strong> {{ item.notes }}</p>
-                }
-                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-                  <ul class="modifiers">
-                    @for (mod of item.selectedModifiers; track mod.id) {
-                      <li>+ {{ mod.name }}</li>
-                    }
-                  </ul>
-                }
-              </div>
-            }
-
-            <div class="ticket-footer">
-              <button class="btn-ready" (click)="markAsReady(item)">✓ Marcar Pronto</button>
-            </div>
-          </div>
-        } @empty {
-          <div class="empty-state">Nenhum pedido na fila. Ufa!</div>
-        }
+        <div class="card-footer">
+          @if (item.kdsStatus === KdsStatus.Pending) {
+            <button class="btn btn-prepare" (click)="updateStatus(item, KdsStatus.Preparing)">
+              ▶️ Iniciar Preparo
+            </button>
+          } @else {
+            <button class="btn btn-done" (click)="updateStatus(item, KdsStatus.Done)">
+              ✅ Marcar como Pronto
+            </button>
+          }
+        </div>
       </div>
-    </div>
-
-    <div class="kanban-column ready-column">
-      <h2>Prontos ({{ readyItems.length }})</h2>
-
-      <div class="ticket-list">
-        @for (item of readyItems; track item.id) {
-          <div class="ticket-card ready">
-            <div class="ticket-header">
-              <span class="qty">{{ item.quantity }}x</span>
-              <h3>{{ item.productName || 'Item do Pedido' }}</h3>
-            </div>
-            <div class="ticket-footer">
-              <span class="status-badge">Pronto para Entrega</span>
-            </div>
-          </div>
-        } @empty {
-          <div class="empty-state">Nenhum pedido finalizado ainda.</div>
-        }
+    } @empty {
+      <div class="empty-state">
+        <h2>A cozinha está livre! 🎉</h2>
+        <p>Nenhum pedido pendente de momento.</p>
       </div>
-    </div>
+    }
   </div>
 </div>
