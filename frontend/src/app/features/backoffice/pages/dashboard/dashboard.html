@@ -1,0 +1,104 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h2>Painel de Gestão</h2>
+
+    <form [formGroup]="filterForm" (ngSubmit)="loadDashboardData()" class="filter-form">
+      <div class="input-group">
+        <label for="startDate">Início:</label>
+        <input type="datetime-local" id="startDate" formControlName="startDate" />
+      </div>
+
+      <div class="input-group">
+        <label for="endDate">Fim:</label>
+        <input type="datetime-local" id="endDate" formControlName="endDate" />
+      </div>
+
+      <button type="submit" class="btn-filter" [disabled]="loading">
+        {{ loading ? 'A carregar...' : 'Filtrar' }}
+      </button>
+    </form>
+  </header>
+
+  <div *ngIf="errorMessage" class="error-banner">
+    {{ errorMessage }}
+  </div>
+
+  <section class="metrics-cards" *ngIf="metrics">
+    <div class="card card-revenue">
+      <div class="card-icon">💰</div>
+      <div class="card-info">
+        <h3>Faturação Total</h3>
+        <p>{{ metrics.totalRevenue | currency: 'BRL' : 'symbol' : '1.2-2' }}</p>
+      </div>
+    </div>
+
+    <div class="card card-ticket">
+      <div class="card-icon">🎫</div>
+      <div class="card-info">
+        <h3>Ticket Médio</h3>
+        <p>{{ metrics.averageTicket | currency: 'BRL' : 'symbol' : '1.2-2' }}</p>
+      </div>
+    </div>
+
+    <div class="card card-orders">
+      <div class="card-icon">🛒</div>
+      <div class="card-info">
+        <h3>Total de Pedidos</h3>
+        <p>{{ metrics.totalOrders }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chart-section" *ngIf="metrics">
+    <h3>Fluxo de Faturação Periódica</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="chartType"> </canvas>
+    </div>
+  </section>
+
+  <div class="dashboard-grid" *ngIf="metrics">
+    <div class="grid-table-box">
+      <h3>Fluxo de Caixa (Métodos)</h3>
+      <table class="dashboard-table">
+        <thead>
+          <tr>
+            <th>Forma de Pagamento</th>
+            <th class="text-right">Valor Retido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let payment of metrics.cashFlow">
+            <td>{{ payment.paymentMethod }}</td>
+            <td class="text-right bold">
+              {{ payment.totalAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+            </td>
+          </tr>
+          <tr *ngIf="metrics.cashFlow.length === 0">
+            <td colspan="2" class="text-center empty-state">Nenhum pagamento registado.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-table-box">
+      <h3>Itens Mais Vendidos</h3>
+      <table class="dashboard-table">
+        <thead>
+          <tr>
+            <th>Produto / Insumo</th>
+            <th class="text-center">Quantidade Vendida</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of metrics.topSellingItems">
+            <td>{{ item.productName }}</td>
+            <td class="text-center bold">{{ item.quantitySold }} un.</td>
+          </tr>
+          <tr *ngIf="metrics.topSellingItems.length === 0">
+            <td colspan="2" class="text-center empty-state">Nenhum produto faturado no período.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

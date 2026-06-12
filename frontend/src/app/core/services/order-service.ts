@@ -1,8 +1,9 @@
 import { CheckoutRequestDto } from './../models/order.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { OrderItemRequestDto, OrderRequestDto, OrderResponseDto } from '../models/order.model';
 import { Observable } from 'rxjs';
+import { DashboardMetrics } from '../models/dashboard-metrics.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,14 @@ export class OrderService {
   getById(id: string): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${id}`;
     return this.http.get<OrderResponseDto>(urlEndPoint);
+  }
+
+  getDashboardMetrics(startDate: Date, endDate: Date): Observable<DashboardMetrics> {
+    const params = new HttpParams()
+      .set('startDate', startDate.toISOString())
+      .set('endDate', endDate.toISOString());
+
+    return this.http.get<DashboardMetrics>(`${this.endPoint}/metrics`, { params });
   }
 
   create(order: OrderRequestDto): Observable<OrderResponseDto> {
