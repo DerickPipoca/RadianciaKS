@@ -53,6 +53,15 @@ namespace RadianciaKS.Api.Controllers
             return Ok(order);
         }
 
+        [HttpGet("metrics")]
+        public async Task<IActionResult> GetDashboardMetrics([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            var startUtc = DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
+            var endUtc = DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
+            var metrics = await _orderService.GetDashboardMetricsAsync(startUtc, endUtc);
+            return Ok(metrics);
+        }
+
         [HttpPut("{orderId}/cancel")]
         public async Task<IActionResult> CancelOrder(Guid orderId)
         {

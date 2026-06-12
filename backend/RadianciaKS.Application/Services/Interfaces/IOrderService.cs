@@ -1,3 +1,4 @@
+using RadianciaKS.Application.DTOs.DashboardMetrics;
 using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Domain.Enums;
 
@@ -8,6 +9,7 @@ namespace RadianciaKS.Application.Services.Interfaces
         Task<OrderResponseDto> CreateOrder(OrderRequestDto dto);
         Task<IEnumerable<OrderResponseDto>> GetAllOrders();
         Task<IEnumerable<OrderItemResponseDto>> GetPendingKdsItemsAsync();
+        Task<DashboardMetricsDto> GetDashboardMetricsAsync(DateTime startDate, DateTime endDate);
         Task<OrderResponseDto> GetOrderById(Guid orderId);
         Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto);
         Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto);

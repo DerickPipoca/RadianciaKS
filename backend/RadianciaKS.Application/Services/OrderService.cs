@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using RadianciaKS.Application.DTOs.DashboardMetrics;
 using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Mappers;
@@ -82,6 +83,61 @@ namespace RadianciaKS.Application.Services
             orderResponse.ChangeAmount = changeAmount;
 
             return orderResponse;
+        }
+
+        public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(DateTime startDate, DateTime endDate)
+        {
+            var baseQuery = _context.Orders
+                .Include(o => o.Items).ThenInclude(i => i.Product)
+                .Include(o => o.Payments)
+                .Where(o => o.OrderStatus == OrderStatus.Paid &&
+                            o.CreatedAt >= startDate &&
+                            o.CreatedAt <= endDate);
+
+            var orders = await baseQuery.ToListAsync();
+
+            var totalOrders = orders.Count;
+            var totalRevenue = orders.Sum(o => o.TotalAmount);
+            var averageTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+            var topItems = orders.SelectMany(o => o.Items)
+                .GroupBy(i => i.Product.Name)
+                .Select(g => new TopSellingItemDto
+                {
+                    ProductName = g.Key,
+                    QuantitySold = g.Sum(i => i.Quantity)
+                })
+                .OrderByDescending(x => x.QuantitySold)
+                .ToList();
+
+            var cashFlow = orders.SelectMany(o => o.Payments)
+                .GroupBy(p => p.Method)
+                .Select(g => new CashFlowDto
+                {
+                    PaymentMethod = g.Key.ToString(),
+                    TotalAmount = g.Sum(p => p.Amount)
+                })
+                .ToList();
+
+            var salesChart = orders
+                .GroupBy(o => o.CreatedAt.Hour)
+                .Select(g => new SalesChartDto
+                {
+                    Label = $"{g.Key:00}:00",
+                    Value = g.Sum(o => o.TotalAmount)
+                })
+                .OrderBy(x => x.Label)
+                .ToList();
+
+            return new DashboardMetricsDto
+            {
+                TotalRevenue = totalRevenue,
+                TotalOrders = totalOrders,
+                AverageTicket = averageTicket,
+                TopSellingItems = topItems,
+                CashFlow = cashFlow,
+                SalesChart = salesChart
+            };
         }
 
         public async Task<OrderResponseDto> CreateOrder(OrderRequestDto dto)
