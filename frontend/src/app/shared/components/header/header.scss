@@ -1,0 +1,48 @@
+@use '../../../../styles' as *;
+
+header {
+  background-color: $primary-color;
+  color: $bg-dark-base;
+}
+
+.topbar {
+  height: 8vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 12px;
+  padding-right: 12px;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    lucide-icon {
+      height: 24px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: $text-primary-light;
+    }
+  }
+  .user-profile {
+    display: flex;
+    align-items: center;
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+
+      .name {
+        font-weight: bold;
+      }
+
+      .role {
+        font-size: 0.875rem;
+        color: $text-secondary-light;
+      }
+    }
+  }
+}

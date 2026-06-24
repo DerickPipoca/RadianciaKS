@@ -1,0 +1,61 @@
+@use '../../../../styles' as *;
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid $text-secondary-dark;
+  border-radius: $radius-pill;
+
+  height: auto;
+
+  padding: 6px 20px;
+
+  background-color: transparent;
+  transition: border-color 0.2s;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  &.primary {
+    background-color: $bg-light-base;
+    color: $text-primary-light;
+  }
+
+  &.radius-round {
+    border-radius: $radius-pill;
+  }
+
+  &.radius-default {
+    border-radius: $radius-sm;
+  }
+
+  &:focus-within {
+    border-color: $primary-color;
+  }
+
+  .icon {
+    margin-right: 12px;
+    color: $text-secondary-dark;
+    font-size: 1rem;
+    &.primary {
+      color: $text-primary-light;
+    }
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: $text-primary-dark;
+    width: 100%;
+    font-family: $font-family-base;
+    font-size: 0.9rem;
+
+    &.primary {
+      color: $text-primary-light;
+    }
+
+    &::placeholder {
+      opacity: 0.7;
+    }
+  }
+}

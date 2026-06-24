@@ -1,109 +1,264 @@
-.kds-container {
-  padding: 20px;
-  background-color: #0f172a; // Fundo escuro, amigável para cozinhas
-  min-height: 100vh;
-  color: white;
+@use '../../../../styles' as *;
+
+.kds-layout {
+  display: flex;
+  height: 92vh;
+  background-color: #383c44;
+  color: $text-primary-dark;
+  font-family: $font-family-base;
+  overflow: hidden;
 }
 
-.kds-header {
+.kds-sidebar {
+  width: 240px;
+  background-color: #2b2e33;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  border-bottom: 2px solid #334155;
-  padding-bottom: 15px;
+  flex-direction: column;
 
-  h1 {
-    margin: 0;
-    font-size: 1.8rem;
-  }
-  .kds-badge {
-    background: #ef4444;
-    padding: 6px 14px;
-    border-radius: 20px;
+  .logo-area {
+    padding: 24px;
+    background-color: rgba($primary-color, 0.15);
+    color: $primary-color;
     font-weight: bold;
+    border-left: 4px solid $primary-color;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      color: #a0a0a0;
+      text-decoration: none;
+      font-weight: 500;
+      &:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+    }
+  }
+}
+
+.kds-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-header {
+  padding: 24px;
+  .header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: white;
+    }
+    .badge {
+      background: rgba($primary-color, 0.2);
+      padding: 4px 10px;
+      border-radius: $radius-pill;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: $primary-color;
+    }
   }
 }
 
 .kds-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  flex: 1;
+  padding: 0 24px 24px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  flex-wrap: nowrap;
+
+  &::-webkit-scrollbar {
+    height: 12px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
 }
 
 .kds-card {
-  background-color: #1e293b;
-  border-left: 5px solid #eab308; // Amarelo para pendente
-  border-radius: 8px;
-  padding: 15px;
+  width: 280px;
+
+  // Impede que o card seja esmagado quando houver muitos na tela
+  flex-shrink: 0;
+
+  // Limita a altura do card ao tamanho da tela para comandas gigantes
+  max-height: 100%;
+
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s;
+  background: #f4f4f4;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 
-  &.is-preparing {
-    border-left-color: #3b82f6; // Azul para em preparo
-    background-color: #172554;
-  }
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 15px;
-  border-bottom: 1px dashed #475569;
-  padding-bottom: 10px;
-
-  .quantity {
-    background: white;
-    color: black;
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
-}
-
-.modifier-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 15px 0;
-  li {
-    color: #fca5a5;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-}
-.no-modifiers {
-  color: #64748b;
-  font-style: italic;
-}
-
-.card-footer {
-  margin-top: auto; // Empurra o botão para o fundo
-
-  .btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
+  .card-header {
+    // ... (Mantenha igual ao que já estava)
+    padding: 12px 16px;
     color: white;
-  }
-  .btn-prepare {
-    background-color: #3b82f6;
-  }
-  .btn-done {
-    background-color: #22c55e;
-  }
-}
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    &.bg-orange {
+      background-color: #ef8b54;
+    }
+    &.bg-green {
+      background-color: #82b982;
+    }
 
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 50px;
-  color: #94a3b8;
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      .time,
+      .order-number {
+        font-weight: bold;
+        font-size: 1.05rem;
+      }
+      .customer-name {
+        font-weight: 600;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 12px 16px;
+    flex: 1;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    // Ativa a rolagem vertical DENTRO do card se a comanda tiver muitos itens
+    overflow-y: auto;
+
+    // Oculta a barra de rolagem interna do card para ficar mais limpo visualmente
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    .item-row {
+      // ... (Mantenha toda a lógica do .item-row igual ao que estava)
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 12px;
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .item-content {
+        flex: 1;
+        padding-right: 12px;
+
+        .item-title-line {
+          display: flex;
+          gap: 8px;
+          font-weight: 700;
+          font-size: 0.95rem;
+          margin-bottom: 4px;
+        }
+
+        .modifier-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          li,
+          p {
+            font-size: 0.8rem;
+            color: #777;
+            line-height: 1.3;
+          }
+        }
+      }
+
+      .custom-checkbox {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: 0.2s;
+
+        .check-icon {
+          font-style: normal;
+          color: white;
+          font-weight: bold;
+          font-size: 0.9rem;
+        }
+
+        &.active {
+          background: #999;
+          border-color: #999;
+        }
+      }
+
+      &.checked-item {
+        .item-content {
+          text-decoration: line-through;
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+
+  .btn-pronto {
+    // ... (Mantenha igual ao que já estava)
+    width: auto;
+    padding: 16px;
+    background-color: $primary-color;
+    color: #333;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 0;
+    border-radius: 0;
+    flex-shrink: 0; // Garante que o botão não amasse
+
+    &:hover {
+      filter: brightness(0.95);
+    }
+  }
 }

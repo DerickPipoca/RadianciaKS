@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { SignalrService } from '../../../core/services/signalr-service';
-import { OrderItemResponseDto } from '../../../core/models/order.model';
+import { KdsOrderGroup, OrderItemResponseDto } from '../../../core/models/order.model';
 import { KdsService } from '../../../core/services/kds-service';
 import { KdsStatus } from '../../../core/enums/kds-status';
 
@@ -17,6 +17,8 @@ export class KdsBoard implements OnInit, OnDestroy {
 
   pendingItems: OrderItemResponseDto[] = [];
   KdsStatus = KdsStatus;
+
+  checkedItems = new Set<string>();
 
   constructor() {
     effect(() => {
@@ -49,6 +51,52 @@ export class KdsBoard implements OnInit, OnDestroy {
     this.kdsService.getPendingItems().subscribe({
       next: (items) => (this.pendingItems = items),
       error: (err) => console.error('Erro ao carregar KDS:', err),
+    });
+  }
+
+  get groupedOrders(): KdsOrderGroup[] {
+    const map = new Map<string, KdsOrderGroup>();
+
+    for (const item of this.pendingItems) {
+      if (!map.has(item.orderId)) {
+        map.set(item.orderId, {
+          orderId: item.orderId,
+          items: [],
+          status: item.kdsStatus,
+          tableNumber: '00',
+          customerName: 'Cliente',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        });
+      }
+      map.get(item.orderId)!.items.push(item);
+    }
+
+    return Array.from(map.values());
+  }
+
+  toggleItemCheck(itemId: string) {
+    if (this.checkedItems.has(itemId)) {
+      this.checkedItems.delete(itemId);
+    } else {
+      this.checkedItems.add(itemId);
+    }
+  }
+
+  isItemChecked(itemId: string): boolean {
+    return this.checkedItems.has(itemId);
+  }
+
+  markOrderAsDone(orderGroup: KdsOrderGroup) {
+    // Como sua API atualiza por item, vamos iterar sobre todos os itens do pedido
+    // e marcá-los como 'Done'
+    orderGroup.items.forEach((item) => {
+      this.kdsService.updateItemStatus(orderGroup.orderId, item.id, KdsStatus.Done).subscribe({
+        next: () => {
+          this.pendingItems = this.pendingItems.filter((i) => i.id !== item.id);
+          this.checkedItems.delete(item.id); // Limpa o check
+        },
+        error: () => console.error('Erro ao atualizar item', item.id),
+      });
     });
   }
 

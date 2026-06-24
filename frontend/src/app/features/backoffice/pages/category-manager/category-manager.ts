@@ -5,10 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { CategoryRequestDto, CategoryResponseDto } from '../../../../core/models/category.model';
 import { BaseCrud } from '../../../../core/classes/base-crud';
 import { ICrudService } from '../../../../core/interfaces/crud-service.interface';
+import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
 
 @Component({
   selector: 'app-category-manager',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
   templateUrl: './category-manager.html',
   styleUrl: './category-manager.scss',
 })

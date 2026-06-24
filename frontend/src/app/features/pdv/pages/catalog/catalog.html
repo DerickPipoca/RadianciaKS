@@ -1,43 +1,80 @@
 <div class="catalog-container">
-  <header class="categories-header">
-    <button
-      class="category-btn"
-      [class.active]="activeCategoryId === null"
-      (click)="filterByCategory(null)"
-    >
-      Todos
-    </button>
-    @for (category of categories; track category.id) {
-      <button
-        class="category-btn"
-        [class.active]="activeCategoryId === category.id"
-        (click)="filterByCategory(category.id)"
-      >
-        {{ category.name }}
-      </button>
+  <header class="catalog-topbar">
+    @if (activeCategory) {
+      <button class="btn-back" (click)="clearCategory()">‹ Sair do pedido</button>
+    } @else {
+      <button class="btn-back" routerLink="/pdv/home">‹ Sair do pedido</button>
+    }
+    @if (activeCategory) {
+      <div class="search-bar">
+        <input
+          type="text"
+          placeholder="Pesquisar produto..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+        />
+
+        @if (searchTerm) {
+          <button class="btn-clear-search" (click)="searchTerm = ''; applyFilters()">✕</button>
+        }
+      </div>
     }
   </header>
-  <main class="products-grid">
-    @for (product of filteredProducts; track product.id) {
-      <div class="product-card" (click)="onProductClick(product)">
-        <div class="product-image">
-          @if (product.imagePath) {
-            <img [src]="product.imagePath" [alt]="product.name" />
-          } @else {
-            <div class="no-image">Sem Imagem</div>
-          }
-        </div>
-        <div class="product-info">
-          <h3>{{ product.name }}</h3>
-          <span class="price">R$ {{ product.price.toFixed(2) }}</span>
-        </div>
+
+  <div class="catalog-content">
+    @if (!activeCategory) {
+      <h2 class="section-title">Categorias</h2>
+
+      <div class="categories-grid">
+        @for (category of categories; track category.id) {
+          <div class="category-card" (click)="selectCategory(category)">
+            @if (category.imagePath) {
+              <img [src]="category.imagePath" class="bg-img" [alt]="category.name" />
+            } @else {
+              <div class="bg-placeholder"></div>
+            }
+
+            <div class="overlay"></div>
+
+            <h3>{{ category.name }}</h3>
+          </div>
+        } @empty {
+          <div class="empty-state">Nenhuma categoria cadastrada.</div>
+        }
       </div>
-    } @empty {
-      <div class="empty-state">
-        <p>Nenhum produto encontrado nesta categoria.</p>
-      </div>
+    } @else {
+      <header class="breadcrumb-header">
+        <h2 class="breadcrumb-title">
+          <span class="back-link" (click)="clearCategory()">Categoria</span> >
+          <span>{{ activeCategory.name }}</span>
+        </h2>
+      </header>
+
+      <main class="products-grid">
+        @for (product of filteredProducts; track product.id) {
+          <div class="product-card" (click)="onProductClick(product)">
+            <div class="product-info">
+              <h3>{{ product.name }}</h3>
+              <p class="product-desc">{{ product.description || 'Sem descrição' }}</p>
+              <span class="price">A partir de R$ {{ product.price | number: '1.2-2' }}</span>
+            </div>
+
+            <div class="product-image">
+              @if (product.imagePath) {
+                <img [src]="product.imagePath" [alt]="product.name" />
+              } @else {
+                <div class="no-image">🍔</div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">
+            <p>Nenhum produto encontrado nesta categoria.</p>
+          </div>
+        }
+      </main>
     }
-  </main>
+  </div>
 </div>
 
 @if (selectedProductForModal) {

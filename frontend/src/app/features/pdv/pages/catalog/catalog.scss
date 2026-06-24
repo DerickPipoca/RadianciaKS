@@ -1,3 +1,238 @@
-p {
-  background-color: black;
+@use '../../../../../styles' as *;
+
+.catalog-container {
+  display: flex;
+  flex-direction: column;
+  height: 92vh;
+  background-color: $bg-light-base;
+}
+
+.catalog-topbar {
+  display: flex;
+  align-items: center;
+  height: 73px;
+  gap: 16px;
+  padding: 16px 24px;
+
+  .btn-back {
+    background: transparent;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary-light;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-bar {
+    flex: 1;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: $radius-pill;
+    padding: 10px 16px;
+    border: 1px solid $border-color-light;
+    input {
+      background: none;
+      border: none;
+      outline: none;
+      width: 100%;
+      font-family: $font-family-base;
+    }
+  }
+}
+
+.catalog-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px 24px;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  color: $text-primary-light;
+  margin: 16px 0 24px 0;
+  font-weight: 600;
+}
+
+// ==========================================
+// ESTILO DA GRADE DE CATEGORIAS (FOTOS)
+// ==========================================
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+
+  .category-card {
+    position: relative;
+    height: 200px; // Altura quadrada para os cards
+    border-radius: $radius-md;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: $shadow-sm;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-md;
+
+      .bg-img {
+        transform: scale(1.05);
+      } // Zoom suave na imagem
+    }
+
+    .bg-img,
+    .bg-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .bg-placeholder {
+      background-color: $bg-dark-surface; // Cor caso não tenha imagem
+    }
+
+    // Camada escura por cima da foto para dar leitura ao texto
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 100%);
+      z-index: 1;
+    }
+
+    h3 {
+      position: relative;
+      z-index: 2; // Acima do overlay
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 500;
+      text-align: center;
+      margin: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+// ==========================================
+// ESTILO DA GRADE DE PRODUTOS
+// ==========================================
+.breadcrumb-header {
+  margin: 16px 0 24px 0;
+
+  .breadcrumb-title {
+    font-size: 1.2rem;
+    color: $text-primary-light;
+    margin: 0;
+    font-weight: 500;
+
+    .back-link {
+      cursor: pointer;
+      color: $text-secondary-light;
+      &:hover {
+        color: $primary-color;
+        text-decoration: underline;
+      }
+    }
+
+    span:not(.back-link) {
+      font-weight: 700;
+    }
+  }
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+
+  .product-card {
+    background: white;
+    border: 1px solid $border-color-light;
+    border-radius: $radius-md;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+      border-color: rgba($primary-color, 0.5);
+    }
+
+    .product-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-right: 12px;
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: $text-primary-light;
+      }
+      .product-desc {
+        margin: 0;
+        font-size: 0.85rem;
+        color: $text-secondary-light;
+      }
+      .price {
+        margin-top: 12px;
+        font-size: 0.9rem;
+        color: $text-secondary-light;
+        font-weight: 500;
+      }
+    }
+
+    .product-image {
+      width: 90px;
+      height: 90px;
+      border-radius: $radius-sm;
+      overflow: hidden;
+      flex-shrink: 0;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .no-image {
+        width: 100%;
+        height: 100%;
+        background: $bg-light-base;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: $text-secondary-light;
+  font-style: italic;
+  grid-column: 1 / -1; // Ocupa a linha inteira do grid
 }

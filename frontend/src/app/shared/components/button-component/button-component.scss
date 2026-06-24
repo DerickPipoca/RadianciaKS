@@ -1,0 +1,64 @@
+@use '../../../../styles' as *;
+
+:host {
+  display: block;
+}
+.btn {
+  padding: 12px 24px;
+  border: none;
+  font-family: $font-family-base;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.primary {
+    background-color: $primary-color;
+    color: $text-primary-light;
+    &:hover {
+      background-color: $primary-color-hover;
+    }
+  }
+
+  &.secondary {
+    background-color: $bg-dark-elevated;
+    color: $text-primary-dark;
+  }
+
+  &.danger {
+    background-color: $red-status;
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.size-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  &.size-md {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+
+  &.size-lg {
+    padding: 12px 0px 12px 0px;
+    font-size: 1rem;
+    width: 100%;
+    display: block;
+  }
+
+  &.radius-default {
+    border-radius: $radius-md;
+  }
+
+  &.radius-round {
+    border-radius: $radius-pill;
+  }
+}

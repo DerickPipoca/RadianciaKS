@@ -5,10 +5,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { OrderService } from '../../../../core/services/order-service';
 import { DashboardMetrics } from '../../../../core/models/dashboard-metrics.model';
 import { ChartConfiguration, ChartType } from 'chart.js';
+import { ButtonComponent } from "../../../../shared/components/button-component/button-component";
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, ReactiveFormsModule, BaseChartDirective],
+  imports: [CommonModule, ReactiveFormsModule, BaseChartDirective, ButtonComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })

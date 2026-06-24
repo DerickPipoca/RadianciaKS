@@ -8,3 +8,8 @@ export interface LoginResponseDto {
   name: string;
   role: string;
 }
+
+export interface UserDto {
+  name: string;
+  role: string;
+}

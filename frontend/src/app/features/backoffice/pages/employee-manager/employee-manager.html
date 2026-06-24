@@ -1,9 +1,16 @@
 <div class="page-header">
   <div class="header-title">
-    <h1>👥 Gestão de Equipa</h1>
-    <p>Adiciona funcionários e define os seus níveis de acesso no sistema</p>
+    <h2>Funcionários</h2>
   </div>
-  <button class="btn-primary" (click)="openNewModal()">Novo Funcionário</button>
+  <app-button-component
+    size="md"
+    variant="primary"
+    radius="round"
+    (click)="openNewModal()"
+    type="submit"
+  >
+    + Adicionar
+  </app-button-component>
 </div>
 
 <div class="card-table">
@@ -25,8 +32,8 @@
             <span class="badge-role">{{ getRoleLabel(emp.role) }}</span>
           </td>
           <td class="actions-cell">
-            <button class="btn-action btn-edit" (click)="openEditModal(emp)">✏️ Editar</button>
-            <button class="btn-action btn-delete" (click)="delete(emp.id)">🗑️ Apagar</button>
+            <button class="btn-action btn-edit" (click)="openEditModal(emp)">Editar</button>
+            <button class="btn-action btn-delete" (click)="delete(emp.id)">Apagar</button>
           </td>
         </tr>
       } @empty {
@@ -36,56 +43,90 @@
       }
     </tbody>
   </table>
+  <div class="pagination-footer">
+    <span class="page-info">Página <b>1</b> 2 3 4 5 6 > >></span>
+    <span class="results-info">Resultados 1 a 12 de 200</span>
+  </div>
 </div>
 
 @if (showModal) {
   <div class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
-        <h2>{{ isEditing ? '✏️ Editar Funcionário' : 'Novo Funcionário' }}</h2>
-        <button class="btn-close" (click)="closeModal()">&times;</button>
+        <h2 style="margin: 0px">{{ isEditing ? 'Editar Funcionário' : 'Novo Funcionário' }}</h2>
+        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
+          &times;
+        </app-button-component>
       </div>
 
       <div class="modal-body">
         <div class="form-group">
           <label>Nome Completo *</label>
-          <input type="text" [(ngModel)]="currentItem.name" placeholder="Ex: João Silva" />
+          <app-input-component
+            type="text"
+            [(value)]="currentItem.name"
+            placeholder="Ex: João Silva"
+          ></app-input-component>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
             <label>Cargo / Nível de Acesso *</label>
-            <select [(ngModel)]="currentItem.role">
-              @for (role of roleOptions; track role.value) {
-                <option [ngValue]="role.value">{{ role.label }}</option>
+
+            <div class="custom-select-container">
+              <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
+                {{ getRoleLabel(this.currentItem.role) || 'Selecione uma categoria...' }}
+                <span class="arrow">▼</span>
+              </button>
+
+              @if (dropdownOpen) {
+                <ul class="options-list">
+                  @for (role of roleOptions; track role.value) {
+                    <li
+                      class="option"
+                      [class.is-selected]="currentItem.role === role"
+                      (click)="selectRole(role.value)"
+                    >
+                      {{ role.label }}
+                    </li>
+                  }
+                </ul>
               }
-            </select>
+            </div>
           </div>
           <div class="form-group flex-1">
-            <label>CPF</label>
-            <input type="text" [(ngModel)]="currentItem.cpf" placeholder="000.000.000-00" />
+            <label>CPF *</label>
+            <app-input-component
+              type="text"
+              [(value)]="currentItem.cpf"
+              placeholder="000.000.000-00"
+            ></app-input-component>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
             <label>Data de Nascimento</label>
-            <input type="date" [(ngModel)]="currentItem.birthday" />
+            <app-input-component type="date" [(value)]="currentItem.birthday" />
           </div>
           <div class="form-group flex-1">
-            <label>Senha de Acesso {{ isEditing ? '(Opcional)' : '*' }}</label>
-            <input
+            <label>Senha {{ isEditing ? '(Deixe em branco para manter)' : '*' }}</label>
+            <app-input-component
               type="password"
-              [(ngModel)]="currentItem.password"
-              placeholder="{{ isEditing ? 'Deixe em branco para manter' : 'Crie uma senha...' }}"
+              [(value)]="currentItem.password"
+              placeholder="*****"
             />
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
-        <button class="btn-primary" (click)="save()">Salvar Funcionário</button>
+        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
+          Cancelar
+        </app-button-component>
+        <app-button-component variant="primary" size="sm" class="w-full-btn" (click)="save()">
+          Salvar Funcionário
+        </app-button-component>
       </div>
     </div>
   </div>

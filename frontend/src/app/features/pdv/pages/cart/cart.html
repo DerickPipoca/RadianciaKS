@@ -1,27 +1,32 @@
 <div class="cart-container">
   <header class="cart-header">
-    <h2>Pedido Atual</h2>
+    <div class="cart-title">
+      <lucide-icon [img]="ShoppingBag" class="icon" />
+      <h2>Pedido #6767 - Paulo</h2>
+    </div>
     @if (cartService.totalItems() > 0) {
-      <button class="clear-btn" (click)="clearCart()">🗑️ Limpar</button>
+      <button class="clear-btn" (click)="clearCart()" title="Limpar carrinho">
+        <lucide-icon [img]="Trash" class="icon" />
+      </button>
     }
   </header>
+
   <main class="cart-items">
     @for (item of cartService.items(); track item.id) {
       <div class="cart-item">
-        <div class="item-qty">{{ item.quantity }}✕</div>
-        <div class="item-details">
-          <span class="item-name">{{ item.product.name }}</span>
-          @if (item.selectedModifiers.length > 0) {
-            <ul class="modifiers-list">
-              @for (modifier of item.selectedModifiers; track modifier.id) {
-                <li>+ {{ modifier.name }}</li>
-                (R$ {{ modifier.additionalPrice.toFixed(2) }})
-              }
-            </ul>
-          }
+        <div class="item-main">
+          <div class="item-details">
+            <span class="item-name">{{ item.product.name }}</span>
+            @if (item.selectedModifiers.length > 0) {
+              <ul class="modifiers-list">
+                @for (modifier of item.selectedModifiers; track modifier.id) {
+                  <li>{{ modifier.name }}</li>
+                }
+              </ul>
+            }
+          </div>
+          <div class="item-price">R$ {{ item.totalPrice.toFixed(2) }}</div>
         </div>
-        <div class="item-price">R$ {{ item.totalPrice.toFixed(2) }}</div>
-        <button class="remove-btn" (click)="removeItem(item.id)" title="Remover item">✕</button>
       </div>
     } @empty {
       <div class="empty-cart">
@@ -30,21 +35,42 @@
       </div>
     }
   </main>
+
   <footer class="cart-footer">
-    <div class="total-row">
-      <span>Subtotal ({{ cartService.totalItems() }} itens)</span>
-      <span>R$ {{ cartService.subTotal().toFixed(2) }}</span>
+    <div class="summary-wrapper">
+      <div class="summary-line">
+        <span>SubTotal</span>
+        <span>R$ {{ cartService.subTotal().toFixed(2) }}</span>
+      </div>
+      <div class="summary-line">
+        <span>Desconto</span>
+        <span>(0%) R$ 0,00</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="total-line">
+        <span class="total-label">Total</span>
+        <span class="total-value">R$ {{ cartService.subTotal().toFixed(2) }}</span>
+      </div>
     </div>
-    <div class="totals-row grand-total">
-      <span>Total ({{ cartService.totalItems() }} itens)</span>
-      <span>R$ {{ cartService.subTotal().toFixed(2) }}</span>
+
+    <div class="action-buttons">
+      <button
+        class="btn-secondary"
+        [disabled]="cartService.totalItems() === 0 || isProcessing"
+        (click)="closeOrder()"
+      >
+        {{ isProcessing ? 'Enviando...' : 'Finalizar Pedido' }}
+      </button>
+
+      <button
+        class="checkout-btn"
+        [disabled]="cartService.totalItems() === 0 || isProcessing"
+        (click)="checkout()"
+      >
+        Checkout
+      </button>
     </div>
-    <button class="checkout-btn" [disabled]="cartService.totalItems() === 0" (click)="checkout()">
-      Cobrar R$ {{ cartService.subTotal().toFixed(2) }}
-    </button>
   </footer>
 </div>
-
-@if (showCheckoutModal) {
-  <app-checkout-modal (close)="showCheckoutModal = false"></app-checkout-modal>
-}

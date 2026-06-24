@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -6,15 +7,19 @@ import { EmployeeRequestDto, EmployeeResponseDto } from '../../../../core/models
 import { ICrudService } from '../../../../core/interfaces/crud-service.interface';
 import { EmployeeService } from '../../../../core/services/employee-service';
 import { EmployeeRole } from '../../../../core/enums/employee-role';
+import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
 
 @Component({
   selector: 'app-employee-manager',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
   templateUrl: './employee-manager.html',
   styleUrl: './employee-manager.scss',
 })
 export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeResponseDto, string> {
   private employeeService = inject(EmployeeService);
+
+  dropdownOpen = false;
 
   roleOptions = [
     { value: EmployeeRole.Admin, label: 'Administrador (Acesso Total)' },
@@ -75,5 +80,14 @@ export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeRespon
 
   getRoleLabel(roleValue: number): string {
     return this.roleOptions.find((r) => r.value === roleValue)?.label || 'Desconhecido';
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  selectRole(role: any) {
+    this.currentItem.role = role;
+    this.dropdownOpen = false;
   }
 }

@@ -1,6 +1,19 @@
-div.pdv-container {
-  display: grid;
-  grid-template-columns: 7fr 3fr;
-  height: 100vh;
+@use '../../../../styles' as *;
+
+.kitchen-status-bar {
+  position: absolute;
+  width: 100%;
+  z-index: 50;
+  display: flex;
+  gap: 48px;
+  background-color: $green-status;
+  color: $text-primary-dark;
+  font-size: 1.1rem;
   overflow: hidden;
+  white-space: nowrap;
+  box-shadow: $shadow-sm;
+
+  strong {
+    font-weight: 700;
+  }
 }

@@ -40,7 +40,7 @@ export class OrderService {
 
   checkoutOrder(orderId: string, checkout: CheckoutRequestDto): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${orderId}/checkout`;
-    return this.http.put<OrderResponseDto>(urlEndPoint, checkout);
+    return this.http.post<OrderResponseDto>(urlEndPoint, checkout);
   }
 
   cancelOrder(orderId: string): Observable<OrderResponseDto> {

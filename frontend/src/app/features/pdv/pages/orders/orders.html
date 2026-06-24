@@ -1,0 +1,124 @@
+<div class="content-area">
+  <div class="header-section">
+    <h2 class="section-title">Pedidos Recentes</h2>
+
+    <div class="filter-controls">
+      <div class="filter-group">
+        <label>Status:</label>
+        <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+          <option value="">Todos</option>
+          @for (status of availableStatuses; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <main class="orders-grid">
+    @for (order of filteredOrders; track order.id) {
+      <div class="order-card">
+        <div class="card-header">
+          <span class="order-number">#{{ order.id | slice: 0 : 6 | uppercase }}</span>
+        </div>
+
+        <div class="card-body">
+          <h3 class="customer-name">
+            {{ order.tableNumber ? 'Mesa ' + order.tableNumber : 'Pedido de Balcão' }}
+          </h3>
+          <p class="order-total">R$ {{ order.totalAmount | number: '1.2-2' }}</p>
+        </div>
+
+        <div class="card-footer">
+          <span class="status-badge" [ngClass]="getStatusClass(order)">
+            {{ getOrderStatusLabel(order) }}
+          </span>
+
+          <button class="btn-action" (click)="openDetails(order)">Detalhes</button>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <p>Nenhum pedido recente encontrado.</p>
+      </div>
+    }
+  </main>
+
+  @if (selectedOrder) {
+    <div class="modal-backdrop" (click)="closeDetails()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div class="header-info">
+            <h2>Pedido #{{ selectedOrder.id | slice: 0 : 6 | uppercase }}</h2>
+            <span class="status-badge" [ngClass]="getStatusClass(selectedOrder)">
+              {{ getOrderStatusLabel(selectedOrder) }}
+            </span>
+          </div>
+          <button class="close-btn" (click)="closeDetails()">✕</button>
+        </header>
+
+        <main class="modal-body">
+          <h3 class="section-label">Itens do Pedido</h3>
+          <ul class="items-list">
+            @for (item of selectedOrder.items; track item.id) {
+              <li class="item-row">
+                <div class="item-main-info">
+                  <strong>{{ item.quantity }}x {{ item.productName }}</strong>
+                  <span>R$ {{ item.unitPrice | number: '1.2-2' }}</span>
+                </div>
+
+                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                  <ul class="modifier-list">
+                    @for (mod of item.selectedModifiers; track mod.id) {
+                      <li>+ {{ mod.name }}</li>
+                    }
+                  </ul>
+                }
+
+                @if (item.notes) {
+                  <p class="item-notes">Obs: {{ item.notes }}</p>
+                }
+              </li>
+            } @empty {
+              <li class="empty-row">Nenhum item registrado.</li>
+            }
+          </ul>
+
+          <hr class="divider" />
+
+          <div class="summary-totals">
+            <div class="line">
+              <span>Total Cobrado:</span>
+              <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
+            </div>
+            @if (selectedOrder.changeAmount > 0) {
+              <div class="line change">
+                <span>Troco Devolvido:</span>
+                <strong>R$ {{ selectedOrder.changeAmount | number: '1.2-2' }}</strong>
+              </div>
+            }
+          </div>
+        </main>
+
+        <footer class="modal-footer">
+          @if (
+            getStatusClass(selectedOrder) !== 'canceled' && getStatusClass(selectedOrder) !== 'paid'
+          ) {
+            <div class="modal-actions-left">
+              <button class="btn-cancel" (click)="cancelOrder(selectedOrder)">
+                <lucide-icon [img]="XIcon" class="icon" /> Cancelar
+              </button>
+              <button class="btn-checkout" (click)="goToCheckout(selectedOrder)">
+                <lucide-icon [img]="CreditCard" class="icon" />
+                Fazer Checkout
+              </button>
+            </div>
+          }
+          <button class="btn-print">
+            <lucide-icon [img]="Printer" class="icon" /> Imprimir Comanda
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+</div>

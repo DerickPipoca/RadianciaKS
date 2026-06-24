@@ -1,9 +1,16 @@
 <div class="page-header">
   <div class="header-title">
-    <h1>📁 Gestão de Categorias</h1>
-    <p>Gerencie as categorias do cardápio do seu restaurante</p>
+    <h2>Categorias</h2>
   </div>
-  <button class="btn-primary" (click)="openNewModal()">Nova Categoria</button>
+  <app-button-component
+    size="md"
+    variant="primary"
+    radius="round"
+    (click)="openNewModal()"
+    type="submit"
+  >
+    + Adicionar
+  </app-button-component>
 </div>
 
 <div class="card-table">
@@ -12,7 +19,6 @@
       <tr>
         <th>Nome</th>
         <th>Prioridade</th>
-        <th>Caminho da Imagem</th>
         <th class="actions-column">Ações</th>
       </tr>
     </thead>
@@ -23,14 +29,11 @@
             <strong>{{ category.name }}</strong>
           </td>
           <td>
-            <span class="badge-priority">{{ category.priority ?? 'Sem ordem' }}</span>
-          </td>
-          <td class="image-path-cell">
-            <code>{{ category.imagePath || 'Nenhuma imagem associada' }}</code>
+            <span class="badge-priority">{{ category.priority ?? 'N/A' }}</span>
           </td>
           <td class="actions-cell">
-            <button class="btn-action btn-edit" (click)="openEditModal(category)">✏️ Editar</button>
-            <button class="btn-action btn-delete" (click)="delete(category.id)">🗑️ Apagar</button>
+            <button class="btn-action btn-edit" (click)="openEditModal(category)">Editar</button>
+            <button class="btn-action btn-delete" (click)="delete(category.id)">Apagar</button>
           </td>
         </tr>
       } @empty {
@@ -40,56 +43,58 @@
       }
     </tbody>
   </table>
+  <div class="pagination-footer">
+    <span class="page-info">Página <b>1</b> 2 3 4 5 6 > >></span>
+    <span class="results-info">Resultados 1 a 12 de 200</span>
+  </div>
 </div>
 
 @if (showModal) {
   <div class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
-        <h2>{{ isEditing ? '✏️ Editar Categoria' : 'Nova Categoria' }}</h2>
-        <button class="btn-close" (click)="closeModal()">&times;</button>
+        <h2 style="margin: 0px">{{ isEditing ? 'Editar Categoria' : 'Nova Categoria' }}</h2>
+        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
+          &times;
+        </app-button-component>
       </div>
 
       <div class="modal-body">
         <div class="form-group">
-          <label for="catName">Nome da Categoria *</label>
-          <input
-            type="text"
-            id="catName"
-            [(ngModel)]="currentItem.name"
-            placeholder="Ex: Hambúrgueres, Bebidas, Sobremesas"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label for="catPriority">Prioridade / Ordem de Exibição</label>
-            <input
-              type="number"
-              id="catPriority"
-              [(ngModel)]="currentItem.priority"
-              placeholder="Ex: 1 (Aparece primeiro)"
-              min="0"
-            />
+          <div class="upload-zone">
+            <div class="upload-content">
+              <i class="icon">☁️</i>
+              <p>Selecione uma imagem ou arraste aqui</p>
+              <small>png, jpg ou webp.</small>
+              <button>Procurar</button>
+            </div>
           </div>
+        </div>
+        <div class="form-group">
+          <label for="catPriority">Nome da categoria</label>
+          <app-input-component
+            placeholder="(Ex: Hambúrgueres)"
+            [(value)]="currentItem.name"
+          ></app-input-component>
         </div>
 
         <div class="form-group">
-          <label for="catImagePath">Caminho da Imagem (URL ou Nome do Arquivo)</label>
-          <input
-            type="text"
-            id="catImagePath"
-            [(ngModel)]="currentItem.imagePath"
-            placeholder="Ex: doce.jpg ou assets/images/combo.png"
-            autocomplete="off"
-          />
+          <label for="catPriority">Prioridade / Ordem de Exibição</label>
+          <app-input-component
+            type="number"
+            placeholder="Prioridade (Ex: 1)"
+            [(value)]="currentItem.priority"
+          ></app-input-component>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
-        <button class="btn-primary" (click)="save()">Salvar Categoria</button>
+        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
+          Cancelar
+        </app-button-component>
+        <app-button-component variant="primary" size="sm" class="w-full-btn" (click)="save()">
+          Salvar Categoria
+        </app-button-component>
       </div>
     </div>
   </div>

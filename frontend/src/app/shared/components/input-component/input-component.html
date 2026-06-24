@@ -1,0 +1,12 @@
+<div [class]="'input-wrapper ' + variant + ' radius-' + radius">
+  @if (icon) {
+    <span [class]="'icon ' + variant">{{ icon }}</span>
+  }
+  <input
+    [class]="variant"
+    [type]="type"
+    [placeholder]="placeholder"
+    [value]="value"
+    (input)="onInput($event)"
+  />
+</div>

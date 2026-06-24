@@ -1,4 +1,4 @@
-import { Directive, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, OnInit } from '@angular/core';
 import { ICrudService } from '../interfaces/crud-service.interface';
 
 @Directive()
@@ -11,6 +11,8 @@ export abstract class BaseCrud<TRequest, TResponse, TId = string> implements OnI
   currentItem: any = {};
 
   editingId: TId | null = null;
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   protected abstract get crudService(): ICrudService<TRequest, TResponse, TId>;
 
@@ -44,6 +46,7 @@ export abstract class BaseCrud<TRequest, TResponse, TId = string> implements OnI
     this.editingId = this.getItemId(item);
     this.currentItem = this.mapToRequest(item);
     this.showModal = true;
+    this.cdr.detectChanges();
   }
 
   closeModal(): void {

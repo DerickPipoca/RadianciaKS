@@ -8,10 +8,12 @@ import { ProductService } from '../../../../core/services/product-service';
 import { CategoryService } from '../../../../core/services/category-service';
 import { CategoryResponseDto } from '../../../../core/models/category.model';
 import { ModifierService } from '../../../../core/services/modifier-service';
+import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
 
 @Component({
   selector: 'app-product-manager',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
   templateUrl: './product-manager.html',
   styleUrl: './product-manager.scss',
 })
@@ -27,6 +29,7 @@ export class ProductManager
   productModifiers: any[] = [];
   newGroup = { name: '', minChoices: 0, maxChoices: 1 };
   newOptions: { [groupId: string]: { name: string; price: number } } = {};
+  dropdownOpen = false;
 
   protected override get crudService(): ICrudService<
     ProductRequestDto,
@@ -71,7 +74,7 @@ export class ProductManager
       categoryId: item.categoryId,
     };
   }
-  
+
   protected override validateSave(item: ProductRequestDto): boolean {
     if (!item.name || item.name.trim() === '') {
       alert('O nome do produto é obrigatório.');
@@ -94,6 +97,11 @@ export class ProductManager
     this.productModifiers = item.modifierGroups
       ? JSON.parse(JSON.stringify(item.modifierGroups))
       : [];
+  }
+
+  override closeModal(): void {
+    super.closeModal();
+    this.dropdownOpen = false;
   }
 
   addGroup(): void {
@@ -159,5 +167,19 @@ export class ProductManager
         this.loadData();
       },
     });
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  selectCategory(id: any) {
+    this.currentItem.categoryId = id;
+    this.dropdownOpen = false;
+  }
+
+  getSelectedCategoryName(): string {
+    const selected = this.categories?.find((cat) => cat.id === this.currentItem.categoryId);
+    return selected ? selected.name : '';
   }
 }

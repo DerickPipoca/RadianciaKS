@@ -1,0 +1,11 @@
+<button
+  [type]="type"
+  [disabled]="disabled || isLoading"
+  [class]="'btn ' + variant + ' size-' + size + ' radius-' + radius"
+>
+  @if (isLoading) {
+    <span class="spinner"></span> Carregando...
+  } @else {
+    <ng-content></ng-content>
+  }
+</button>

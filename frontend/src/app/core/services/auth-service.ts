@@ -1,3 +1,4 @@
+import { UserDto } from './../models/auth.model';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { LoginRequestDto, LoginResponseDto } from '../models/auth.model';
@@ -38,6 +39,18 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  getUser(): UserDto {
+    const userJson = localStorage.getItem('rk_user');
+    const parsed = userJson ? JSON.parse(userJson) : null;
+
+    const user: UserDto = {
+      name: parsed?.name ?? '',
+      role: parsed?.role ?? '',
+    };
+
+    return user;
   }
 
   private getUserFromStorage(): Omit<LoginResponseDto, 'token'> | null {

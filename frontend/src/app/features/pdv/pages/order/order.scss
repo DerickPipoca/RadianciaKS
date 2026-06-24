@@ -1,0 +1,18 @@
+@use '../../../../../styles.scss' as *;
+.order-layout {
+  display: flex;
+  height: 92vh;
+  overflow: hidden;
+
+  app-catalog {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  app-cart {
+    width: 380px;
+    background: $bg-dark-elevated;
+    display: flex;
+    flex-direction: column;
+  }
+}

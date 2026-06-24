@@ -1,16 +1,22 @@
 import { Routes } from '@angular/router';
 import { Layout } from './layout/layout';
-import { Catalog } from './pages/catalog/catalog';
-import { Cart } from './pages/cart/cart';
+import { Home } from './pages/home/home';
+import { Order } from './pages/order/order';
+import { Orders } from './pages/orders/orders';
+import { Checkout } from './pages/checkout/checkout';
+import { CloseOrders } from './pages/close-orders/close-orders';
 
 export const PDV_ROUTES: Routes = [
   {
     path: '',
     component: Layout,
     children: [
-      { path: '', redirectTo: 'catalog', pathMatch: 'full' },
-      { path: 'catalog', component: Catalog },
-      { path: 'cart', component: Cart },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: Home },
+      { path: 'novo-pedido', component: Order },
+      { path: 'fechar-pedidos', component: CloseOrders },
+      { path: 'pedidos', component: Orders },
+      { path: 'checkout', component: Checkout },
     ],
   },
 ];

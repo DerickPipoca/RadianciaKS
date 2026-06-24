@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
-import { Catalog } from "../pages/catalog/catalog";
-import { Cart } from "../pages/cart/cart";
+import { RouterOutlet } from "@angular/router";
 
 @Component({
   selector: 'app-layout',
-  imports: [Catalog, Cart],
+  imports: [RouterOutlet],
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
-export class Layout {
-
-}
+export class Layout {}

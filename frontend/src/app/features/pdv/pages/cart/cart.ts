@@ -1,18 +1,25 @@
 import { CartService } from './../../../../core/services/cart-service';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { CheckoutModal } from '../../components/checkout-modal/checkout-modal';
+import { Router } from '@angular/router';
+import { OrderService } from '../../../../core/services/order-service';
+import { OrderItemRequestDto, OrderRequestDto } from '../../../../core/models/order.model';
+import { LucideAngularModule, ShoppingBagIcon, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule, CheckoutModal],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './cart.html',
   styleUrl: './cart.scss',
 })
 export class Cart {
-  public cartService = inject(CartService);
+  public readonly ShoppingBag = ShoppingBagIcon;
+  public readonly Trash = Trash2;
 
-  showCheckoutModal = false;
+  public cartService = inject(CartService);
+  private orderService = inject(OrderService);
+  private router = inject(Router);
+  isProcessing = false;
 
   removeItem(id: string) {
     this.cartService.removeItem(id);
@@ -24,6 +31,37 @@ export class Cart {
   }
   checkout(): void {
     console.log('A iniciar checkout com total de:', this.cartService.subTotal());
-    this.showCheckoutModal = true;
+    this.router.navigate(['/pdv/checkout']);
+  }
+  closeOrder(): void {
+    if (this.cartService.totalItems() === 0) return;
+
+    this.isProcessing = true;
+
+    const orderItems: OrderItemRequestDto[] = this.cartService.items().map((cartItem) => ({
+      productId: cartItem.product.id,
+      quantity: cartItem.quantity,
+      notes: cartItem.notes,
+      selectedModifierIds: cartItem.selectedModifiers.map((mod) => mod.id),
+    }));
+
+    // Cria o payload com o array de pagamentos VAZIO
+    const payload: OrderRequestDto = {
+      items: orderItems,
+      payments: [],
+    };
+
+    this.orderService.create(payload).subscribe({
+      next: (response) => {
+        alert(`Pedido #${response.id.substring(0, 8)} enviado para a cozinha!`);
+        this.cartService.clearCart();
+        this.isProcessing = false;
+      },
+      error: (err) => {
+        console.error('Erro ao lançar pedido: ', err);
+        alert('Ocorreu um erro ao enviar o pedido.');
+        this.isProcessing = false;
+      },
+    });
   }
 }

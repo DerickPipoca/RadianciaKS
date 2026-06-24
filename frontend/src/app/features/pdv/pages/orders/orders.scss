@@ -1,0 +1,433 @@
+@use '../../../../../styles' as *;
+
+.recent-orders-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-light-base;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background-color: $bg-light-base;
+
+  .btn-back {
+    background: transparent;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary-light;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    &:hover {
+      color: $primary-color;
+    }
+  }
+
+  .search-bar {
+    flex: 1;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: $radius-pill;
+    padding: 10px 16px;
+    border: 1px solid $border-color-light;
+    input {
+      background: none;
+      border: none;
+      outline: none;
+      width: 100%;
+      font-family: $font-family-base;
+    }
+  }
+}
+
+.content-area {
+  flex: 1;
+  padding: 0 24px 24px;
+  overflow-y: auto;
+}
+
+.header-section {
+  margin-top: 5vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .filter-controls {
+    display: flex;
+    gap: 16px;
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      label {
+        font-weight: 600;
+        color: $text-secondary-light;
+        font-size: 0.9rem;
+      }
+
+      input,
+      select {
+        padding: 8px 12px;
+        border: 1px solid $border-color-light;
+        border-radius: $radius-sm;
+        font-family: $font-family-base;
+        background-color: white;
+        color: $text-primary-light;
+        outline: none;
+
+        &:focus {
+          border-color: $primary-color;
+        }
+      }
+    }
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    color: $text-primary-light;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    .chip {
+      background: white;
+      border: 1px solid $border-color-light;
+      padding: 6px 16px;
+      border-radius: $radius-pill;
+      color: $text-primary-light;
+      font-weight: 500;
+      cursor: pointer;
+      &:hover {
+        border-color: $primary-color;
+      }
+      &.active {
+        background: $primary-color;
+        border-color: $primary-color;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+
+  .order-card {
+    background: white;
+    border: 1px solid $border-color-light;
+    border-radius: $radius-md;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: $shadow-sm;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+      border-color: $primary-color;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba($border-color-light, 0.5);
+      padding-bottom: 12px;
+
+      .order-number {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: $text-primary-light;
+      }
+      .order-time {
+        font-size: 0.85rem;
+        color: $text-secondary-light;
+      }
+    }
+
+    .card-body {
+      .customer-name {
+        margin: 0 0 4px 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: $text-secondary-light;
+      }
+      .order-total {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $text-primary-light;
+      }
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+
+      .status-badge {
+        padding: 4px 10px;
+        border-radius: $radius-pill;
+        font-size: 0.8rem;
+        font-weight: 600;
+
+        // Note o "&" indicando que a classe pertence ao próprio span
+        &.open {
+          background: rgba($bg-dark-elevated, 0.15);
+          color: darken($bg-dark-elevated, 15%);
+        }
+        &.canceled {
+          background: rgba($orange-status, 0.15);
+          color: darken($orange-status, 15%);
+        }
+        &.paid {
+          background: rgba($green-status, 0.15);
+          color: darken($green-status, 10%);
+        }
+        &.ready-to-serve {
+          background: rgba($text-secondary-light, 0.15);
+          color: $text-secondary-light;
+        }
+      }
+
+      .btn-action {
+        background: transparent;
+        border: 1px solid $border-color-light;
+        border-radius: $radius-sm;
+        padding: 6px 12px;
+        color: $text-primary-light;
+        font-weight: 500;
+        cursor: pointer;
+        &:hover {
+          background: $bg-light-base;
+        }
+      }
+    }
+  }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: $text-secondary-light;
+  font-style: italic;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  border-radius: $radius-md;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+}
+
+.modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid $border-color-light;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: $bg-light-surface;
+
+  .header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: $text-primary-light;
+    }
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: $text-secondary-light;
+  }
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+
+  .section-label {
+    margin: 0 0 16px 0;
+    font-size: 1.1rem;
+    color: $text-primary-light;
+    border-bottom: 2px solid $bg-light-base;
+    padding-bottom: 8px;
+  }
+
+  .items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .item-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .item-main-info {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+        color: $text-primary-light;
+        font-size: 1rem;
+      }
+
+      .modifier-list {
+        list-style: none;
+        padding: 0 0 0 16px;
+        margin: 0;
+        li {
+          font-size: 0.85rem;
+          color: $text-secondary-light;
+        }
+      }
+
+      .item-notes {
+        margin: 4px 0 0 0;
+        font-size: 0.85rem;
+        color: $orange-status;
+        font-style: italic;
+      }
+    }
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px dashed $border-color-light;
+    margin: 24px 0;
+  }
+
+  .summary-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    .line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      color: $text-primary-light;
+      &.change {
+        color: $green-status;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid $border-color-light;
+  background: $bg-light-surface;
+  display: flex;
+  justify-content: space-between; // Separa as ações da esquerda e a impressão na direita
+  gap: 16px;
+  align-items: center;
+
+  .modal-actions-left {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+
+    button {
+      padding: 12px 16px;
+      border-radius: $radius-sm;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: $font-family-base;
+      border: none;
+      transition: filter 0.2s;
+
+      &:hover {
+        filter: brightness(0.95);
+      }
+    }
+
+    .btn-cancel {
+      gap: 4px;
+      display: flex;
+      background-color: rgba($red-status, 0.1);
+      color: $red-status;
+      &:hover {
+        background-color: rgba($red-status, 0.2);
+      }
+      align-items: center;
+    }
+
+    .btn-checkout {
+      gap: 4px;
+      display: flex;
+      height: auto;
+      background-color: $primary-color;
+      color: $text-primary-light;
+      align-items: center;
+    }
+  }
+
+  .btn-print {
+    gap: 4px;
+    display: flex;
+    padding: 12px 24px;
+    background: white;
+    border: 1px solid $border-color-light;
+    border-radius: $radius-sm;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: $font-family-base;
+    &:hover {
+      background: $bg-light-base;
+    }
+    align-items: center;
+  }
+}

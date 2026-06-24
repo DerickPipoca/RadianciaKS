@@ -1,51 +1,29 @@
-<div class="admin-container">
+<div class="admin-layout">
   <aside class="sidebar">
-    <div class="brand">
-      <h2>Radiancia<span>KS</span></h2>
-      <span class="badge">Backoffice</span>
-    </div>
-
-    <nav class="nav-menu">
-      <div class="menu-section">GESTÃO</div>
-      <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">📊 Dashboard</a>
-
-      <div class="menu-section">CATÁLOGO</div>
-      <a routerLink="/admin/categorias" routerLinkActive="active" class="nav-link">📁 Categorias</a>
-      <a routerLink="/admin/produtos" routerLinkActive="active" class="nav-link">🍔 Produtos</a>
-      <a routerLink="/admin/equipe" routerLinkActive="active" class="nav-link">👥 Equipe</a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <a routerLink="/pdv" class="btn-return">⬅️ Voltar ao PDV</a>
-    </div>
-    <div class="sidebar-footer" style="margin-top: auto; padding: 15px">
-      <button
-        (click)="logout()"
-        style="
-          width: 100%;
-          padding: 8px;
-          background: #ef4444;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: 600;
-        "
-      >
-        🚪 Sair / Logout
-      </button>
-    </div>
-  </aside>
-
-  <main class="main-content">
-    <header class="topbar">
-      <div class="user-info">
-        <span>Olá, Administrador 👋</span>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="LayoutDashboard" class="icon" /> Dashboard
+        </a>
+        <a routerLink="/admin/produtos" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="BookOpen" class="icon" /> Cardápio
+        </a>
+        <a routerLink="/admin/categorias" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="History" class="icon" /> Categorias
+        </a>
+        <a routerLink="/admin/cart" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="ShoppingCart" class="icon" /> Pedidos
+        </a>
+        <a routerLink="/admin/equipe" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="Users" class="icon" /> Funcionários
+        </a>
+        <a routerLink="/admin/configuracoes" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="Settings" class="icon" /> Configurações
+        </a>
       </div>
-    </header>
-
-    <div class="content-wrapper">
-      <router-outlet></router-outlet>
-    </div>
+    </nav>
+  </aside>
+  <main class="content-area">
+    <router-outlet></router-outlet>
   </main>
 </div>

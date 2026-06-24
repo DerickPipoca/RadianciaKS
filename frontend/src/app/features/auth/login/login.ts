@@ -3,10 +3,12 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth-service';
 import { Router } from '@angular/router';
+import { ButtonComponent } from '../../../shared/components/button-component/button-component';
+import { InputComponent } from '../../../shared/components/input-component/input-component';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -39,7 +41,7 @@ export class Login {
       },
       error: (err) => {
         this.isLoading.set(false);
-        
+
         this.errorMessage.set(err.error?.message || 'CPF ou senha incorretos.');
       },
     });

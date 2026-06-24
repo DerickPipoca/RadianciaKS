@@ -44,3 +44,12 @@ export interface OrderResponseDto {
   items: OrderItemResponseDto[];
   payments: PaymentResponseDto[];
 }
+
+export interface KdsOrderGroup {
+  orderId: string;
+  items: OrderItemResponseDto[];
+  status: KdsStatus;
+  tableNumber: string;
+  customerName: string;
+  time: string;
+}

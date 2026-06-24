@@ -1,0 +1,106 @@
+<div class="recent-orders-container">
+  <header class="topbar">
+    <button class="btn-back" (click)="goBack()"><i class="icon">‹</i> Voltar</button>
+
+    <div class="search-bar">
+      <i class="icon">🔍</i>
+      <input
+        type="text"
+        placeholder="Buscar por Mesa ou Nº do Pedido..."
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+      />
+    </div>
+  </header>
+
+  <div class="content-area">
+    <div class="header-section">
+      <h2 class="section-title">Contas em Aberto</h2>
+    </div>
+
+    <main class="orders-grid">
+      @for (order of filteredOrders; track order.id) {
+        <div class="order-card">
+          <div class="card-header">
+            <span class="order-number">#{{ order.id | slice: 0 : 6 | uppercase }}</span>
+          </div>
+
+          <div class="card-body">
+            <h3 class="customer-name">
+              {{ order.tableNumber ? 'Mesa ' + order.tableNumber : 'Pedido de Balcão' }}
+            </h3>
+            <p class="order-total">R$ {{ order.totalAmount | number: '1.2-2' }}</p>
+          </div>
+
+          <div class="card-footer">
+            <span class="status-badge" [ngClass]="getStatusClass(order)">
+              {{ getOrderStatusLabel(order) }}
+            </span>
+            <button class="btn-action" (click)="openDetails(order)">Detalhes</button>
+          </div>
+
+          <button class="btn-express-checkout" (click)="goToCheckout(order)">
+            Cobrar R$ {{ order.totalAmount | number: '1.2-2' }}
+          </button>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <p>Nenhuma conta em aberto no momento. 🎉</p>
+        </div>
+      }
+    </main>
+  </div>
+</div>
+
+@if (selectedOrder) {
+  <div class="modal-backdrop" (click)="closeDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div class="header-info">
+          <h2>Mesa {{ selectedOrder.tableNumber || 'Balcão' }}</h2>
+          <span class="status-badge" [ngClass]="getStatusClass(selectedOrder)">
+            {{ getOrderStatusLabel(selectedOrder) }}
+          </span>
+        </div>
+        <button class="close-btn" (click)="closeDetails()">✕</button>
+      </header>
+
+      <main class="modal-body">
+        <h3 class="section-label">Consumo da Mesa</h3>
+        <ul class="items-list">
+          @for (item of selectedOrder.items; track item.id) {
+            <li class="item-row">
+              <div class="item-main-info">
+                <strong>{{ item.quantity }}x {{ item.productName }}</strong>
+                <span>R$ {{ item.unitPrice | number: '1.2-2' }}</span>
+              </div>
+              @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                <ul class="modifier-list">
+                  @for (mod of item.selectedModifiers; track mod.id) {
+                    <li>+ {{ mod.name }}</li>
+                  }
+                </ul>
+              }
+            </li>
+          } @empty {
+            <li class="empty-row">Nenhum item registrado.</li>
+          }
+        </ul>
+
+        <hr class="divider" />
+
+        <div class="summary-totals">
+          <div class="line total-highlight">
+            <span>Total a Pagar:</span>
+            <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
+          </div>
+        </div>
+      </main>
+
+      <footer class="modal-footer">
+        <button class="btn-print">🖨️ Imprimir Prévia</button>
+        <button class="btn-checkout" (click)="goToCheckout(selectedOrder)">Fazer Checkout</button>
+      </footer>
+    </div>
+  </div>
+}
