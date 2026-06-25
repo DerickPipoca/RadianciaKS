@@ -75,6 +75,23 @@ export class ProductManager
     };
   }
 
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+
+    if (file) {
+      this.productService.uploadImage(file).subscribe({
+        next: (res) => {
+          this.currentItem.imagePath = res.url;
+          console.log('Upload concluído:', res.url);
+        },
+        error: (err) => {
+          console.error('Erro no upload', err);
+          alert('Falha ao enviar a imagem.');
+        },
+      });
+    }
+  }
+
   protected override validateSave(item: ProductRequestDto): boolean {
     if (!item.name || item.name.trim() === '') {
       alert('O nome do produto é obrigatório.');

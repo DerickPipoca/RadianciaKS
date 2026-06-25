@@ -33,4 +33,10 @@ export class ProductService implements ICrudService<ProductRequestDto, ProductRe
     const urlEndPoint = `${this.endPoint}/${id}`;
     return this.http.delete<void>(urlEndPoint);
   }
+
+  uploadImage(file: File): Observable<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ url: string }>(`${this.endPoint}/upload-image`, formData);
+  }
 }

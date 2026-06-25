@@ -1,4 +1,6 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.DTOs.Product;
 using RadianciaKS.Application.Interfaces;
@@ -11,12 +13,14 @@ namespace RadianciaKS.Application.Services
     {
         private readonly IApplicationDbContext _context;
         private readonly IValidator<ProductRequestDto> _validator;
+        private readonly IImageStorageService _imageStorageService;
         private readonly ProductMapper _mapper;
 
-        public ProductService(IApplicationDbContext applicationDbContext, IValidator<ProductRequestDto> validator)
+        public ProductService(IApplicationDbContext applicationDbContext, IValidator<ProductRequestDto> validator, IImageStorageService imageStorageService)
         {
             _context = applicationDbContext;
             _validator = validator;
+            _imageStorageService = imageStorageService;
             _mapper = new ProductMapper();
         }
 
@@ -87,6 +91,12 @@ namespace RadianciaKS.Application.Services
 
             await _context.SaveChangesAsync();
             return _mapper.ToDto(product);
+        }
+
+        public async Task<string> UploadImage(IFormFile file)
+        {
+            var imageUrl = await _imageStorageService.UploadImageAsync(file, "products");
+            return imageUrl;
         }
     }
 }

@@ -73,20 +73,45 @@
       <div class="modal-body">
         <div class="form-group">
           <label for="prodImagePath">Imagem</label>
-          <div class="upload-zone">
-            <div class="upload-content">
-              <p class="icon">☁️</p>
-              <p>Selecione uma imagem ou arraste aqui</p>
-              <small>png, jpg ou webp.</small>
-              <app-button-component
-                variant="primary"
-                size="md"
-                class="w-full-btn"
-                style="margin-top: 8px"
-              >
-                Procurar
-              </app-button-component>
-            </div>
+
+          <div
+            class="upload-zone"
+            (click)="fileInput.click()"
+            style="cursor: pointer; position: relative"
+          >
+            @if (currentItem.imagePath) {
+              <img
+                [src]="'https://localhost:7047' + currentItem.imagePath"
+                alt="Preview"
+                style="max-width: 100%; max-height: 180px; border-radius: 8px; object-fit: cover"
+              />
+              <p style="color: #888; font-size: 0.8rem; margin-top: 8px">
+                Clique na imagem para alterar
+              </p>
+            } @else {
+              <div class="upload-content">
+                <p class="icon" style="font-size: 2rem; margin: 0 0 8px 0">☁️</p>
+                <p>Selecione uma imagem ou arraste aqui</p>
+                <small>png, jpg ou webp.</small>
+                <app-button-component
+                  variant="primary"
+                  size="md"
+                  class="w-full-btn"
+                  style="margin-top: 8px"
+                  (click)="fileInput.click(); $event.stopPropagation()"
+                >
+                  Procurar
+                </app-button-component>
+              </div>
+            }
+
+            <input
+              type="file"
+              #fileInput
+              style="display: none"
+              accept="image/png, image/jpeg, image/webp"
+              (change)="onFileSelected($event)"
+            />
           </div>
         </div>
         <div class="form-group">

@@ -3,6 +3,10 @@
   <ItemGroup>
     <ProjectReference Include="..\RadianciaKS.Domain\RadianciaKS.Domain.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />

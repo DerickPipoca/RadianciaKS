@@ -57,6 +57,8 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>();
 
+builder.Services.AddScoped<IImageStorageService, LocalImageStorageService>();
+
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
@@ -130,6 +132,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors("AllowAngularApp");
 app.MapHub<KdsHub>("/hubs/kds");
+
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
