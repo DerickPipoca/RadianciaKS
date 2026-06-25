@@ -1,4 +1,5 @@
 import { OrderStatus } from '../enums/order-status';
+import { PaymentStatus } from '../enums/payment-status';
 import { KdsStatus } from './../enums/kds-status';
 import { OrderItemModifierResponseDto } from './modifier.model';
 import { PaymentRequestDto, PaymentResponseDto } from './payment.model';
@@ -40,6 +41,7 @@ export interface OrderResponseDto {
   orderStatus: OrderStatus;
   totalAmount: number;
   changeAmount: number;
+  paymentStatus: PaymentStatus;
 
   items: OrderItemResponseDto[];
   payments: PaymentResponseDto[];

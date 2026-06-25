@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, CreditCard, X, Printer } from 'lucide-angular';
 import { SignalrService } from '../../../../core/services/signalr-service';
+import { PaymentStatus } from '../../../../core/enums/payment-status';
 
 @Component({
   selector: 'app-orders',
@@ -102,10 +103,45 @@ export class Orders implements OnInit {
     }
   }
 
+  getPaymentStatusLabel(order: OrderResponseDto): string {
+    switch (order.paymentStatus) {
+      case PaymentStatus.Pending:
+        return 'Pag. Pendente';
+      case PaymentStatus.Partial:
+        return 'Pago Parcial';
+      case PaymentStatus.Paid:
+        return 'Pago';
+      case PaymentStatus.Refunded:
+        return 'Estornado';
+      default:
+        return 'Desconhecido';
+    }
+  }
+
+  getPaymentStatusClass(order: OrderResponseDto): string {
+    switch (order.paymentStatus) {
+      case PaymentStatus.Pending:
+        return 'pending';
+      case PaymentStatus.Partial:
+        return 'partial';
+      case PaymentStatus.Paid:
+        return 'paid';
+      case PaymentStatus.Refunded:
+        return 'refunded';
+      default:
+        return 'pending';
+    }
+  }
+
   applyFilters() {
     this.filteredOrders = this.recentOrders.filter((order) => {
-      const currentStatus = OrderStatus[order.orderStatus];
-      return this.filterStatus ? currentStatus === this.filterStatus : true;
+      if (!this.filterStatus) return true;
+
+      if (this.filterStatus === 'Paid') {
+        return order.paymentStatus === PaymentStatus.Paid;
+      } else {
+        return OrderStatus[order.orderStatus] === this.filterStatus;
+      }
     });
   }
 

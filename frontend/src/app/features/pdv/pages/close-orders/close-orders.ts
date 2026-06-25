@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { SignalrService } from '../../../../core/services/signalr-service';
+import { PaymentStatus } from '../../../../core/enums/payment-status';
 
 @Component({
   selector: 'app-close-orders',
@@ -40,13 +41,43 @@ export class CloseOrders implements OnInit {
     this.loadActiveOrders();
   }
 
+  getPaymentStatusLabel(order: OrderResponseDto): string {
+    switch (order.paymentStatus) {
+      case PaymentStatus.Pending:
+        return 'Pag. Pendente';
+      case PaymentStatus.Partial:
+        return 'Pago Parcial';
+      case PaymentStatus.Paid:
+        return 'Pago';
+      case PaymentStatus.Refunded:
+        return 'Estornado';
+      default:
+        return 'Desconhecido';
+    }
+  }
+
+  getPaymentStatusClass(order: OrderResponseDto): string {
+    switch (order.paymentStatus) {
+      case PaymentStatus.Pending:
+        return 'pending';
+      case PaymentStatus.Partial:
+        return 'partial';
+      case PaymentStatus.Paid:
+        return 'paid';
+      case PaymentStatus.Refunded:
+        return 'refunded';
+      default:
+        return 'pending';
+    }
+  }
+
   loadActiveOrders() {
     this.orderService.getAll().subscribe({
       next: (data) => {
         this.activeOrders = data.filter(
           (order) =>
-            OrderStatus[order.orderStatus] === 'Open' ||
-            OrderStatus[order.orderStatus] === 'ReadyToServe',
+            order.paymentStatus !== PaymentStatus.Paid &&
+            OrderStatus[order.orderStatus] !== 'Canceled',
         );
         this.applyFilters();
       },
@@ -64,13 +95,18 @@ export class CloseOrders implements OnInit {
       return tableInfo.includes(term) || orderId.includes(term);
     });
   }
-  getOrderStatusLabel(order: OrderResponseDto) {
-    return OrderStatus[order.orderStatus] || 'Desconhecido';
+
+  getOrderStatusLabel(order: OrderResponseDto): string {
+    if (order.paymentStatus === PaymentStatus.Paid) return 'Pago';
+    if (order.orderStatus === OrderStatus.ReadyToServe) return 'Pronto para Servir';
+    if (order.orderStatus === OrderStatus.Preparing) return 'Na Cozinha';
+    if (order.orderStatus === OrderStatus.Open) return 'Em Aberto';
+    return 'Desconhecido';
   }
 
   getStatusClass(order: OrderResponseDto): string {
-    const statusName = OrderStatus[order.orderStatus];
-    if (statusName === 'ReadyToServe') return 'ready-to-serve';
+    if (order.paymentStatus === PaymentStatus.Paid) return 'paid';
+    if (order.orderStatus === OrderStatus.ReadyToServe) return 'ready-to-serve';
     return 'open';
   }
 

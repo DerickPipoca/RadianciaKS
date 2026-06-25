@@ -33,9 +33,16 @@
           </div>
 
           <div class="card-footer">
-            <span class="status-badge" [ngClass]="getStatusClass(order)">
-              {{ getOrderStatusLabel(order) }}
-            </span>
+            <div class="badges-container">
+              <span class="status-badge" [ngClass]="getStatusClass(order)">
+                {{ getOrderStatusLabel(order) }}
+              </span>
+
+              <span class="payment-badge" [ngClass]="getPaymentStatusClass(order)">
+                {{ getPaymentStatusLabel(order) }}
+              </span>
+            </div>
+
             <button class="btn-action" (click)="openDetails(order)">Detalhes</button>
           </div>
 
