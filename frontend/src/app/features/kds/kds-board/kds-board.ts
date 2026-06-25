@@ -4,6 +4,7 @@ import { SignalrService } from '../../../core/services/signalr-service';
 import { KdsOrderGroup, OrderItemResponseDto } from '../../../core/models/order.model';
 import { KdsService } from '../../../core/services/kds-service';
 import { KdsStatus } from '../../../core/enums/kds-status';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-kds-board',
@@ -86,18 +87,19 @@ export class KdsBoard implements OnInit, OnDestroy {
     return this.checkedItems.has(itemId);
   }
 
-  markOrderAsDone(orderGroup: KdsOrderGroup) {
-    // Como sua API atualiza por item, vamos iterar sobre todos os itens do pedido
-    // e marcá-los como 'Done'
-    orderGroup.items.forEach((item) => {
-      this.kdsService.updateItemStatus(orderGroup.orderId, item.id, KdsStatus.Done).subscribe({
-        next: () => {
-          this.pendingItems = this.pendingItems.filter((i) => i.id !== item.id);
-          this.checkedItems.delete(item.id); // Limpa o check
-        },
-        error: () => console.error('Erro ao atualizar item', item.id),
-      });
-    });
+  async markOrderAsDone(orderGroup: KdsOrderGroup) {
+    for (const item of orderGroup.items) {
+      try {
+        await firstValueFrom(
+          this.kdsService.updateItemStatus(orderGroup.orderId, item.id, KdsStatus.Done),
+        );
+
+        this.pendingItems = this.pendingItems.filter((i) => i.id !== item.id);
+        this.checkedItems.delete(item.id);
+      } catch (err) {
+        console.error('Erro ao atualizar item', item.id, err);
+      }
+    }
   }
 
   updateStatus(item: OrderItemResponseDto, newStatus: KdsStatus): void {

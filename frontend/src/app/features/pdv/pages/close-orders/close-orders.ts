@@ -27,7 +27,9 @@ export class CloseOrders implements OnInit {
   constructor() {
     effect(() => {
       const readyItem = this.signalrService.itemReadySignal();
-      if (readyItem) {
+      const newItem = this.signalrService.newItemSignal();
+
+      if (readyItem || newItem) {
         this.loadActiveOrders();
       }
     });

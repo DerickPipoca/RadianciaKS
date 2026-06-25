@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderService } from '../../../../core/services/order-service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, CreditCard, X, Printer } from 'lucide-angular';
+import { SignalrService } from '../../../../core/services/signalr-service';
 
 @Component({
   selector: 'app-orders',
@@ -19,6 +20,18 @@ export class Orders implements OnInit {
   public readonly Printer = Printer;
   private orderService = inject(OrderService);
   private router = inject(Router);
+  private signalrService = inject(SignalrService);
+
+  constructor() {
+    effect(() => {
+      const readyItem = this.signalrService.itemReadySignal();
+      const newItem = this.signalrService.newItemSignal();
+
+      if (readyItem || newItem) {
+        this.loadOrders();
+      }
+    });
+  }
 
   getOrderStatusLabel(order: OrderResponseDto) {
     return OrderStatus[order.orderStatus] || 'Desconhecido';
@@ -33,6 +46,7 @@ export class Orders implements OnInit {
 
   ngOnInit() {
     this.loadOrders();
+    this.signalrService.startConnection();
   }
 
   loadOrders() {
