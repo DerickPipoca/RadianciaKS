@@ -9,6 +9,7 @@ namespace RadianciaKS.Application.DTOs.Order
         public string? TableNumber { get; set; }
         public string? ReceiptUrl { get; set; }
         public OrderStatus OrderStatus { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public Decimal TotalAmount { get; set; }
         public Decimal ChangeAmount { get; set; }
 

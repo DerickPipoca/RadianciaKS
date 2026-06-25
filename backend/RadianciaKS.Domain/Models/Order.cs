@@ -6,6 +6,7 @@ namespace RadianciaKS.Domain.Models
     {
         public string? TableNumber { get; set; }
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Open;
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
         public decimal TotalAmount { get; set; }
         public string? ReceiptUrl { get; set; }
 

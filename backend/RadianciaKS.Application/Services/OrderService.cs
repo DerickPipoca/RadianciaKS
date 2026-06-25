@@ -54,8 +54,8 @@ namespace RadianciaKS.Application.Services
         {
             var order = await FindOrderByIdAsync(orderId);
 
-            if (order.OrderStatus == OrderStatus.Paid)
-                throw new ArgumentException($"Pedido já encerrado.");
+            if (order.PaymentStatus == PaymentStatus.Paid)
+                throw new ArgumentException($"Pedido já pago.");
 
             decimal totalValue = 0;
             foreach (var paymentDto in checkoutDto.Payments)
@@ -71,7 +71,7 @@ namespace RadianciaKS.Application.Services
             if (totalValue < order.TotalAmount)
                 throw new ArgumentException($"Valor pago é insuficiente.");
 
-            order.OrderStatus = OrderStatus.Paid;
+            order.PaymentStatus = PaymentStatus.Paid;
 
             order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
 
@@ -90,7 +90,7 @@ namespace RadianciaKS.Application.Services
             var baseQuery = _context.Orders
                 .Include(o => o.Items).ThenInclude(i => i.Product)
                 .Include(o => o.Payments)
-                .Where(o => o.OrderStatus == OrderStatus.Paid &&
+                .Where(o => o.PaymentStatus == PaymentStatus.Paid &&
                             o.CreatedAt >= startDate &&
                             o.CreatedAt <= endDate);
 
@@ -197,7 +197,7 @@ namespace RadianciaKS.Application.Services
         {
             var order = await FindOrderByIdAsync(orderId);
 
-            if (order.OrderStatus == OrderStatus.Canceled || order.OrderStatus == OrderStatus.Paid)
+            if (order.OrderStatus == OrderStatus.Canceled || order.PaymentStatus == PaymentStatus.Paid)
                 throw new ArgumentException("Incapaz de remover qualquer item deste pedido.");
 
             var item = await FindItemByIdAsync(order, itemId);
@@ -219,7 +219,7 @@ namespace RadianciaKS.Application.Services
 
             bool isAllItemsDone = order.Items.All(i => i.KdsStatus == KdsStatus.Done);
 
-            if (isAllItemsDone && order.OrderStatus != OrderStatus.Paid)
+            if (isAllItemsDone && order.OrderStatus != OrderStatus.Canceled)
             {
                 order.OrderStatus = OrderStatus.ReadyToServe;
             }
@@ -249,7 +249,7 @@ namespace RadianciaKS.Application.Services
         public async Task<OrderResponseDto> CancelOrder(Guid orderId)
         {
             var order = await FindOrderByIdAsync(orderId);
-            if (order.OrderStatus == OrderStatus.Paid)
+            if (order.PaymentStatus == PaymentStatus.Paid)
                 throw new ArgumentException("Não é possível cancelar um pedido já pago.");
 
             order.OrderStatus = OrderStatus.Canceled;
