@@ -29,11 +29,7 @@
         <tr>
           <td>
             <div class="product-info-cell">
-              @if (product.imagePath) {
-                <img [src]="product.imagePath" class="product-thumb-preview" />
-              } @else {
-                <div class="product-thumb-placeholder">🍔</div>
-              }
+              <div class="product-thumb-placeholder">🍔</div>
               <div class="product-text-group">
                 <strong class="product-name">{{ product.name }}</strong>
                 <span class="product-desc">{{ product.description || 'Sem descrição' }}</span>

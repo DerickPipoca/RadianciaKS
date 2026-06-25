@@ -534,3 +534,6 @@ Thumbs.db
 docker-compose.override.yml
 *.db
 *.sqlite
+
+
+wwwroot/

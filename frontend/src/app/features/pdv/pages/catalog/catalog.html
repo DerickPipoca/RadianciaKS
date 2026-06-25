@@ -61,7 +61,7 @@
 
             <div class="product-image">
               @if (product.imagePath) {
-                <img [src]="product.imagePath" [alt]="product.name" />
+                <img [src]="'https://localhost:7047' + product.imagePath" [alt]="product.name" />
               } @else {
                 <div class="no-image">🍔</div>
               }
