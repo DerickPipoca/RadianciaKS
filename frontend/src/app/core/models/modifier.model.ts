@@ -16,12 +16,14 @@ export interface ModifierGroupResponseDto {
 export interface ModifierOptionRequestDto {
   name: string;
   additionalPrice: number;
+  description?: string;
 }
 
 export interface ModifierOptionResponseDto {
   id: string;
   name: string;
   additionalPrice: number;
+  description?: string;
 }
 
 export interface OrderItemModifierResponseDto {

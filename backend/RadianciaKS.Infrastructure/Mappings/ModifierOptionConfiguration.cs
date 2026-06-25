@@ -13,6 +13,7 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.HasKey(o => o.Id);
             builder.Property(p => p.CreatedAt);
             builder.Property(p => p.Active);
+            builder.Property(p => p.Description);
             builder.HasIndex(o => o.TenantId);
 
             builder.Property(o => o.Name).IsRequired().HasMaxLength(100);

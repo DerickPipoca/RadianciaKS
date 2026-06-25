@@ -219,7 +219,15 @@
               <ul class="options-list">
                 @for (opt of group.options; track opt.id) {
                   <li class="option-item">
-                    <span class="opt-name">{{ opt.name }}</span>
+                    <div class="opt-left" style="display: flex; flex-direction: column; gap: 2px">
+                      <span class="opt-name">{{ opt.name }}</span>
+                      @if (opt.description) {
+                        <span class="opt-desc" style="font-size: 0.8rem; color: #888">{{
+                          opt.description
+                        }}</span>
+                      }
+                    </div>
+
                     <div class="opt-right">
                       <span class="opt-price"
                         >+ R$ {{ opt.additionalPrice | number: '1.2-2' }}</span
@@ -236,11 +244,28 @@
 
               <div class="add-option-inline">
                 <app-input-component
-                  placeholder="(ex: Cheddar, Chocolate)"
+                  placeholder="(ex: Cheddar)"
                   [value]="newOptions[group.id]?.name"
                   (valueChange)="
-                    newOptions[group.id] = newOptions[group.id] || { name: '', price: 0 };
+                    newOptions[group.id] = newOptions[group.id] || {
+                      name: '',
+                      price: 0,
+                      description: '',
+                    };
                     newOptions[group.id].name = $event
+                  "
+                ></app-input-component>
+
+                <app-input-component
+                  placeholder="Descrição (Opcional)"
+                  [value]="newOptions[group.id]?.description"
+                  (valueChange)="
+                    newOptions[group.id] = newOptions[group.id] || {
+                      name: '',
+                      price: 0,
+                      description: '',
+                    };
+                    newOptions[group.id].description = $event
                   "
                 ></app-input-component>
 
@@ -251,11 +276,16 @@
                   class="price-input-wrapper"
                   [value]="newOptions[group.id]?.price"
                   (valueChange)="
-                    newOptions[group.id] = newOptions[group.id] || { name: '', price: 0 };
+                    newOptions[group.id] = newOptions[group.id] || {
+                      name: '',
+                      price: 0,
+                      description: '',
+                    };
                     newOptions[group.id].price = $event
                   "
-                  style="height: 100%"
+                  style="height: 100%; max-width: 140px"
                 ></app-input-component>
+
                 <app-button-component
                   class="add-modifier-btn"
                   variant="primary"

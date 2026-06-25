@@ -24,7 +24,8 @@ namespace RadianciaKS.Application.Services
             {
                 ModifierGroupId = groupId,
                 Name = dto.Name,
-                AdditionalPrice = dto.AdditionalPrice
+                AdditionalPrice = dto.AdditionalPrice,
+                Description = dto.Description
             };
 
             _context.ModifierOptions.Add(option);
@@ -97,7 +98,8 @@ namespace RadianciaKS.Application.Services
                 {
                     Id = o.Id,
                     Name = o.Name,
-                    AdditionalPrice = o.AdditionalPrice
+                    AdditionalPrice = o.AdditionalPrice,
+                    Description = o.Description
                 }).ToList() ?? new List<ModifierOptionResponseDto>()
             };
         }

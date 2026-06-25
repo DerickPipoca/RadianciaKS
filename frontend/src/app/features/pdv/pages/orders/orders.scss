@@ -200,6 +200,10 @@
         border-radius: 16px;
         font-size: 0.8rem;
         font-weight: 600;
+        &.canceled {
+          background: #ff69693b;
+          color: $red-status;
+        }
         &.open {
           background: #e2e8f0;
           color: #475569;

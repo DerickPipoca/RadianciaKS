@@ -29,6 +29,9 @@
                 <div class="option-info">
                   <span class="option-name">{{ option.name }}</span>
 
+                  @if (option.description) {
+                    <span class="option-desc">{{ option.description }}</span>
+                  }
                   @if (option.additionalPrice > 0) {
                     <span class="option-price"
                       >+ R$ {{ option.additionalPrice | number: '1.2-2' }}</span

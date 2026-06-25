@@ -28,7 +28,7 @@ export class ProductManager
   categories: CategoryResponseDto[] = [];
   productModifiers: any[] = [];
   newGroup = { name: '', minChoices: 0, maxChoices: 1 };
-  newOptions: { [groupId: string]: { name: string; price: number } } = {};
+  newOptions: { [groupId: string]: { name: string; price: number; description?: string } } = {};
   dropdownOpen = false;
 
   protected override get crudService(): ICrudService<
@@ -136,12 +136,13 @@ export class ProductManager
   }
 
   addOption(groupId: string): void {
-    if (!this.newOptions[groupId]) this.newOptions[groupId] = { name: '', price: 0 };
+    if (!this.newOptions[groupId])
+      this.newOptions[groupId] = { name: '', price: 0, description: '' };
 
     const opt = this.newOptions[groupId];
     if (!opt.name) return;
 
-    const dto = { name: opt.name, additionalPrice: opt.price };
+    const dto = { name: opt.name, additionalPrice: opt.price, description: opt.description };
 
     this.modifierService.addOptionToGroup(groupId, dto as any).subscribe({
       next: (res) => {
@@ -150,7 +151,7 @@ export class ProductManager
           if (!group.options) group.options = [];
           group.options.push(res);
         }
-        this.newOptions[groupId] = { name: '', price: 0 };
+        this.newOptions[groupId] = { name: '', price: 0, description: '' };
         this.loadData();
       },
       error: () => alert('Erro ao adicionar opção.'),

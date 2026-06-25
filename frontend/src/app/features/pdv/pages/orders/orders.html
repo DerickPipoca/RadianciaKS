@@ -34,12 +34,13 @@
             <span class="status-badge" [ngClass]="getStatusClass(order)">
               {{ getOrderStatusLabel(order) }}
             </span>
-
-            <span class="payment-badge" [ngClass]="getPaymentStatusClass(order)">
-              {{ getPaymentStatusLabel(order) }}
-            </span>
+            @if (getOrderStatusLabel(order) !== 'Canceled') {
+              <span class="payment-badge" [ngClass]="getPaymentStatusClass(order)">
+                {{ getPaymentStatusLabel(order) }}
+              </span>
+            }
           </div>
-
+          
           <button class="btn-action" (click)="openDetails(order)">Detalhes</button>
         </div>
       </div>
@@ -108,7 +109,8 @@
 
         <footer class="modal-footer">
           @if (
-            getStatusClass(selectedOrder) !== 'canceled' && getStatusClass(selectedOrder) !== 'paid'
+            getStatusClass(selectedOrder) !== 'canceled' &&
+            getPaymentStatusLabel(selectedOrder) !== 'Pago'
           ) {
             <div class="modal-actions-left">
               <button class="btn-cancel" (click)="cancelOrder(selectedOrder)">
