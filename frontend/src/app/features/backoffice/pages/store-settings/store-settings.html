@@ -1,0 +1,76 @@
+<div class="page-header">
+  <h2>Configurações da Loja</h2>
+</div>
+
+<div class="settings-card">
+  <div class="form-row">
+    <div class="form-input">
+      <label>Razão Social*</label>
+      <app-input-component
+        label="Nome da Loja"
+        [(value)]="settings.storeName"
+      ></app-input-component>
+    </div>
+    <div class="form-input">
+      <label>CNPJ*</label>
+      <app-input-component label="CNPJ" [(value)]="settings.cnpj"></app-input-component>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-input">
+      <label>Endereço</label>
+      <app-input-component label="Endereço" [(value)]="settings.address"></app-input-component>
+    </div>
+    <div class="form-input">
+      <label>Telefone</label>
+      <app-input-component label="Telefone" [(value)]="settings.phone"></app-input-component>
+    </div>
+  </div>
+
+  <div class="form-input">
+    <label>Rodapé do Recibo</label>
+    <app-input-component
+      label="Rodapé do Recibo"
+      [(value)]="settings.receiptFooter"
+    ></app-input-component>
+  </div>
+
+  <div class="form-input">
+    <label>Taxa de serviço</label>
+    <app-input-component
+      label="Taxa de Serviço (%)"
+      type="number"
+      [(value)]="settings.serviceCharge"
+    ></app-input-component>
+  </div>
+
+  <div class="logo-section">
+    <div class="logo-box">
+      <label>Logo Pequena</label>
+      <div class="upload-zone" (click)="smallLogoInput.click()">
+        @if (settings.smallLogoPath) {
+          <img [src]="'https://localhost:7047' + settings.smallLogoPath" />
+        } @else {
+          <span>+ Logo Pequena</span>
+        }
+        <input type="file" #smallLogoInput hidden (change)="onLogoSelected($event, false)" />
+      </div>
+    </div>
+
+    <div class="logo-box">
+      <label>Logo Grande</label>
+      <div class="upload-zone" (click)="bigLogoInput.click()">
+        @if (settings.bigLogoPath) {
+          <img [src]="'https://localhost:7047' + settings.bigLogoPath" />
+        } @else {
+          <span>+ Logo Grande</span>
+        }
+        <input type="file" #bigLogoInput hidden (change)="onLogoSelected($event, true)" />
+      </div>
+    </div>
+  </div>
+  <app-button-component [size]="'lg'" variant="primary" (click)="save()"
+    >Salvar Alterações</app-button-component
+  >
+</div>
