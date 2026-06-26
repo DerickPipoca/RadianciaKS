@@ -7,7 +7,7 @@ export interface StoreSettingsResponseDto {
   receiptFooter?: string;
   smallLogoPath?: string;
   bigLogoPath?: string;
-  serviceCharge?: number;
+  serviceCharge: number;
 }
 
 export interface StoreSettingsRequestDto {

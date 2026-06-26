@@ -164,6 +164,18 @@ namespace RadianciaKS.Application.Services
             orderToAdd.EmployeeId = employeeId;
 
             var order = _context.Orders.Add(orderToAdd);
+
+            decimal totalValue = 0;
+            foreach (var paymentDto in dto.Payments)
+            {
+                totalValue += paymentDto.Amount;
+            }
+
+            if (totalValue >= totalPrice)
+            {
+                orderToAdd.PaymentStatus = PaymentStatus.Paid;
+            }
+
             await _context.SaveChangesAsync();
 
             var tenantId = order.Entity.TenantId.ToString();
@@ -266,11 +278,15 @@ namespace RadianciaKS.Application.Services
             newItem.Product = product;
             decimal modifiersTotal = 0;
 
-            if (itemDto.SelectedModifierIds != null && itemDto.SelectedModifierIds.Count != 0)
+            if (itemDto.SelectedModifierIds != null && itemDto.SelectedModifierIds.Any())
             {
+                var modifiers = await _context.ModifierOptions
+                    .Where(m => itemDto.SelectedModifierIds.Contains(m.Id))
+                    .ToListAsync();
+
                 foreach (var modId in itemDto.SelectedModifierIds)
                 {
-                    var modifierOption = await _context.ModifierOptions.FindAsync(modId);
+                    var modifierOption = modifiers.FirstOrDefault(m => m.Id == modId);
                     if (modifierOption == null)
                         throw new ArgumentException("Opção adicional não encontrada.");
 

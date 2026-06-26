@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, ViewChild } from '@angular/core';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderService } from '../../../../core/services/order-service';
@@ -8,10 +8,11 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, CreditCard, X, Printer } from 'lucide-angular';
 import { SignalrService } from '../../../../core/services/signalr-service';
 import { PaymentStatus } from '../../../../core/enums/payment-status';
+import { PrintPreview } from '../../components/print-preview/print-preview';
 
 @Component({
   selector: 'app-orders',
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, PrintPreview],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
 })
@@ -22,6 +23,10 @@ export class Orders implements OnInit {
   private orderService = inject(OrderService);
   private router = inject(Router);
   private signalrService = inject(SignalrService);
+
+  isPrinting = false;
+
+  @ViewChild(PrintPreview) printPreview!: PrintPreview;
 
   constructor() {
     effect(() => {
@@ -147,5 +152,36 @@ export class Orders implements OnInit {
 
   goToCheckout(order: OrderResponseDto) {
     this.router.navigate(['/pdv/checkout'], { queryParams: { orderId: order.id } });
+  }
+
+  confirmPrint() {
+    const printWindow = window.open('', '_blank', 'width=300,height=600');
+
+    if (printWindow) {
+      const content = document.getElementById('print-section')?.innerHTML;
+
+      printWindow.document.write(`
+      <html>
+        <head>
+          <title>Imprimir Comanda</title>
+          <style>
+            body { font-family: 'Courier New', monospace; font-size: 14px; margin: 0; padding: 10px; width: 80mm; }
+            .receipt-container { width: 80mm; }
+            /* Adicione aqui qualquer estilo CSS que o seu recibo precise */
+          </style>
+        </head>
+        <body>
+          <div class="receipt-container">${content}</div>
+        </body>
+      </html>
+    `);
+
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 100);
+    }
   }
 }

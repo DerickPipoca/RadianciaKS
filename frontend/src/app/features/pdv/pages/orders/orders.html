@@ -40,7 +40,7 @@
               </span>
             }
           </div>
-          
+
           <button class="btn-action" (click)="openDetails(order)">Detalhes</button>
         </div>
       </div>
@@ -122,10 +122,15 @@
               </button>
             </div>
           }
-          <button class="btn-print">
+
+          <button (click)="confirmPrint()" class="btn-print">
             <lucide-icon [img]="Printer" class="icon" /> Imprimir Comanda
           </button>
         </footer>
+      </div>
+      <app-print-preview [order]="selectedOrder"></app-print-preview>
+      <div style="position: absolute; left: -9999px">
+        <app-print-preview [order]="selectedOrder"></app-print-preview>
       </div>
     </div>
   }

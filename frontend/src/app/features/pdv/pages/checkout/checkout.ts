@@ -160,7 +160,6 @@ export class Checkout implements OnInit {
         },
       });
     }
-    // --- CENÁRIO A: Criar pedido do zero pelo Carrinho ---
     else {
       const orderItems: OrderItemRequestDto[] = this.cartService.items().map((cartItem) => ({
         productId: cartItem.product.id,
