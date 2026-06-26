@@ -48,4 +48,20 @@ export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryRespon
     }
     return true;
   }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+
+    if (file) {
+      this.categoryService.uploadImage(file).subscribe({
+        next: (res) => {
+          this.currentItem.imagePath = res.url;
+        },
+        error: (err) => {
+          console.error('Erro no upload', err);
+          alert('Falha ao enviar a imagem.');
+        },
+      });
+    }
+  }
 }

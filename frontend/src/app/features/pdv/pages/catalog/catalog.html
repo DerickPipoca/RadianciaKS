@@ -29,7 +29,11 @@
         @for (category of categories; track category.id) {
           <div class="category-card" (click)="selectCategory(category)">
             @if (category.imagePath) {
-              <img [src]="category.imagePath" class="bg-img" [alt]="category.name" />
+              <img
+                [src]="'https://localhost:7047' + category.imagePath"
+                class="bg-img"
+                [alt]="category.name"
+              />
             } @else {
               <div class="bg-placeholder"></div>
             }

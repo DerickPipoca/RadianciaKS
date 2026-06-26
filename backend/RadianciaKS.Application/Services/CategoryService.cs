@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.DTOs.Category;
 using RadianciaKS.Application.Interfaces;
@@ -11,12 +12,14 @@ namespace RadianciaKS.Application.Services
     {
         private readonly IApplicationDbContext _context;
         private readonly IValidator<CategoryRequestDto> _validator;
+        private readonly IImageStorageService _imageStorageService;
         private readonly CategoryMapper _mapper;
 
-        public CategoryService(IApplicationDbContext applicationDbContext, IValidator<CategoryRequestDto> validator)
+        public CategoryService(IApplicationDbContext applicationDbContext, IValidator<CategoryRequestDto> validator, IImageStorageService imageStorageService)
         {
             _context = applicationDbContext;
             _validator = validator;
+            _imageStorageService = imageStorageService;
             _mapper = new CategoryMapper();
         }
 
@@ -69,6 +72,12 @@ namespace RadianciaKS.Application.Services
 
             await _context.SaveChangesAsync();
             return _mapper.ToDto(category);
+        }
+
+        public async Task<string> UploadImage(IFormFile file)
+        {
+            var imageUrl = await _imageStorageService.UploadImageAsync(file, "categories");
+            return imageUrl;
         }
     }
 }

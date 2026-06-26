@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using RadianciaKS.Application.DTOs.Category;
 
 namespace RadianciaKS.Application.Services.Interfaces
@@ -9,5 +10,6 @@ namespace RadianciaKS.Application.Services.Interfaces
         Task<CategoryResponseDto> GetCategoryById(Guid id);
         Task<CategoryResponseDto> UpdateCategory(Guid id, CategoryRequestDto dto);
         Task DeleteCategory(Guid id);
+        Task<string> UploadImage(IFormFile file);
     }
 }

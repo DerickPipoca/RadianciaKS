@@ -57,5 +57,20 @@ namespace RadianciaKS.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("upload-image")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            try
+            {
+                var imageUrl = await _categoryService.UploadImage(file);
+                return Ok(new { url = imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
