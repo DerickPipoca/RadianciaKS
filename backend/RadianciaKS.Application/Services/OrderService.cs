@@ -71,9 +71,7 @@ namespace RadianciaKS.Application.Services
             if (totalValue < order.TotalAmount)
                 throw new ArgumentException($"Valor pago é insuficiente.");
 
-            order.PaymentStatus = PaymentStatus.Paid;
-
-            order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
+            order = await CheckoutOrderAsync(order);
 
             await _context.SaveChangesAsync();
 
@@ -83,6 +81,13 @@ namespace RadianciaKS.Application.Services
             orderResponse.ChangeAmount = changeAmount;
 
             return orderResponse;
+        }
+
+        private async Task<Order> CheckoutOrderAsync(Order order)
+        {
+            order.PaymentStatus = PaymentStatus.Paid;
+            order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
+            return order;
         }
 
         public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(DateTime startDate, DateTime endDate)
@@ -144,6 +149,10 @@ namespace RadianciaKS.Application.Services
         {
             var employeeId = _userProvider.GetUserId() ?? throw new UnauthorizedAccessException("Usuário não autenticado.");
 
+            var employee = await _context.Employees.FindAsync(employeeId);
+            if (employee == null)
+                throw new Exception("Funcionário não encontrado no banco de dados.");
+
             await _validator.ValidateAndThrowAsync(dto);
 
             var orderToAdd = _mapper.ToEntity(dto);
@@ -163,7 +172,6 @@ namespace RadianciaKS.Application.Services
             orderToAdd.TotalAmount = totalPrice;
             orderToAdd.EmployeeId = employeeId;
 
-            var order = _context.Orders.Add(orderToAdd);
 
             decimal totalValue = 0;
             foreach (var paymentDto in dto.Payments)
@@ -173,20 +181,32 @@ namespace RadianciaKS.Application.Services
 
             if (totalValue >= totalPrice)
             {
-                orderToAdd.PaymentStatus = PaymentStatus.Paid;
+                orderToAdd = await CheckoutOrderAsync(orderToAdd);
             }
 
-            await _context.SaveChangesAsync();
-
-            var tenantId = order.Entity.TenantId.ToString();
-
-            foreach (var item in order.Entity.Items)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                var itemResponse = _orderItemMapper.ToDto(item);
-                await _kdsNotification.NotifyNewItemAsync(tenantId, itemResponse);
-            }
+                // 2. Adicione ao contexto
+                var order = await _context.Orders.AddAsync(orderToAdd);
+                var tenantId = order.Entity.TenantId.ToString();
 
-            return _mapper.ToDto(order.Entity);
+                // 3. Salve
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                foreach (var item in order.Entity.Items)
+                {
+                    var itemResponse = _orderItemMapper.ToDto(item);
+                    await _kdsNotification.NotifyNewItemAsync(tenantId, itemResponse);
+                }
+                return _mapper.ToDto(orderToAdd);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<OrderResponseDto>> GetAllOrders()

@@ -5,6 +5,7 @@ namespace RadianciaKS.Application.Interfaces
 {
     public interface IApplicationDbContext
     {
+        Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
         DbSet<Category> Categories { get; }
         DbSet<Product> Products { get; }
         DbSet<Order> Orders { get; }
