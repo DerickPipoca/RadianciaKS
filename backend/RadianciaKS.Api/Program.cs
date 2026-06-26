@@ -60,6 +60,7 @@ builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>(
 
 builder.Services.AddScoped<IImageStorageService, LocalImageStorageService>();
 
+builder.Services.AddScoped<IStoreSettingsService, StoreSettingsService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();

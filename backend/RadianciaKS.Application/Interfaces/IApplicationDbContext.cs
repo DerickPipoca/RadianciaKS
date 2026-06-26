@@ -11,6 +11,7 @@ namespace RadianciaKS.Application.Interfaces
         DbSet<OrderItem> OrderItems { get; }
         DbSet<Payment> Payments { get; }
         DbSet<Employee> Employees { get; }
+        DbSet<StoreSettings> StoreSettings { get; }
         DbSet<ModifierGroup> ModifierGroups { get; }
         DbSet<ModifierOption> ModifierOptions { get; }
         DbSet<OrderItemModifier> OrderItemModifiers { get; }
