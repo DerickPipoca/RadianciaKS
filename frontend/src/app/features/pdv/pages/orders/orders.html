@@ -20,6 +20,7 @@
       <div class="order-card">
         <div class="card-header">
           <span class="order-number">#{{ order.id | slice: 0 : 6 | uppercase }}</span>
+          <span class="order-time">{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
         </div>
 
         <div class="card-body">

@@ -47,8 +47,14 @@
   </div>
 
   <div style="text-align: center; margin-top: 20px; font-size: 10px">
-    <p style="font-size: 10px">{{ settings.address }}</p>
-    <p style="font-size: 10px">CNPJ:{{ settings.cnpj }}</p>
+    <p style="font-size: 10px">{{ order.createdAt | date: 'dd/MM/yyyy | HH:mm' }}</p>
+    <p style="font-size: 10px">
+      Garçom: {{ order.createdByName }} | Cobrador:
+      {{ order.paidByName ? order.paidByName : 'n/a' }}
+    </p>
+    <p style="font-size: 10px">Endereço: {{ settings.address }}</p>
+    <p style="font-size: 10px">CNPJ: {{ settings.cnpj }}</p>
     <p>{{ settings.receiptFooter }}</p>
+    <p>SISTEMA RADIÂNCIA</p>
   </div>
 </div>

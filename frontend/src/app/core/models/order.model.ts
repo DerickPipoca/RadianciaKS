@@ -36,12 +36,16 @@ export interface OrderRequestDto {
 
 export interface OrderResponseDto {
   id: string;
+  createdAt: Date;
   tableNumber?: string;
   receiptUrl?: string;
   orderStatus: OrderStatus;
   totalAmount: number;
   changeAmount: number;
   paymentStatus: PaymentStatus;
+
+  createdByName?: string;
+  paidByName: string;
 
   items: OrderItemResponseDto[];
   payments: PaymentResponseDto[];
