@@ -7,16 +7,20 @@ namespace RadianciaKS.Application.Mappers
     [Mapper]
     public partial class OrderMapper
     {
+        private string MapCreatedByName(Employee? employee) => employee?.Name ?? "Sistema";
+        private string? MapPaidByName(Employee? employee) => employee?.Name;
+
         [UseMapper]
         private readonly OrderItemMapper _itemMapper = new();
         [UseMapper]
         private readonly PaymentMapper _paymentMapper = new();
 
         [MapperIgnoreSource("TenantId")]
-        [MapperIgnoreSource("CreatedAt")]
         [MapperIgnoreSource("Active")]
+        [MapperIgnoreSource("PaidById")]
         [MapperIgnoreTarget("ChangeAmount")]
-        [MapperIgnoreSource("Employee")]
+        [MapProperty(nameof(Order.Employee), nameof(OrderResponseDto.CreatedByName), Use = nameof(MapCreatedByName))]
+        [MapProperty(nameof(Order.PaidBy), nameof(OrderResponseDto.PaidByName), Use = nameof(MapPaidByName))]
         public partial OrderResponseDto ToDto(Order order);
 
         [MapperIgnoreTarget("Id")]
@@ -28,6 +32,8 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreTarget("ReceiptUrl")]
         [MapperIgnoreTarget("Employee")]
         [MapperIgnoreTarget("PaymentStatus")]
+        [MapperIgnoreTarget("PaidById")]
+        [MapperIgnoreTarget("PaidBy")]
         public partial Order ToEntity(OrderRequestDto dto);
 
     }

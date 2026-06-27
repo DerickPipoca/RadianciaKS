@@ -53,6 +53,7 @@ namespace RadianciaKS.Application.Services
         public async Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto)
         {
             var order = await FindOrderByIdAsync(orderId);
+            var employeeId = _userProvider.GetUserId() ?? throw new UnauthorizedAccessException("Usuário não autenticado.");
 
             if (order.PaymentStatus == PaymentStatus.Paid)
                 throw new ArgumentException($"Pedido já pago.");
@@ -71,7 +72,7 @@ namespace RadianciaKS.Application.Services
             if (totalValue < order.TotalAmount)
                 throw new ArgumentException($"Valor pago é insuficiente.");
 
-            order = await CheckoutOrderAsync(order);
+            order = await CheckoutOrderAsync(order, employeeId);
 
             await _context.SaveChangesAsync();
 
@@ -83,9 +84,10 @@ namespace RadianciaKS.Application.Services
             return orderResponse;
         }
 
-        private async Task<Order> CheckoutOrderAsync(Order order)
+        private async Task<Order> CheckoutOrderAsync(Order order, Guid paidById)
         {
             order.PaymentStatus = PaymentStatus.Paid;
+            order.PaidById = paidById;
             order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
             return order;
         }
@@ -156,6 +158,10 @@ namespace RadianciaKS.Application.Services
             await _validator.ValidateAndThrowAsync(dto);
 
             var orderToAdd = _mapper.ToEntity(dto);
+
+            orderToAdd.PaidById = employeeId;
+            orderToAdd.EmployeeId = employeeId;
+
             orderToAdd.Items.Clear();
 
             decimal totalPrice = 0;
@@ -181,17 +187,15 @@ namespace RadianciaKS.Application.Services
 
             if (totalValue >= totalPrice)
             {
-                orderToAdd = await CheckoutOrderAsync(orderToAdd);
+                orderToAdd = await CheckoutOrderAsync(orderToAdd, employeeId);
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // 2. Adicione ao contexto
                 var order = await _context.Orders.AddAsync(orderToAdd);
                 var tenantId = order.Entity.TenantId.ToString();
 
-                // 3. Salve
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -330,6 +334,8 @@ namespace RadianciaKS.Application.Services
             .Include(o => o.Items).ThenInclude(i => i.Product)
             .Include(o => o.Items).ThenInclude(i => i.SelectedModifiers)
             .Include(o => o.Payments)
+            .Include(o => o.Employee)
+            .Include(o => o.PaidBy)
             .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
