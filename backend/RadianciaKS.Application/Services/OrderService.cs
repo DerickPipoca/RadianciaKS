@@ -159,7 +159,6 @@ namespace RadianciaKS.Application.Services
 
             var orderToAdd = _mapper.ToEntity(dto);
 
-            orderToAdd.PaidById = employeeId;
             orderToAdd.EmployeeId = employeeId;
 
             orderToAdd.Items.Clear();
