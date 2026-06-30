@@ -45,7 +45,10 @@
     <p>Taxa ({{ settings.serviceCharge }}%): R$ {{ calculateServiceCharge() | number: '1.2-2' }}</p>
     <p style="font-size: 18px">TOTAL: R$ {{ order.totalAmount | number: '1.2-2' }}</p>
   </div>
-
+  <div style="text-align: center" class="qr-container">
+    <p>Consulte sua Nota Fiscal:</p>
+    <img [src]="qrCodeDataUrl" alt="QR Code da Nota Fiscal" />
+  </div>
   <div style="text-align: center; margin-top: 20px; font-size: 10px">
     <p style="font-size: 10px">{{ order.createdAt | date: 'dd/MM/yyyy | HH:mm' }}</p>
     <p style="font-size: 10px">

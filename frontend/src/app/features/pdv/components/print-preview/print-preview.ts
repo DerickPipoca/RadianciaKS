@@ -4,6 +4,7 @@ import { OrderResponseDto } from '../../../../core/models/order.model';
 import { StoreSettingsService } from '../../../../core/services/store-settings-service';
 import { StoreSettingsResponseDto } from '../../../../core/models/store-settings.model';
 import { PaymentMethod } from '../../../../core/enums/payment-method';
+import * as QRCode from 'qrcode';
 
 @Component({
   selector: 'app-print-preview',
@@ -14,10 +15,15 @@ import { PaymentMethod } from '../../../../core/enums/payment-method';
 export class PrintPreview implements OnInit {
   @Input() order!: OrderResponseDto;
 
+  public qrCodeDataUrl: string = '';
+
   private storeService = inject(StoreSettingsService);
   settings: StoreSettingsResponseDto | null = null;
 
-  ngOnInit() {
+  async ngOnInit() {
+    if (this.order?.receiptUrl) {
+      this.qrCodeDataUrl = await this.gerarQRCode(this.order.receiptUrl);
+    }
     this.storeService.getSettings().subscribe({
       next: (data) => {
         this.settings = data;
@@ -46,5 +52,18 @@ export class PrintPreview implements OnInit {
     setTimeout(() => {
       window.print();
     }, 500);
+  }
+
+  async gerarQRCode(url: string) {
+    try {
+      const qrCodeDataUrl = await QRCode.toDataURL(url, {
+        width: 200,
+        margin: 1,
+      });
+      return qrCodeDataUrl;
+    } catch (err) {
+      console.error(err);
+      return '';
+    }
   }
 }

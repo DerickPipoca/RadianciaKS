@@ -218,6 +218,8 @@ namespace RadianciaKS.Application.Services
                 .Include(o => o.Items).ThenInclude(i => i.Product)
                 .Include(o => o.Items).ThenInclude(i => i.SelectedModifiers)
                 .Include(o => o.Payments)
+                .Include(o => o.Employee)
+                .Include(o => o.PaidBy)
                 .ToListAsync();
             return orders.Select(c => _mapper.ToDto(c));
         }
