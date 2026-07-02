@@ -38,9 +38,9 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetAllOrders([FromQuery] OrderQueryParameters queryParameters)
         {
-            var orders = await _orderService.GetAllOrders();
+            var orders = await _orderService.GetAllOrders(queryParameters);
 
             return Ok(orders);
         }

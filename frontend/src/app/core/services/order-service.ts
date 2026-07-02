@@ -1,9 +1,12 @@
+import { PaymentStatus } from './../enums/payment-status';
 import { CheckoutRequestDto } from './../models/order.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { OrderItemRequestDto, OrderRequestDto, OrderResponseDto } from '../models/order.model';
 import { Observable } from 'rxjs';
 import { DashboardMetrics } from '../models/dashboard-metrics.model';
+import { PagedResponse } from '../models/paged-response.model';
+import { OrderStatus } from '../enums/order-status';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +15,24 @@ export class OrderService {
   private http = inject(HttpClient);
   private readonly endPoint = 'order';
 
-  getAll(): Observable<OrderResponseDto[]> {
-    return this.http.get<OrderResponseDto[]>(this.endPoint);
+  getAll(params: {
+    pageNumber: number;
+    pageSize: number;
+    tableNumber?: string;
+    status?: OrderStatus;
+    paymentStatus?: PaymentStatus;
+  }): Observable<PagedResponse<OrderResponseDto>> {
+    let queryParams = new HttpParams()
+      .set('pageNumber', params.pageNumber.toString())
+      .set('pageSize', params.pageSize.toString());
+
+    if (params.tableNumber) queryParams = queryParams.set('tableNumber', params.tableNumber);
+    if (params.status) queryParams = queryParams.set('orderStatus', params.status);
+    if (params.paymentStatus) queryParams = queryParams.set('paymentStatus', params.paymentStatus);
+
+    return this.http.get<PagedResponse<OrderResponseDto>>(`${this.endPoint}`, {
+      params: queryParams,
+    });
   }
 
   getById(id: string): Observable<OrderResponseDto> {

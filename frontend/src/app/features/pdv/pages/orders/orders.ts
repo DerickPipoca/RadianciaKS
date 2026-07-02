@@ -5,14 +5,16 @@ import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderService } from '../../../../core/services/order-service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, CreditCard, X, Printer } from 'lucide-angular';
+import { LucideAngularModule, CreditCard, X, Printer, TextSearch } from 'lucide-angular';
 import { SignalrService } from '../../../../core/services/signalr-service';
 import { PaymentStatus } from '../../../../core/enums/payment-status';
 import { PrintPreview } from '../../components/print-preview/print-preview';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
 
 @Component({
   selector: 'app-orders',
-  imports: [CommonModule, FormsModule, LucideAngularModule, PrintPreview],
+  imports: [CommonModule, FormsModule, LucideAngularModule, PrintPreview, InputComponent],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
 })
@@ -20,15 +22,29 @@ export class Orders implements OnInit {
   public readonly CreditCard = CreditCard;
   public readonly XIcon = X;
   public readonly Printer = Printer;
+  public readonly TextSearch = TextSearch;
   private orderService = inject(OrderService);
   private router = inject(Router);
   private signalrService = inject(SignalrService);
 
   isPrinting = false;
 
+  searchTerm: string = '';
+  searchSubject = new Subject<string>();
+
+  pageNumber = 1;
+  pageSize = 12;
+  totalRecords = 0;
+
+  dropdownOpen = false;
+
   @ViewChild(PrintPreview) printPreview!: PrintPreview;
 
   constructor() {
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+      this.pageNumber = 1;
+      this.loadOrders();
+    });
     effect(() => {
       const readyItem = this.signalrService.itemReadySignal();
       const newItem = this.signalrService.newItemSignal();
@@ -39,9 +55,6 @@ export class Orders implements OnInit {
     });
   }
 
-  getOrderStatusLabel(order: OrderResponseDto) {
-    return OrderStatus[order.orderStatus] || 'Desconhecido';
-  }
   recentOrders: OrderResponseDto[] = [];
   filteredOrders: OrderResponseDto[] = [];
 
@@ -55,11 +68,33 @@ export class Orders implements OnInit {
     this.signalrService.startConnection();
   }
 
+  changeFilterStatus(status: string) {
+    this.filterStatus = status;
+    this.onStatusChange();
+  }
+
   loadOrders() {
-    this.orderService.getAll().subscribe({
-      next: (data) => {
-        this.recentOrders = data;
-        this.filteredOrders = data;
+    let statusEnum: OrderStatus | undefined = undefined;
+    let paymentStatus: PaymentStatus | undefined = undefined;
+    if (this.filterStatus === 'Paid') {
+      paymentStatus = PaymentStatus.Paid;
+    } else if (this.filterStatus) {
+      statusEnum = this.filterStatus ? (OrderStatus[this.filterStatus as any] as any) : null;
+    }
+
+    const params = {
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      tableNumber: this.searchTerm,
+      status: statusEnum,
+      paymentStatus: paymentStatus,
+    };
+    this.orderService.getAll(params).subscribe({
+      next: (response) => {
+        this.recentOrders = response.data;
+        this.filteredOrders = response.data;
+
+        this.totalRecords = response.totalRecords;
       },
       error: (err) => console.error('Erro ao buscar pedidos na API:', err),
     });
@@ -84,6 +119,34 @@ export class Orders implements OnInit {
     this.selectedOrder = null;
   }
 
+  changePage(newPage: number) {
+    this.pageNumber = newPage;
+    this.loadOrders();
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalRecords / this.pageSize);
+  }
+
+  onStatusChange() {
+    this.pageNumber = 1;
+    this.searchTerm = '';
+    this.loadOrders();
+  }
+
+  get rangeStart(): number {
+    return (this.pageNumber - 1) * this.pageSize + 1;
+  }
+
+  get rangeEnd(): number {
+    return Math.min(this.pageNumber * this.pageSize, this.totalRecords);
+  }
+
+  get pageNumbers(): number[] {
+    const total = this.getTotalPages();
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
   goBack() {
     this.router.navigate(['/pdv']);
   }
@@ -97,7 +160,6 @@ export class Orders implements OnInit {
       this.orderService.cancelOrder(order.id).subscribe({
         next: () => {
           order.orderStatus = OrderStatus.Canceled as any;
-          this.applyFilters();
           this.closeDetails();
         },
         error: (err) => {
@@ -105,6 +167,46 @@ export class Orders implements OnInit {
           alert('Não foi possível cancelar o pedido. Tente novamente.');
         },
       });
+    }
+  }
+
+  getOrderStatusLabel(order: OrderResponseDto): string {
+    switch (order.orderStatus) {
+      case OrderStatus.Canceled:
+        return 'Cancelado';
+      case OrderStatus.Preparing:
+        return 'Preparando';
+      case OrderStatus.ReadyToServe:
+        return 'Pronto p/ servir';
+      case OrderStatus.Delivered:
+        return 'Entregue';
+      case OrderStatus.Open:
+        return 'Aberto';
+      default:
+        return 'Desconhecido';
+    }
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  getOrderStatus(orderStatus: string): string | null {
+    if (orderStatus === 'Paid') return 'Pago';
+    let statusEnum = orderStatus ? (OrderStatus[orderStatus as any] as any) : null;
+    switch (statusEnum) {
+      case OrderStatus.Canceled:
+        return 'Cancelado';
+      case OrderStatus.Preparing:
+        return 'Preparando';
+      case OrderStatus.ReadyToServe:
+        return 'Pronto p/ servir';
+      case OrderStatus.Delivered:
+        return 'Entregue';
+      case OrderStatus.Open:
+        return 'Aberto';
+      default:
+        return null;
     }
   }
 
@@ -138,18 +240,6 @@ export class Orders implements OnInit {
     }
   }
 
-  applyFilters() {
-    this.filteredOrders = this.recentOrders.filter((order) => {
-      if (!this.filterStatus) return true;
-
-      if (this.filterStatus === 'Paid') {
-        return order.paymentStatus === PaymentStatus.Paid;
-      } else {
-        return OrderStatus[order.orderStatus] === this.filterStatus;
-      }
-    });
-  }
-
   goToCheckout(order: OrderResponseDto) {
     this.router.navigate(['/pdv/checkout'], { queryParams: { orderId: order.id } });
   }
@@ -167,7 +257,6 @@ export class Orders implements OnInit {
           <style>
             body { font-family: 'Courier New', monospace; font-size: 14px; margin: 0; padding: 10px; width: 80mm; }
             .receipt-container { width: 80mm; }
-            /* Adicione aqui qualquer estilo CSS que o seu recibo precise */
           </style>
         </head>
         <body>

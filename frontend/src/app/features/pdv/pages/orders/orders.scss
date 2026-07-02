@@ -11,8 +11,8 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 24px;
-  background-color: $bg-light-base;
+  padding: 16px 0px;
+  justify-content: space-between;
 
   .btn-back {
     background: transparent;
@@ -27,6 +27,12 @@
     &:hover {
       color: $primary-color;
     }
+  }
+
+  .left-topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
 
   .search-bar {
@@ -50,9 +56,32 @@
 }
 
 .content-area {
+  height: 92vh;
   flex: 1;
-  padding: 0 24px 24px;
+  padding: 24px 24px 24px;
   overflow-y: auto;
+  background-color: $bg-light-base;
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  justify-content: space-between;
+  select {
+    padding: 8px 12px;
+    border: 1px solid $border-color-light;
+    border-radius: $radius-sm;
+    font-family: $font-family-base;
+    background-color: white;
+    color: $text-primary-light;
+    outline: none;
+
+    &:focus {
+      border-color: $primary-color;
+    }
+  }
 }
 
 .header-section {
@@ -456,5 +485,112 @@
       background: $bg-light-base;
     }
     align-items: center;
+  }
+}
+
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 16px;
+  border-top: 1px solid $border-color-light;
+  color: $text-primary-light;
+
+  .page-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    button {
+      padding: 6px 12px;
+      border: 1px solid $border-color-dark;
+      border-radius: $radius-sm;
+      cursor: pointer;
+
+      &:hover:not([disabled]) {
+        border-color: $border-color-dark;
+      }
+      &.active {
+        background: $primary-color;
+        border-color: $primary-color;
+      }
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .results-info {
+    font-size: 0.9rem;
+    color: $text-secondary-light;
+    b {
+      color: $text-primary-light;
+    }
+  }
+}
+
+.custom-select-container {
+  position: relative;
+  width: 96.5%;
+
+  .custom-select-trigger {
+    height: 32.25px;
+    width: 100%;
+    padding: 0px 11px;
+    background: $bg-dark-surface;
+    border: 1px solid $border-color-light;
+    border-radius: $radius-sm;
+    color: $text-primary-dark;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: $font-family-base;
+
+    &:focus {
+      border-color: $primary-color;
+      outline: none;
+    }
+
+    .arrow {
+      font-size: 0.7rem;
+      color: $text-secondary-dark;
+    }
+  }
+
+  .options-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: $bg-dark-surface;
+    border: 1px solid $border-color-light;
+    border-radius: $radius-sm;
+    list-style: none;
+    margin: 4px 0 0 0;
+    padding: 0;
+    z-index: 1100;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: $shadow-md;
+
+    .option {
+      padding: 10px 12px;
+      color: $text-primary-dark;
+      cursor: pointer;
+      transition: background 0.15s ease;
+
+      &:hover {
+        background-color: $border-color-light;
+        color: $bg-dark-base;
+      }
+
+      &.is-selected {
+        background-color: $primary-color;
+        color: white;
+      }
+    }
   }
 }

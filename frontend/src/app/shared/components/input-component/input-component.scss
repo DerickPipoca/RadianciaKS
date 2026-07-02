@@ -1,4 +1,9 @@
 @use '../../../../styles' as *;
+
+lucide-icon {
+  height: 24px;
+}
+
 .input-wrapper {
   display: flex;
   align-items: center;
@@ -7,7 +12,7 @@
 
   height: auto;
 
-  padding: 6px 20px;
+  padding: 6px 12px;
 
   background-color: transparent;
   transition: border-color 0.2s;
@@ -17,6 +22,12 @@
 
   &.primary {
     background-color: $bg-light-base;
+    color: $text-primary-light;
+    border-color: $text-primary-light;
+  }
+
+  &.secondary {
+    background-color: $bg-dark-base;
     color: $text-primary-light;
   }
 

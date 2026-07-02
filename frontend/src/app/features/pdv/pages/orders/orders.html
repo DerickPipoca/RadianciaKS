@@ -1,18 +1,63 @@
 <div class="content-area">
-  <div class="header-section">
-    <h2 class="section-title">Pedidos Recentes</h2>
+  <header class="topbar">
+    <div class="left-topbar">
+      <button class="btn-back" (click)="goBack()"><i class="icon">‹</i> Voltar</button>
+
+      <app-input-component
+        type="text"
+        [icon]="TextSearch"
+        style="width: 300px"
+        [variant]="'primary'"
+        placeholder="Buscar por Mesa ou Nº do Pedido..."
+        [value]="searchTerm"
+        (valueChange)="searchTerm = $event; searchSubject.next($event)"
+      />
+    </div>
 
     <div class="filter-controls">
       <div class="filter-group">
         <label>Status:</label>
-        <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <div class="custom-select-container">
+          <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
+            {{ getOrderStatus(filterStatus) || 'Todos' }}
+            <span class="arrow">▼</span>
+          </button>
+
+          @if (dropdownOpen) {
+            <ul class="options-list">
+              <li
+                class="option"
+                [class.is-selected]="filterStatus === ''"
+                (click)="changeFilterStatus('')"
+              >
+                Todos
+              </li>
+              @for (item of availableStatuses; track $index) {
+                <li
+                  class="option"
+                  [class.is-selected]="filterStatus === item"
+                  (click)="changeFilterStatus(item)"
+                >
+                  {{ getOrderStatus(item) }}
+                </li>
+              }
+            </ul>
+          }
+        </div>
+        <select
+          [(ngModel)]="filterStatus"
+          (change)="pageNumber = 1; loadOrders(); onStatusChange()"
+        >
           <option value="">Todos</option>
-          @for (status of availableStatuses; track status) {
-            <option [value]="status">{{ status }}</option>
+          @for (item of availableStatuses; track $index) {
+            <option [value]="item">{{ item }}</option>
           }
         </select>
       </div>
     </div>
+  </header>
+  <div class="header-section">
+    <h2 class="section-title">Pedidos Recentes</h2>
   </div>
 
   <main class="orders-grid">
@@ -51,6 +96,26 @@
       </div>
     }
   </main>
+  <footer class="pagination-footer">
+    <div class="page-info">
+      <span>Página</span>
+      <button [disabled]="pageNumber === 1" (click)="changePage(pageNumber - 1)">‹</button>
+
+      @for (p of pageNumbers; track p) {
+        <button [class.active]="p === pageNumber" (click)="changePage(p)">
+          {{ p }}
+        </button>
+      }
+
+      <button [disabled]="pageNumber >= getTotalPages()" (click)="changePage(pageNumber + 1)">
+        ›
+      </button>
+    </div>
+
+    <span class="results-info">
+      Resultados <b>{{ rangeStart }} a {{ rangeEnd }}</b> de <b>{{ totalRecords }}</b>
+    </span>
+  </footer>
 
   @if (selectedOrder) {
     <div class="modal-backdrop" (click)="closeDetails()">

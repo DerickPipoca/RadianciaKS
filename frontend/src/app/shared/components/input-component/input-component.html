@@ -1,6 +1,10 @@
 <div [class]="'input-wrapper ' + variant + ' radius-' + radius">
   @if (icon) {
-    <span [class]="'icon ' + variant">{{ icon }}</span>
+    @if (isLucideIcon(icon)) {
+      <lucide-icon [img]="icon" [class]="'icon ' + variant" />
+    } @else {
+      <span [class]="'icon ' + variant">{{ icon }}</span>
+    }
   }
   <input
     [class]="variant"

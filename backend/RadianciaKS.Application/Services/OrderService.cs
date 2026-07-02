@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.DashboardMetrics;
 using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Application.Interfaces;
@@ -212,16 +213,54 @@ namespace RadianciaKS.Application.Services
             }
         }
 
-        public async Task<IEnumerable<OrderResponseDto>> GetAllOrders()
+        public async Task<PagedResponse<OrderResponseDto>> GetAllOrders(OrderQueryParameters queryParameters)
         {
-            var orders = await _context.Orders
+            var query = _context.Orders
                 .Include(o => o.Items).ThenInclude(i => i.Product)
                 .Include(o => o.Items).ThenInclude(i => i.SelectedModifiers)
                 .Include(o => o.Payments)
                 .Include(o => o.Employee)
                 .Include(o => o.PaidBy)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(queryParameters.TableNumber))
+            {
+                var searchTerm = queryParameters.TableNumber.ToLower();
+                query = query.Where(o =>
+                    (o.TableNumber != null && o.TableNumber.ToLower().Contains(searchTerm)) ||
+                    o.Id.ToString().ToLower().StartsWith(searchTerm)
+                );
+            }
+
+            if (queryParameters.PaymentStatus.HasValue)
+                query = query.Where(o => o.PaymentStatus == queryParameters.PaymentStatus);
+
+            if (queryParameters.OrderStatus.HasValue)
+                query = query.Where(o => o.OrderStatus == queryParameters.OrderStatus);
+
+            if (queryParameters.StartDate.HasValue)
+                query = query.Where(o => o.CreatedAt >= queryParameters.StartDate.Value);
+
+            if (queryParameters.EndDate.HasValue)
+                query = query.Where(o => o.CreatedAt <= queryParameters.EndDate.Value);
+
+            var totalRecords = await query.CountAsync();
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
                 .ToListAsync();
-            return orders.Select(c => _mapper.ToDto(c));
+
+            var data = orders.Select(c => _mapper.ToDto(c));
+
+            return new PagedResponse<OrderResponseDto>
+            {
+                Data = orders.Select(c => _mapper.ToDto(c)),
+                PageNumber = queryParameters.PageNumber,
+                PageSize = queryParameters.PageSize,
+                TotalRecords = totalRecords
+            };
         }
 
         public async Task<OrderResponseDto> GetOrderById(Guid orderId)

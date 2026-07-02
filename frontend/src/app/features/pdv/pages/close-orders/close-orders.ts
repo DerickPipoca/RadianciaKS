@@ -7,14 +7,19 @@ import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { SignalrService } from '../../../../core/services/signalr-service';
 import { PaymentStatus } from '../../../../core/enums/payment-status';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import { LucideAngularModule, TextSearch } from 'lucide-angular';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-close-orders',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InputComponent, LucideAngularModule],
   templateUrl: './close-orders.html',
   styleUrl: './close-orders.scss',
 })
 export class CloseOrders implements OnInit {
+  public TextSearch = TextSearch;
+
   private orderService = inject(OrderService);
   private router = inject(Router);
   private signalrService = inject(SignalrService);
@@ -23,22 +28,31 @@ export class CloseOrders implements OnInit {
   filteredOrders: OrderResponseDto[] = [];
   selectedOrder: OrderResponseDto | null = null;
 
+  pageNumber = 1;
+  pageSize = 60;
+  totalRecords = 0;
+
   searchTerm: string = '';
+  searchSubject = new Subject<string>();
 
   constructor() {
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+      this.pageNumber = 1;
+      this.loadOrders();
+    });
     effect(() => {
       const readyItem = this.signalrService.itemReadySignal();
       const newItem = this.signalrService.newItemSignal();
 
       if (readyItem || newItem) {
-        this.loadActiveOrders();
+        this.loadOrders();
       }
     });
   }
 
   ngOnInit() {
     this.signalrService.startConnection();
-    this.loadActiveOrders();
+    this.loadOrders();
   }
 
   getPaymentStatusLabel(order: OrderResponseDto): string {
@@ -71,10 +85,15 @@ export class CloseOrders implements OnInit {
     }
   }
 
-  loadActiveOrders() {
-    this.orderService.getAll().subscribe({
-      next: (data) => {
-        this.activeOrders = data.filter(
+  loadOrders() {
+    const params = {
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      tableNumber: this.searchTerm,
+    };
+    this.orderService.getAll(params).subscribe({
+      next: (response) => {
+        this.activeOrders = response.data.filter(
           (order) =>
             order.paymentStatus !== PaymentStatus.Paid &&
             OrderStatus[order.orderStatus] !== 'Canceled',
@@ -116,6 +135,21 @@ export class CloseOrders implements OnInit {
 
   closeDetails() {
     this.selectedOrder = null;
+  }
+
+  changePage(newPage: number) {
+    this.pageNumber = newPage;
+    this.loadOrders();
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalRecords / this.pageSize);
+  }
+
+  onStatusChange() {
+    this.pageNumber = 1;
+    this.searchTerm = '';
+    this.loadOrders();
   }
 
   goBack() {
