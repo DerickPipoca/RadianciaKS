@@ -2,7 +2,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.Product;
+using RadianciaKS.Application.Extensions;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Mappers;
 using RadianciaKS.Application.Services.Interfaces;
@@ -52,13 +54,40 @@ namespace RadianciaKS.Application.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ProductResponseDto>> GetAllProducts()
+        public async Task<PagedResponse<ProductResponseDto>> GetAllProducts(BaseQueryParameters queryParameters)
         {
-            var products = await _context.Products
+            var query = _context.Products
                             .Include(p => p.Category)
                             .Include(p => p.ModifierGroups).ThenInclude(m => m.Options)
-                            .ToListAsync();
-            return products.Select(p => _mapper.ToDto(p));
+                            .AsQueryable();
+
+            if (!string.IsNullOrEmpty(queryParameters.SearchTerm))
+            {
+                var term = queryParameters.SearchTerm.ToLower();
+                query = query.Where(p => p.Name != null && p.Name.ToLower().Contains(term));
+            }
+
+            query = query.ApplySorting(queryParameters.SortBy, queryParameters.IsDescending, (sortBy, descending) => sortBy switch
+            {
+                "name" => descending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+                "price" => descending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+                _ => descending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt)
+            });
+
+            var totalRecords = await query.CountAsync();
+
+            var products = await query
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
+                .ToListAsync();
+
+            return new PagedResponse<ProductResponseDto>
+            {
+                Data = products.Select(c => _mapper.ToDto(c)),
+                PageNumber = queryParameters.PageNumber,
+                PageSize = queryParameters.PageSize,
+                TotalRecords = totalRecords
+            };
         }
 
         public async Task<ProductResponseDto> GetProductById(Guid id)

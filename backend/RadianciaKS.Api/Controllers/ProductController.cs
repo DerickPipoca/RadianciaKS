@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.Product;
 using RadianciaKS.Application.Services.Interfaces;
 
@@ -25,9 +26,9 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts([FromQuery] BaseQueryParameters queryParameters)
         {
-            var products = await _productService.GetAllProducts();
+            var products = await _productService.GetAllProducts(queryParameters);
 
             return Ok(products);
         }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.Product;
 
 namespace RadianciaKS.Application.Services.Interfaces
@@ -8,7 +9,7 @@ namespace RadianciaKS.Application.Services.Interfaces
     {
         Task<ProductResponseDto> CreateProduct(ProductRequestDto dto);
         Task<string> UploadImage(IFormFile file);
-        Task<IEnumerable<ProductResponseDto>> GetAllProducts();
+        Task<PagedResponse<ProductResponseDto>> GetAllProducts(BaseQueryParameters queryParameters);
         Task<ProductResponseDto> GetProductById(Guid id);
         Task<ProductResponseDto> UpdateProduct(Guid id, ProductRequestDto dto);
         Task DeleteProduct(Guid id);

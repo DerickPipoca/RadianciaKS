@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.DashboardMetrics;
 using RadianciaKS.Application.DTOs.Order;
+using RadianciaKS.Application.Extensions;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Mappers;
 using RadianciaKS.Application.Services.Interfaces;
@@ -215,7 +216,7 @@ namespace RadianciaKS.Application.Services
 
         public async Task<PagedResponse<OrderResponseDto>> GetAllOrders(OrderQueryParameters queryParameters)
         {
-            var query = _context.Orders
+            IQueryable<Order> query = _context.Orders
                 .Include(o => o.Items).ThenInclude(i => i.Product)
                 .Include(o => o.Items).ThenInclude(i => i.SelectedModifiers)
                 .Include(o => o.Payments)
@@ -223,31 +224,27 @@ namespace RadianciaKS.Application.Services
                 .Include(o => o.PaidBy)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(queryParameters.TableNumber))
+            if (!string.IsNullOrEmpty(queryParameters.SearchTerm))
             {
-                var searchTerm = queryParameters.TableNumber.ToLower();
-                query = query.Where(o =>
-                    (o.TableNumber != null && o.TableNumber.ToLower().Contains(searchTerm)) ||
-                    o.Id.ToString().ToLower().StartsWith(searchTerm)
-                );
+                var searchTerm = queryParameters.SearchTerm.ToLower();
+                query = query.Where(o => (o.TableNumber != null && o.TableNumber.ToLower().Contains(searchTerm)) || o.Id.ToString().StartsWith(searchTerm));
             }
 
-            if (queryParameters.PaymentStatus.HasValue)
-                query = query.Where(o => o.PaymentStatus == queryParameters.PaymentStatus);
+            if (queryParameters.PaymentStatus.HasValue) query = query.Where(o => o.PaymentStatus == queryParameters.PaymentStatus);
+            if (queryParameters.OrderStatus.HasValue) query = query.Where(o => o.OrderStatus == queryParameters.OrderStatus);
+            if (queryParameters.StartDate.HasValue) query = query.Where(o => o.CreatedAt >= queryParameters.StartDate.Value);
+            if (queryParameters.EndDate.HasValue) query = query.Where(o => o.CreatedAt <= queryParameters.EndDate.Value);
 
-            if (queryParameters.OrderStatus.HasValue)
-                query = query.Where(o => o.OrderStatus == queryParameters.OrderStatus);
+            IOrderedQueryable<Order> orderedQuery = query.ApplySorting(queryParameters.SortBy, queryParameters.IsDescending, (sortBy, descending) => sortBy switch
+            {
+                "tablenumber" => descending ? query.OrderByDescending(o => o.TableNumber) : query.OrderBy(o => o.TableNumber),
+                "id" => descending ? query.OrderByDescending(o => o.Id) : query.OrderBy(o => o.Id),
+                _ => descending ? query.OrderByDescending(o => o.CreatedAt) : query.OrderBy(o => o.CreatedAt)
+            });
 
-            if (queryParameters.StartDate.HasValue)
-                query = query.Where(o => o.CreatedAt >= queryParameters.StartDate.Value);
+            var totalRecords = await orderedQuery.CountAsync();
 
-            if (queryParameters.EndDate.HasValue)
-                query = query.Where(o => o.CreatedAt <= queryParameters.EndDate.Value);
-
-            var totalRecords = await query.CountAsync();
-
-            var orders = await query
-                .OrderByDescending(o => o.CreatedAt)
+            var orders = await orderedQuery
                 .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
                 .Take(queryParameters.PageSize)
                 .ToListAsync();
