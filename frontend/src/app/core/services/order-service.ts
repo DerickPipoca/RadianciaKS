@@ -18,7 +18,9 @@ export class OrderService {
   getAll(params: {
     pageNumber: number;
     pageSize: number;
-    tableNumber?: string;
+    searchTerm?: string;
+    sortBy?: string; // Adicionado
+    isDescending?: boolean;
     status?: OrderStatus;
     paymentStatus?: PaymentStatus;
   }): Observable<PagedResponse<OrderResponseDto>> {
@@ -26,7 +28,10 @@ export class OrderService {
       .set('pageNumber', params.pageNumber.toString())
       .set('pageSize', params.pageSize.toString());
 
-    if (params.tableNumber) queryParams = queryParams.set('tableNumber', params.tableNumber);
+    if (params.searchTerm) queryParams = queryParams.set('searchTerm', params.searchTerm);
+    if (params.sortBy) queryParams = queryParams.set('sortBy', params.sortBy);
+    if (params.isDescending !== undefined)
+      queryParams = queryParams.set('isDescending', params.isDescending.toString());
     if (params.status) queryParams = queryParams.set('orderStatus', params.status);
     if (params.paymentStatus) queryParams = queryParams.set('paymentStatus', params.paymentStatus);
 

@@ -11,6 +11,20 @@
       [value]="searchTerm"
       (valueChange)="searchTerm = $event; searchSubject.next($event)"
     />
+    <div class="sort-controls">
+      <span class="order-by">Ordenar por: </span>
+      <div class="order-items">
+        <button class="order-item" (click)="changeSort('tablenumber')">
+          Mesa {{ currentSortColumn === 'tablenumber' ? (isDescending ? '▼' : '▲') : '' }}
+        </button>
+        <button class="order-item" (click)="changeSort('id')">
+          ID {{ currentSortColumn === 'id' ? (isDescending ? '▼' : '▲') : '' }}
+        </button>
+        <button class="order-item" (click)="changeSort('createdAt')">
+          Data {{ currentSortColumn === 'createdAt' ? (isDescending ? '▼' : '▲') : '' }}
+        </button>
+      </div>
+    </div>
   </header>
 
   <div class="content-area">
@@ -23,6 +37,7 @@
         <div class="order-card">
           <div class="card-header">
             <span class="order-number">#{{ order.id | slice: 0 : 6 | uppercase }}</span>
+            <span class="order-date">{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
           </div>
 
           <div class="card-body">

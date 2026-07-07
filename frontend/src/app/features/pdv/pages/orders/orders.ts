@@ -31,6 +31,8 @@ export class Orders implements OnInit {
 
   searchTerm: string = '';
   searchSubject = new Subject<string>();
+  currentSortColumn: string = 'createdAt';
+  isDescending: boolean = true;
 
   pageNumber = 1;
   pageSize = 12;
@@ -73,6 +75,17 @@ export class Orders implements OnInit {
     this.onStatusChange();
   }
 
+  changeSort(column: string) {
+    if (this.currentSortColumn === column) {
+      this.isDescending = !this.isDescending;
+    } else {
+      this.currentSortColumn = column;
+      this.isDescending = true;
+    }
+    this.pageNumber = 1;
+    this.loadOrders();
+  }
+
   loadOrders() {
     let statusEnum: OrderStatus | undefined = undefined;
     let paymentStatus: PaymentStatus | undefined = undefined;
@@ -86,6 +99,8 @@ export class Orders implements OnInit {
       pageNumber: this.pageNumber,
       pageSize: this.pageSize,
       tableNumber: this.searchTerm,
+      sortBy: this.currentSortColumn,
+      isDescending: this.isDescending,
       status: statusEnum,
       paymentStatus: paymentStatus,
     };

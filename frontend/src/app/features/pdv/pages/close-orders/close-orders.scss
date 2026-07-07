@@ -7,7 +7,6 @@
   background-color: $bg-light-base;
 }
 
-// Topbar idêntica a de Pedidos Recentes (já possui sua .search-bar lá)
 .topbar {
   margin-top: 24px;
   display: flex;
@@ -102,6 +101,10 @@
       .order-number {
         font-size: 1.2rem;
         font-weight: 700;
+        color: $text-primary-light;
+      }
+      .order-date {
+        font-size: 0.9rem;
         color: $text-primary-light;
       }
     }
@@ -358,6 +361,33 @@
     transition: filter 0.2s;
     &:hover {
       filter: brightness(0.95);
+    }
+  }
+}
+.sort-controls {
+  color: $text-secondary-light;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  span {
+    font-size: 0.9rem;
+  }
+  .order-items {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .order-item {
+    font-size: 0.9rem;
+    background: $bg-light-surface;
+    color: $text-primary-light;
+    border-width: 1px;
+    border-color: $text-secondary-light;
+    border-radius: $radius-sm;
+    border-style: solid;
+    width: 60px;
+    &:focus {
+      border-color: $primary-color;
     }
   }
 }

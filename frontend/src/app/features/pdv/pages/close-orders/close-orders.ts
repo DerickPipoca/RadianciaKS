@@ -19,6 +19,8 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 })
 export class CloseOrders implements OnInit {
   public TextSearch = TextSearch;
+  currentSortColumn: string = 'createdAt';
+  isDescending: boolean = true;
 
   private orderService = inject(OrderService);
   private router = inject(Router);
@@ -48,6 +50,17 @@ export class CloseOrders implements OnInit {
         this.loadOrders();
       }
     });
+  }
+
+  changeSort(column: string) {
+    if (this.currentSortColumn === column) {
+      this.isDescending = !this.isDescending;
+    } else {
+      this.currentSortColumn = column;
+      this.isDescending = true;
+    }
+    this.pageNumber = 1;
+    this.loadOrders();
   }
 
   ngOnInit() {
@@ -89,16 +102,16 @@ export class CloseOrders implements OnInit {
     const params = {
       pageNumber: this.pageNumber,
       pageSize: this.pageSize,
-      tableNumber: this.searchTerm,
+      searchTerm: this.searchTerm,
+      sortBy: this.currentSortColumn,
+      isDescending: this.isDescending,
+      paymentStatus: PaymentStatus.Pending,
     };
     this.orderService.getAll(params).subscribe({
       next: (response) => {
-        this.activeOrders = response.data.filter(
-          (order) =>
-            order.paymentStatus !== PaymentStatus.Paid &&
-            OrderStatus[order.orderStatus] !== 'Canceled',
-        );
-        this.applyFilters();
+        this.activeOrders = response.data;
+        this.filteredOrders = response.data;
+        this.totalRecords = response.totalRecords;
       },
       error: (err) => console.error('Erro ao buscar contas em aberto:', err),
     });

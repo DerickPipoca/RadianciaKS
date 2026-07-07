@@ -69,18 +69,15 @@
   gap: 16px;
   margin-bottom: 16px;
   justify-content: space-between;
-  select {
-    padding: 8px 12px;
-    border: 1px solid $border-color-light;
-    border-radius: $radius-sm;
-    font-family: $font-family-base;
-    background-color: white;
-    color: $text-primary-light;
-    outline: none;
+}
 
-    &:focus {
-      border-color: $primary-color;
-    }
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  label {
+    font-size: 0.9rem;
+    color: $text-secondary-light;
   }
 }
 
@@ -90,38 +87,6 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-
-  .filter-controls {
-    display: flex;
-    gap: 16px;
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      label {
-        font-weight: 600;
-        color: $text-secondary-light;
-        font-size: 0.9rem;
-      }
-
-      input,
-      select {
-        padding: 8px 12px;
-        border: 1px solid $border-color-light;
-        border-radius: $radius-sm;
-        font-family: $font-family-base;
-        background-color: white;
-        color: $text-primary-light;
-        outline: none;
-
-        &:focus {
-          border-color: $primary-color;
-        }
-      }
-    }
-  }
 
   .section-title {
     font-size: 1.5rem;
@@ -532,31 +497,25 @@
 
 .custom-select-container {
   position: relative;
-  width: 96.5%;
-
+  width: 150px;
   .custom-select-trigger {
-    height: 32.25px;
+    font-size: 0.9rem;
+    display: block;
     width: 100%;
-    padding: 0px 11px;
-    background: $bg-dark-surface;
-    border: 1px solid $border-color-light;
-    border-radius: $radius-sm;
-    color: $text-primary-dark;
+    box-sizing: border-box;
+    background: $bg-light-surface;
+    color: $text-primary-light;
+    border-color: $text-secondary-light;
+    border-radius: $radius-md;
+    border-style: solid;
     text-align: left;
-    display: flex;
-    justify-content: space-between;
     align-items: center;
     cursor: pointer;
     font-family: $font-family-base;
 
-    &:focus {
+    &:hover {
       border-color: $primary-color;
       outline: none;
-    }
-
-    .arrow {
-      font-size: 0.7rem;
-      color: $text-secondary-dark;
     }
   }
 
@@ -565,10 +524,14 @@
     top: 100%;
     left: 0;
     width: 100%;
-    background-color: $bg-dark-surface;
+    min-width: 100%;
+    box-sizing: border-box;
+    background-color: $bg-light-base;
+    color: $text-primary-light;
     border: 1px solid $border-color-light;
     border-radius: $radius-sm;
     list-style: none;
+    font-size: 0.9rem;
     margin: 4px 0 0 0;
     padding: 0;
     z-index: 1100;
@@ -577,10 +540,16 @@
     box-shadow: $shadow-md;
 
     .option {
-      padding: 10px 12px;
-      color: $text-primary-dark;
+      width: 100%;
+      padding: 10px 16px;
+      color: $text-primary-light;
+      box-sizing: border-box;
       cursor: pointer;
       transition: background 0.15s ease;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       &:hover {
         background-color: $border-color-light;
@@ -589,8 +558,34 @@
 
       &.is-selected {
         background-color: $primary-color;
-        color: white;
       }
+    }
+  }
+}
+.sort-controls {
+  color: $text-secondary-light;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  span {
+    font-size: 0.9rem;
+  }
+  .order-items {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .order-item {
+    font-size: 0.9rem;
+    background: $bg-light-surface;
+    color: $text-primary-light;
+    border-width: 1px;
+    border-color: $text-secondary-light;
+    border-radius: $radius-sm;
+    border-style: solid;
+    width: 60px;
+    &:focus {
+      border-color: $primary-color;
     }
   }
 }

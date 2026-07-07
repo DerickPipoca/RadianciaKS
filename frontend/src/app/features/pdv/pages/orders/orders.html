@@ -12,47 +12,50 @@
         [value]="searchTerm"
         (valueChange)="searchTerm = $event; searchSubject.next($event)"
       />
-    </div>
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label>Status:</label>
+          <div class="custom-select-container">
+            <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
+              {{ getOrderStatus(filterStatus) || 'Todos' }} ▼
+            </button>
 
-    <div class="filter-controls">
-      <div class="filter-group">
-        <label>Status:</label>
-        <div class="custom-select-container">
-          <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
-            {{ getOrderStatus(filterStatus) || 'Todos' }}
-            <span class="arrow">▼</span>
-          </button>
-
-          @if (dropdownOpen) {
-            <ul class="options-list">
-              <li
-                class="option"
-                [class.is-selected]="filterStatus === ''"
-                (click)="changeFilterStatus('')"
-              >
-                Todos
-              </li>
-              @for (item of availableStatuses; track $index) {
+            @if (dropdownOpen) {
+              <ul class="options-list">
                 <li
                   class="option"
-                  [class.is-selected]="filterStatus === item"
-                  (click)="changeFilterStatus(item)"
+                  [class.is-selected]="filterStatus === ''"
+                  (click)="changeFilterStatus('')"
                 >
-                  {{ getOrderStatus(item) }}
+                  Todos
                 </li>
-              }
-            </ul>
-          }
+                @for (item of availableStatuses; track $index) {
+                  <li
+                    class="option"
+                    [class.is-selected]="filterStatus === item"
+                    (click)="changeFilterStatus(item)"
+                  >
+                    {{ getOrderStatus(item) }}
+                  </li>
+                }
+              </ul>
+            }
+          </div>
         </div>
-        <select
-          [(ngModel)]="filterStatus"
-          (change)="pageNumber = 1; loadOrders(); onStatusChange()"
-        >
-          <option value="">Todos</option>
-          @for (item of availableStatuses; track $index) {
-            <option [value]="item">{{ item }}</option>
-          }
-        </select>
+      </div>
+      <div class="sort-controls">
+        <span class="order-by">Ordenar por: </span>
+        <div class="order-items">
+          <button class="order-item" (click)="changeSort('tablenumber')">
+            Mesa {{ currentSortColumn === 'tablenumber' ? (isDescending ? '▼' : '▲') : '' }}
+          </button>
+          <button class="order-item" (click)="changeSort('id')">
+            ID {{ currentSortColumn === 'id' ? (isDescending ? '▼' : '▲') : '' }}
+          </button>
+          <button class="order-item" (click)="changeSort('createdAt')">
+            Data {{ currentSortColumn === 'createdAt' ? (isDescending ? '▼' : '▲') : '' }}
+          </button>
+        </div>
       </div>
     </div>
   </header>
