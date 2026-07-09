@@ -26,7 +26,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts([FromQuery] BaseQueryParameters queryParameters)
+        public async Task<IActionResult> GetAllProducts([FromQuery] ProductQueryParameters queryParameters)
         {
             var products = await _productService.GetAllProducts(queryParameters);
 

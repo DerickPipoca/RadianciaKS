@@ -8,7 +8,7 @@ import { ICrudService } from './crud-service.interface';
 
 export interface IEmployeeService
   extends Omit<ICrudService<EmployeeRequestDto, EmployeeResponseDto, string>, 'getAll'> {
-  getAll(): Observable<EmployeeBasicResponseDto[]>;
+  getAll(params: any): Observable<EmployeeBasicResponseDto[]>;
 
   getBasicInformationById(id: string): Observable<EmployeeBasicResponseDto>;
 }

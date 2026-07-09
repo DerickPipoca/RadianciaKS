@@ -8,14 +8,26 @@ import { CommonModule } from '@angular/common';
 import { ModifierModal } from '../../components/modifier-modal/modifier-modal';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import { LucideAngularModule, TextSearch } from 'lucide-angular';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CommonModule, ModifierModal, RouterLink, FormsModule],
+  imports: [
+    CommonModule,
+    ModifierModal,
+    RouterLink,
+    FormsModule,
+    InputComponent,
+    LucideAngularModule,
+  ],
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss',
 })
 export class Catalog implements OnInit {
+  TextSearch = TextSearch;
+
   private categoryService = inject(CategoryService);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
@@ -25,10 +37,20 @@ export class Catalog implements OnInit {
   filteredProducts: ProductResponseDto[] = [];
 
   searchTerm: string = '';
+  pageNumber: number = 1;
+  pageSize: number = 12;
+  searchSubject = new Subject<string>();
 
   activeCategory: CategoryResponseDto | null = null;
 
   selectedProductForModal: ProductResponseDto | null = null;
+
+  constructor() {
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+      this.pageNumber = 1;
+      this.fetchProducts();
+    });
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -40,38 +62,47 @@ export class Catalog implements OnInit {
       error: (err) => console.error('Erro ao carregar categorias', err),
     });
 
-    this.productService.getAll().subscribe({
-      next: (data) => {
-        this.products = data;
-        this.applyFilters();
-      },
-      error: (err) => console.error('Erro ao carregar produtos', err),
-    });
+    this.productService
+      .getAll({
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+        searchTerm: this.searchTerm,
+        categoryId: this.activeCategory?.id,
+      })
+      .subscribe({
+        next: (products) => {
+          this.products = products.data;
+          this.fetchProducts();
+        },
+        error: (err) => console.error('Erro ao carregar produtos', err),
+      });
   }
-
-  applyFilters(): void {
-    const term = this.searchTerm.toLowerCase().trim();
-
-    this.filteredProducts = this.products.filter((p) => {
-      const matchesCategory = this.activeCategory ? p.categoryId === this.activeCategory.id : true;
-
-      const matchesSearch =
-        term === '' ||
-        p.name.toLowerCase().includes(term) ||
-        (p.description && p.description.toLowerCase().includes(term));
-
-      return matchesCategory && matchesSearch;
-    });
+  fetchProducts(): void {
+    this.productService
+      .getAll({
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+        searchTerm: this.searchTerm,
+        categoryId: this.activeCategory?.id,
+      })
+      .subscribe({
+        next: (response) => {
+          this.products = response.data;
+          this.filteredProducts = [...this.products];
+        },
+        error: (err) => console.error('Erro ao buscar produtos:', err),
+      });
   }
 
   selectCategory(category: CategoryResponseDto): void {
     this.activeCategory = category;
-    this.applyFilters();
+    this.fetchProducts();
   }
 
   clearCategory(): void {
     this.activeCategory = null;
-    this.applyFilters();
+    this.pageNumber = 1;
+    this.fetchProducts();
   }
 
   onProductClick(product: ProductResponseDto): void {

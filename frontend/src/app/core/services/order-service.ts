@@ -19,7 +19,7 @@ export class OrderService {
     pageNumber: number;
     pageSize: number;
     searchTerm?: string;
-    sortBy?: string; // Adicionado
+    sortBy?: string;
     isDescending?: boolean;
     status?: OrderStatus;
     paymentStatus?: PaymentStatus;

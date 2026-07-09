@@ -9,7 +9,7 @@ namespace RadianciaKS.Application.Services.Interfaces
     {
         Task<ProductResponseDto> CreateProduct(ProductRequestDto dto);
         Task<string> UploadImage(IFormFile file);
-        Task<PagedResponse<ProductResponseDto>> GetAllProducts(BaseQueryParameters queryParameters);
+        Task<PagedResponse<ProductResponseDto>> GetAllProducts(ProductQueryParameters queryParameters);
         Task<ProductResponseDto> GetProductById(Guid id);
         Task<ProductResponseDto> UpdateProduct(Guid id, ProductRequestDto dto);
         Task DeleteProduct(Guid id);

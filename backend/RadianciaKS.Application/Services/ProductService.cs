@@ -54,12 +54,17 @@ namespace RadianciaKS.Application.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<PagedResponse<ProductResponseDto>> GetAllProducts(BaseQueryParameters queryParameters)
+        public async Task<PagedResponse<ProductResponseDto>> GetAllProducts(ProductQueryParameters queryParameters)
         {
             var query = _context.Products
                             .Include(p => p.Category)
                             .Include(p => p.ModifierGroups).ThenInclude(m => m.Options)
                             .AsQueryable();
+
+            if (queryParameters.CategoryId != null)
+            {
+                query = query.Where(p => p.CategoryId == queryParameters.CategoryId);
+            }
 
             if (!string.IsNullOrEmpty(queryParameters.SearchTerm))
             {
