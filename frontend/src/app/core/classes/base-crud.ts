@@ -29,10 +29,17 @@ export abstract class BaseCrud<TRequest, TResponse, TId = string> implements OnI
   }
 
   loadData(): void {
-    this.crudService.getAll().subscribe({
-      next: (result) => (this.dataList = result),
-      error: (err) => console.error('Erro ao carregar dados:', err),
-    });
+    this.crudService
+      .getAll({
+        pageNumber: 1,
+        pageSize: 60,
+      })
+      .subscribe({
+        next: (result) => {
+          this.dataList = result.data ? result.data : result;
+        },
+        error: (err) => console.error('Erro ao carregar dados:', err),
+      });
   }
 
   openNewModal(): void {

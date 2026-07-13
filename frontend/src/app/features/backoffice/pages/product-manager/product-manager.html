@@ -2,7 +2,14 @@
   <div class="header-title">
     <h2>Cardápio</h2>
   </div>
-  <input type="text" class="search-input" placeholder="Procurar..." />
+  <app-input-component
+    type="text"
+    [icon]="TextSearch"
+    [variant]="'transparent'"
+    placeholder="Procurar produto..."
+    [value]="searchTerm"
+    (valueChange)="searchTerm = $event; searchSubject.next($event)"
+  />
   <app-button-component
     size="md"
     variant="primary"
@@ -18,10 +25,39 @@
   <table class="admin-table">
     <thead>
       <tr>
-        <th>Produto</th>
-        <th>Categoria</th>
-        <th>Preço</th>
-        <th class="actions-column">Ações</th>
+        <th>
+          <button (click)="orderBy('name')">
+            Produto
+            @if (isOrderBy('name')) {
+              {{ descendingIcon() }}
+            }
+          </button>
+        </th>
+        <th>
+          <button (click)="orderBy('categoryName')">
+            Categoria
+            @if (isOrderBy('categoryName')) {
+              {{ descendingIcon() }}
+            }
+          </button>
+        </th>
+        <th>
+          <button (click)="orderBy('price')">
+            Preço
+            @if (isOrderBy('price')) {
+              {{ descendingIcon() }}
+            }
+          </button>
+        </th>
+        <th>
+          <button (click)="orderBy('')">
+            Data Criação
+            @if (isOrderBy('')) {
+              {{ descendingIcon() }}
+            }
+          </button>
+        </th>
+        <th class="actions-column"><button>Ações</button></th>
       </tr>
     </thead>
     <tbody>
@@ -42,6 +78,9 @@
           <td>
             <strong>R$ {{ product.price | number: '1.2-2' }}</strong>
           </td>
+          <td>
+            <strong>{{ product.createdAt | date: 'dd/MM/yyyy' }}</strong>
+          </td>
           <td class="actions-cell">
             <button class="btn-action btn-edit" (click)="openEditModal(product)">Editar</button>
             <button class="btn-action btn-delete" (click)="delete(product.id)">Apagar</button>
@@ -51,8 +90,38 @@
     </tbody>
   </table>
   <div class="pagination-footer">
-    <span class="page-info">Página <b>1</b> 2 3 4 5 6 > >></span>
-    <span class="results-info">Resultados 1 a 12 de 200</span>
+    <span class="page-info">
+      <button
+        [disabled]="pageNumber === 1"
+        (click)="changePage(pageNumber - 1)"
+        style="background: none; border: none; cursor: pointer; padding: 0 4px"
+      >
+        &lt;
+      </button>
+
+      @for (p of pageNumbers; track p) {
+        <span
+          (click)="changePage(p)"
+          style="cursor: pointer; padding: 0 6px"
+          [style.font-weight]="p === pageNumber ? 'bold' : 'normal'"
+          [style.text-decoration]="p === pageNumber ? 'underline' : 'none'"
+        >
+          {{ p }}
+        </span>
+      }
+
+      <button
+        [disabled]="pageNumber >= getTotalPages()"
+        (click)="changePage(pageNumber + 1)"
+        style="background: none; border: none; cursor: pointer; padding: 0 4px"
+      >
+        &gt;
+      </button>
+    </span>
+
+    <span class="results-info">
+      Resultados <b>{{ rangeStart }} a {{ rangeEnd }}</b> de <b>{{ totalRecords }}</b>
+    </span>
   </div>
 </div>
 

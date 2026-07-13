@@ -9,7 +9,6 @@ namespace RadianciaKS.Application.Mappers
     public partial class ProductMapper
     {
         [MapperIgnoreSource("TenantId")]
-        [MapperIgnoreSource("CreatedAt")]
         public partial ProductResponseDto ToDto(Product product);
 
         [MapperIgnoreSource("ProductId")]

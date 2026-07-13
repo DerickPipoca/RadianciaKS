@@ -5,5 +5,12 @@ import { ICrudService } from './crud-service.interface';
 
 export interface IProductService
   extends Omit<ICrudService<ProductRequestDto, ProductResponseDto, string>, 'getAll'> {
-  getAll(params: any): Observable<PagedResponse<ProductResponseDto>>;
+  getAll(params: {
+    pageNumber: number;
+    pageSize: number;
+    searchTerm?: string;
+    sortBy?: string;
+    isDescending?: boolean;
+    categoryId?: string;
+  }): Observable<PagedResponse<ProductResponseDto>>;
 }

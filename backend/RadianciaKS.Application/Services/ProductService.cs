@@ -74,7 +74,8 @@ namespace RadianciaKS.Application.Services
 
             query = query.ApplySorting(queryParameters.SortBy, queryParameters.IsDescending, (sortBy, descending) => sortBy switch
             {
-                "name" => descending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+                "name" => descending ? query.OrderByDescending(p => p.Name.ToLower()) : query.OrderBy(p => p.Name.ToLower()),
+                "categoryName" => descending ? query.OrderByDescending(p => p.Category.Name.ToLower()) : query.OrderBy(p => p.Category.Name.ToLower()),
                 "price" => descending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
                 _ => descending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt)
             });

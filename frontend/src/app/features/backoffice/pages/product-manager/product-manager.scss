@@ -22,9 +22,17 @@
 
     thead th {
       text-align: left;
-      color: $text-secondary-dark;
-      font-weight: 500;
-      padding: 16px;
+      button {
+        background-color: transparent;
+        font-family: $font-family-base;
+        border: none;
+        color: $text-secondary-dark;
+        font-weight: 500;
+        padding: 16px;
+        &:hover {
+          cursor: pointer;
+        }
+      }
       &.actions-column {
         text-align: right;
         padding-right: 24px;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BaseCrud } from '../../../../core/classes/base-crud';
 import { ProductRequestDto, ProductResponseDto } from '../../../../core/models/product.model';
@@ -10,10 +10,12 @@ import { CategoryResponseDto } from '../../../../core/models/category.model';
 import { ModifierService } from '../../../../core/services/modifier-service';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import { LucideAngularModule, TextSearch } from 'lucide-angular';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-product-manager',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule],
   templateUrl: './product-manager.html',
   styleUrl: './product-manager.scss',
 })
@@ -21,6 +23,10 @@ export class ProductManager
   extends BaseCrud<ProductRequestDto, ProductResponseDto, string>
   implements OnInit
 {
+  TextSearch = TextSearch;
+
+  searchSubject = new Subject<string>();
+
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   private modifierService = inject(ModifierService);
@@ -30,6 +36,22 @@ export class ProductManager
   newGroup = { name: '', minChoices: 0, maxChoices: 1 };
   newOptions: { [groupId: string]: { name: string; price: number; description?: string } } = {};
   dropdownOpen = false;
+
+  pageNumber: number = 1;
+  pageSize: number = 12;
+  totalRecords: number = 0;
+  searchTerm: string = '';
+  sortBy: string = '';
+  descendingSort: boolean = false;
+
+  constructor() {
+    super(inject(ChangeDetectorRef));
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+      this.searchTerm = term;
+      this.pageNumber = 1;
+      this.loadData();
+    });
+  }
 
   protected override get crudService(): ICrudService<
     ProductRequestDto,
@@ -49,8 +71,56 @@ export class ProductManager
   }
 
   override ngOnInit(): void {
-    super.ngOnInit();
     this.loadCategories();
+    this.loadData();
+  }
+
+  override loadData(): void {
+    this.productService
+      .getAll({
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+        isDescending: this.descendingSort,
+        sortBy: this.sortBy,
+        searchTerm: this.searchTerm,
+      })
+      .subscribe({
+        next: (response) => {
+          this.dataList = response.data;
+          this.totalRecords = response.totalRecords;
+        },
+        error: (err) => console.error('Erro ao carregar produtos paginados:', err),
+      });
+  }
+
+  changePage(newPage: number): void {
+    if (newPage < 1 || newPage > this.getTotalPages()) return;
+    this.pageNumber = newPage;
+    this.loadData();
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalRecords / this.pageSize) || 1;
+  }
+
+  get pageNumbers(): number[] {
+    const total = this.getTotalPages();
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  onSearchChange(term: string): void {
+    this.searchTerm = term;
+    this.pageNumber = 1;
+    this.loadData();
+  }
+
+  get rangeStart(): number {
+    return this.totalRecords === 0 ? 0 : (this.pageNumber - 1) * this.pageSize + 1;
+  }
+
+  get rangeEnd(): number {
+    const end = this.pageNumber * this.pageSize;
+    return end > this.totalRecords ? this.totalRecords : end;
   }
 
   loadCategories(): void {
@@ -119,6 +189,27 @@ export class ProductManager
   override closeModal(): void {
     super.closeModal();
     this.dropdownOpen = false;
+  }
+
+  orderBy(sortBy: string): void {
+    if (this.sortBy !== sortBy) {
+      this.sortBy = sortBy;
+      this.descendingSort = false;
+    } else {
+      this.descendingSort = !this.descendingSort;
+    }
+    this.loadData();
+  }
+
+  isOrderBy(sortBy: string): boolean {
+    if (this.sortBy === sortBy) {
+      return true;
+    }
+    return false;
+  }
+
+  descendingIcon(): string {
+    return this.descendingSort ? '↓' : '↑';
   }
 
   addGroup(): void {

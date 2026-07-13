@@ -29,6 +29,7 @@ lucide-icon {
   &.secondary {
     background-color: $bg-dark-base;
     color: $text-primary-light;
+    border-color: $border-color-light;
   }
 
   &.radius-round {
@@ -50,6 +51,9 @@ lucide-icon {
     &.primary {
       color: $text-primary-light;
     }
+    &.primary {
+      color: $text-primary-dark;
+    }
   }
 
   input {
@@ -63,6 +67,9 @@ lucide-icon {
 
     &.primary {
       color: $text-primary-light;
+    }
+    &.primary {
+      color: $text-primary-dark;
     }
 
     &::placeholder {

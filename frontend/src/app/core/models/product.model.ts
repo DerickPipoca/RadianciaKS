@@ -2,6 +2,7 @@ import { ModifierGroupResponseDto } from './modifier.model';
 
 export interface ProductResponseDto {
   id: string;
+  createdAt: Date;
   name: string;
   description?: string;
   price: number;
