@@ -1,21 +1,58 @@
 import { CategoryService } from './../../../../core/services/category-service';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CategoryRequestDto, CategoryResponseDto } from '../../../../core/models/category.model';
 import { BaseCrud } from '../../../../core/classes/base-crud';
 import { ICrudService } from '../../../../core/interfaces/crud-service.interface';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { LucideAngularModule, TextSearch } from 'lucide-angular';
 
 @Component({
   selector: 'app-category-manager',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule],
   templateUrl: './category-manager.html',
   styleUrl: './category-manager.scss',
 })
 export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryResponseDto, string> {
+  TextSearch = TextSearch;
+
   private categoryService = inject(CategoryService);
+
+  searchTerm: string = '';
+  searchSubject = new Subject<string>();
+
+  private allCategories: CategoryResponseDto[] = [];
+
+  constructor() {
+    super(inject(ChangeDetectorRef));
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+      this.filterCategories(term);
+    });
+  }
+
+  override loadData(): void {
+    this.categoryService.getAll().subscribe({
+      next: (data) => {
+        this.allCategories = data;
+        this.dataList = data;
+      },
+      error: (err) => console.error('Erro ao carregar:', err),
+    });
+  }
+
+  filterCategories(term: string): void {
+    if (!term.trim()) {
+      this.dataList = [...this.allCategories];
+    } else {
+      const lowerTerm = term.toLowerCase();
+      this.dataList = this.allCategories.filter((cat) =>
+        cat.name.toLowerCase().includes(lowerTerm),
+      );
+    }
+  }
 
   protected override get crudService(): ICrudService<
     CategoryRequestDto,

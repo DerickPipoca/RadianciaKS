@@ -1,6 +1,6 @@
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BaseCrud } from '../../../../core/classes/base-crud';
 import { EmployeeRequestDto, EmployeeResponseDto } from '../../../../core/models/employee.model';
@@ -9,15 +9,50 @@ import { EmployeeService } from '../../../../core/services/employee-service';
 import { EmployeeRole } from '../../../../core/enums/employee-role';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { LucideAngularModule, TextSearch } from 'lucide-angular';
 
 @Component({
   selector: 'app-employee-manager',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule],
   templateUrl: './employee-manager.html',
   styleUrl: './employee-manager.scss',
 })
 export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeResponseDto, string> {
+  TextSearch = TextSearch;
+
   private employeeService = inject(EmployeeService);
+
+  searchTerm: string = '';
+  searchSubject = new Subject<string>();
+
+  private allEmployees: EmployeeResponseDto[] = [];
+
+  constructor() {
+    super(inject(ChangeDetectorRef));
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+      this.filterEmployees(term);
+    });
+  }
+
+  override loadData(): void {
+    this.employeeService.getAll().subscribe({
+      next: (data) => {
+        this.allEmployees = data;
+        this.dataList = data;
+      },
+      error: (err) => console.error('Erro ao carregar:', err),
+    });
+  }
+
+  filterEmployees(term: string): void {
+    if (!term.trim()) {
+      this.dataList = [...this.allEmployees];
+    } else {
+      const lowerTerm = term.toLowerCase();
+      this.dataList = this.allEmployees.filter((emp) => emp.name.toLowerCase().includes(lowerTerm));
+    }
+  }
 
   dropdownOpen = false;
 
@@ -31,13 +66,6 @@ export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeRespon
 
   protected override get crudService(): any {
     return this.employeeService;
-  }
-
-  override loadData(): void {
-    this.employeeService.getAll().subscribe({
-      next: (result) => (this.dataList = result as any[]),
-      error: (err) => console.error('Erro ao carregar dados:', err),
-    });
   }
 
   override openEditModal(item: any): void {

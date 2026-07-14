@@ -2,6 +2,14 @@
   <div class="header-title">
     <h2>Funcionários</h2>
   </div>
+  <app-input-component
+    type="text"
+    [icon]="TextSearch"
+    [variant]="'transparent'"
+    placeholder="Procurar categoria..."
+    [(value)]="searchTerm"
+    (valueChange)="searchSubject.next($event)"
+  />
   <app-button-component
     size="md"
     variant="primary"
@@ -43,10 +51,7 @@
       }
     </tbody>
   </table>
-  <div class="pagination-footer">
-    <span class="page-info">Página <b>1</b> 2 3 4 5 6 > >></span>
-    <span class="results-info">Resultados 1 a 12 de 200</span>
-  </div>
+  <div class="pagination-footer"></div>
 </div>
 
 @if (showModal) {
