@@ -157,6 +157,8 @@ namespace RadianciaKS.Application.Services
             if (employee == null)
                 throw new Exception("Funcionário não encontrado no banco de dados.");
 
+            var tenantId = employee.TenantId.ToString();
+
             await _validator.ValidateAndThrowAsync(dto);
 
             var orderToAdd = _mapper.ToEntity(dto);
@@ -195,7 +197,6 @@ namespace RadianciaKS.Application.Services
             try
             {
                 var order = await _context.Orders.AddAsync(orderToAdd);
-                var tenantId = order.Entity.TenantId.ToString();
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
