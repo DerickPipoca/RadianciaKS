@@ -60,13 +60,15 @@ export class KdsBoard implements OnInit, OnDestroy {
 
     for (const item of this.pendingItems) {
       if (!map.has(item.orderId)) {
+        const orderTime = item.createdAt ? new Date(item.createdAt) : new Date();
+
         map.set(item.orderId, {
           orderId: item.orderId,
           items: [],
           status: item.kdsStatus,
           tableNumber: '00',
           customerName: 'Cliente',
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time: orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         });
       }
       map.get(item.orderId)!.items.push(item);

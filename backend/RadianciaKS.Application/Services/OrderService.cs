@@ -311,10 +311,13 @@ namespace RadianciaKS.Application.Services
             var items = await _context.OrderItems
                         .Include(x => x.Product)
                         .Include(x => x.SelectedModifiers)
+                        .Include(x => x.Order)
                         .Where(x => x.KdsStatus == KdsStatus.Pending).ToListAsync();
             List<OrderItemResponseDto> itemsDto = [];
             foreach (var item in items)
             {
+                var dto = _orderItemMapper.ToDto(item);
+                dto.CreatedAt = item.Order.CreatedAt;
                 itemsDto.Add(_orderItemMapper.ToDto(item));
             }
             return itemsDto;

@@ -12,7 +12,6 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreSource("ProductId")]
         [MapperIgnoreSource("TenantId")]
         [MapperIgnoreSource("Active")]
-        [MapperIgnoreSource("CreatedAt")]
         public partial OrderItemResponseDto ToDto(OrderItem item);
 
         [MapperIgnoreSource("OrderItemId")]
