@@ -6,13 +6,15 @@
     </div>
   </div>
   <div class="topbar-right">
-    <button class="theme-toggle-btn" (click)="themeService.toggleTheme()">
-      @if (themeService.isDarkMode()) {
-        <lucide-icon [img]="Sun" class="icon" />
-      } @else {
-        <lucide-icon [img]="Moon" class="icon" />
-      }
-    </button>
+    <div class="theme-toggle">
+      <button class="theme-toggle-btn" (click)="themeService.toggleTheme()">
+        @if (themeService.isDarkMode()) {
+          <lucide-icon [img]="Sun" class="icon" />
+        } @else {
+          <lucide-icon [img]="Moon" class="icon" />
+        }
+      </button>
+    </div>
     <div class="user-profile" (click)="toggleDropdown()">
       <div class="info">
         <span class="name">{{ userName }}</span>
@@ -20,7 +22,7 @@
         @if (isDropdownOpen) {
           <div class="dropdown-menu" (click)="$event.stopPropagation()">
             <app-button-component
-              variant="primary"
+              variant="danger"
               size="lg"
               (click)="logout(); $event.stopPropagation()"
             >
