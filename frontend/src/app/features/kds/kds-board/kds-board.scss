@@ -25,7 +25,7 @@
   .logo-area {
     padding: 16px 12px;
     margin-bottom: 24px;
-    color: var(--primary-color);
+    color: var(--text-primary);
     font-size: 1.1rem;
     font-weight: bold;
     display: flex;
@@ -44,7 +44,6 @@
       font-size: 1.1rem;
       color: var(--text-secondary);
       text-decoration: none;
-      transition: all 0.2s;
       gap: 12px;
 
       &:hover {
@@ -54,9 +53,7 @@
 
       &.active {
         background: var(--primary-color-transparent);
-        color: var(
-          --bg-base
-        ); /* Ajustado para var(--bg-base) para evitar erro caso o $dark-base não exista globalmente */
+        color: $dark-base;
         border-right: 4px solid var(--primary-color);
       }
     }
@@ -86,15 +83,15 @@
       margin: 0;
       font-size: 1.2rem;
       font-weight: 600;
-      color: white;
+      color: var(--text-primary);
     }
     .badge {
-      background: rgba(var(--primary-color), 0.2);
+      background: var(--primary-color-transparent);
       padding: 4px 10px;
       border-radius: $radius-pill;
       font-size: 0.85rem;
       font-weight: bold;
-      color: var(--primary-color);
+      color: $dark-base;
     }
   }
 }
@@ -130,10 +127,8 @@
 .kds-card {
   width: 280px;
 
-  // Impede que o card seja esmagado quando houver muitos na tela
   flex-shrink: 0;
 
-  // Limita a altura do card ao tamanho da tela para comandas gigantes
   max-height: 100%;
 
   display: flex;
@@ -144,7 +139,6 @@
   overflow: hidden;
 
   .card-header {
-    // ... (Mantenha igual ao que já estava)
     padding: 12px 16px;
     color: white;
     display: flex;
@@ -240,7 +234,6 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        transition: 0.2s;
 
         .check-icon {
           font-style: normal;
