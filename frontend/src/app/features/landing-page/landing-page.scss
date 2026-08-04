@@ -1,0 +1,74 @@
+@use '../../../styles' as *;
+
+.main-content {
+  background: linear-gradient(135deg, $light-base, var(--primary-color-hover));
+  height: 92vh;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.module-card {
+  background-color: var(--bg-surface);
+  padding: 48px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .restaurant-name {
+    color: var(--text-primary);
+    margin: 0 0 32px 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .modules-grid {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .module-btn {
+    width: 180px;
+    height: 180px;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    color: #1e1e1e;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    .large-icon {
+      width: 64px;
+      height: 64px;
+      ::ng-deep svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &:hover {
+      background-color: var(--primary-color-hover);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

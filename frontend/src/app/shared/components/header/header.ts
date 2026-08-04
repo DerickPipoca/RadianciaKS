@@ -1,13 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth-service';
 import { LucideAngularModule, Sparkle, Moon, Sun } from 'lucide-angular';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../button-component/button-component';
 import { ThemeService } from '../../../core/services/theme-service';
 
 @Component({
   selector: 'app-header',
-  imports: [LucideAngularModule, ButtonComponent],
+  imports: [LucideAngularModule, RouterLink, ButtonComponent],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
