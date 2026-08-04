@@ -4,8 +4,9 @@ import {
   LogLevel,
   HttpTransportType,
 } from '@microsoft/signalr';
-import { inject, Injectable, NgZone, signal } from '@angular/core';
+import { inject, Injectable, NgZone } from '@angular/core';
 import { OrderItemResponseDto } from '../models/order.model';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +18,8 @@ export class SignalrService {
   private readonly testTenantId = '8d1ed281-9f3b-4659-8a46-7eb26c5d550e';
   private readonly hubUrl = 'https://localhost:7047/hubs/kds';
 
-  public newItemSignal = signal<OrderItemResponseDto | null>(null);
-  public itemReadySignal = signal<OrderItemResponseDto | null>(null);
+  public newItem$ = new Subject<OrderItemResponseDto>();
+  public itemReady$ = new Subject<OrderItemResponseDto>();
 
   public startConnection(): void {
     if (this.hubConnection && this.hubConnection.state !== 'Disconnected') {
@@ -58,14 +59,14 @@ export class SignalrService {
     this.hubConnection.on('OnNewOrder', (item: OrderItemResponseDto) => {
       this.zone.run(() => {
         console.log('Novo item recebido na cozinha!', item);
-        this.newItemSignal.set(item);
+        this.newItem$.next(item);
       });
     });
 
     this.hubConnection.on('OnItemReady', (item: OrderItemResponseDto) => {
       this.zone.run(() => {
         console.log('Item pronto na cozinha!', item);
-        this.itemReadySignal.set(item);
+        this.itemReady$.next(item);
       });
     });
   }

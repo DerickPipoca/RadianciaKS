@@ -59,4 +59,5 @@ export interface KdsOrderGroup {
   tableNumber: string;
   customerName: string;
   time: string;
+  createdAt: Date;
 }

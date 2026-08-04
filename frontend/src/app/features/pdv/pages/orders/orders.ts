@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderService } from '../../../../core/services/order-service';
@@ -9,7 +9,7 @@ import { LucideAngularModule, CreditCard, X, Printer, TextSearch } from 'lucide-
 import { SignalrService } from '../../../../core/services/signalr-service';
 import { PaymentStatus } from '../../../../core/enums/payment-status';
 import { PrintPreview } from '../../components/print-preview/print-preview';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, merge, Subject, Subscription } from 'rxjs';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 
 @Component({
@@ -18,7 +18,7 @@ import { InputComponent } from '../../../../shared/components/input-component/in
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
 })
-export class Orders implements OnInit {
+export class Orders implements OnInit, OnDestroy {
   public readonly CreditCard = CreditCard;
   public readonly XIcon = X;
   public readonly Printer = Printer;
@@ -40,21 +40,17 @@ export class Orders implements OnInit {
 
   dropdownOpen = false;
 
+  private subscriptions = new Subscription();
+
   @ViewChild(PrintPreview) printPreview!: PrintPreview;
 
   constructor() {
-    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
-      this.pageNumber = 1;
-      this.loadOrders();
-    });
-    effect(() => {
-      const readyItem = this.signalrService.itemReadySignal();
-      const newItem = this.signalrService.newItemSignal();
-
-      if (readyItem || newItem) {
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+        this.pageNumber = 1;
         this.loadOrders();
-      }
-    });
+      }),
+    );
   }
 
   recentOrders: OrderResponseDto[] = [];
@@ -68,6 +64,18 @@ export class Orders implements OnInit {
   ngOnInit() {
     this.loadOrders();
     this.signalrService.startConnection();
+
+    this.subscriptions.add(
+      merge(this.signalrService.newItem$, this.signalrService.itemReady$)
+        .pipe(debounceTime(300))
+        .subscribe(() => {
+          this.loadOrders();
+        }),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   changeFilterStatus(status: string) {

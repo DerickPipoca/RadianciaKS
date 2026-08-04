@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../../core/services/order-service';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { SignalrService } from '../../../../core/services/signalr-service';
 import { PaymentStatus } from '../../../../core/enums/payment-status';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 import { LucideAngularModule, TextSearch } from 'lucide-angular';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, merge, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-close-orders',
@@ -17,7 +17,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
   templateUrl: './close-orders.html',
   styleUrl: './close-orders.scss',
 })
-export class CloseOrders implements OnInit {
+export class CloseOrders implements OnInit, OnDestroy {
   public TextSearch = TextSearch;
   currentSortColumn: string = 'createdAt';
   isDescending: boolean = true;
@@ -37,19 +37,15 @@ export class CloseOrders implements OnInit {
   searchTerm: string = '';
   searchSubject = new Subject<string>();
 
-  constructor() {
-    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
-      this.pageNumber = 1;
-      this.loadOrders();
-    });
-    effect(() => {
-      const readyItem = this.signalrService.itemReadySignal();
-      const newItem = this.signalrService.newItemSignal();
+  private subscriptions = new Subscription();
 
-      if (readyItem || newItem) {
+  constructor() {
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+        this.pageNumber = 1;
         this.loadOrders();
-      }
-    });
+      }),
+    );
   }
 
   changeSort(column: string) {
@@ -66,6 +62,18 @@ export class CloseOrders implements OnInit {
   ngOnInit() {
     this.signalrService.startConnection();
     this.loadOrders();
+
+    this.subscriptions.add(
+      merge(this.signalrService.newItem$, this.signalrService.itemReady$)
+        .pipe(debounceTime(300))
+        .subscribe(() => {
+          this.loadOrders();
+        }),
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   getPaymentStatusLabel(order: OrderResponseDto): string {

@@ -4,7 +4,7 @@ import { SignalrService } from '../../../core/services/signalr-service';
 import { KdsOrderGroup, OrderItemResponseDto } from '../../../core/models/order.model';
 import { KdsService } from '../../../core/services/kds-service';
 import { KdsStatus } from '../../../core/enums/kds-status';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { LucideAngularModule, Rows3, History, Funnel } from 'lucide-angular';
 
 @Component({
@@ -21,36 +21,38 @@ export class KdsBoard implements OnInit, OnDestroy {
   private kdsService = inject(KdsService);
   private signalrService = inject(SignalrService);
 
+  private notificationSound = new Audio('/notificationSound.mp3');
+
   pendingItems: OrderItemResponseDto[] = [];
   KdsStatus = KdsStatus;
 
   checkedItems = new Set<string>();
 
-  constructor() {
-    effect(() => {
-      const newItem = this.signalrService.newItemSignal();
-      if (newItem) {
-        if (!this.pendingItems.find((i) => i.id === newItem.id)) {
-          this.pendingItems.push(newItem);
-        }
-      }
-    });
-
-    effect(() => {
-      const readyItem = this.signalrService.itemReadySignal();
-      if (readyItem) {
-        this.pendingItems = this.pendingItems.filter((i) => i.id !== readyItem.id);
-      }
-    });
-  }
+  private subscriptions = new Subscription();
 
   ngOnInit(): void {
     this.loadPendingItems();
     this.signalrService.startConnection();
+
+    this.subscriptions.add(
+      this.signalrService.newItem$.subscribe((newItem) => {
+        if (!this.pendingItems.find((i) => i.id === newItem.id)) {
+          this.pendingItems = [...this.pendingItems, newItem];
+          this.playSound();
+        }
+      }),
+    );
+
+    this.subscriptions.add(
+      this.signalrService.itemReady$.subscribe((readyItem) => {
+        this.pendingItems = this.pendingItems.filter((i) => i.id !== readyItem.id);
+      }),
+    );
   }
 
   ngOnDestroy(): void {
     this.signalrService.stopConnection();
+    this.subscriptions.unsubscribe();
   }
 
   loadPendingItems(): void {
@@ -74,12 +76,17 @@ export class KdsBoard implements OnInit, OnDestroy {
           tableNumber: '00',
           customerName: 'Cliente',
           time: orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          createdAt: orderTime,
         });
       }
       map.get(item.orderId)!.items.push(item);
     }
 
-    return Array.from(map.values());
+    const groups = Array.from(map.values());
+
+    groups.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+    return groups;
   }
 
   toggleItemCheck(itemId: string) {
@@ -126,6 +133,17 @@ export class KdsBoard implements OnInit, OnDestroy {
         }
       },
       error: () => alert('Erro ao atualizar o status na cozinha.'),
+    });
+  }
+
+  private playSound(): void {
+    this.notificationSound.currentTime = 0;
+
+    this.notificationSound.play().catch((error) => {
+      console.warn(
+        'O navegador bloqueou o áudio automático. O usuário precisa clicar na tela primeiro.',
+        error,
+      );
     });
   }
 }
