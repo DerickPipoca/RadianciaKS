@@ -1,8 +1,8 @@
 @use '../../../../styles' as *;
 
 header {
-  background-color: $primary-color;
-  color: $bg-dark-base;
+  background-color: var(--primary-color);
+  color: $dark-base;
 }
 
 .topbar {
@@ -23,7 +23,7 @@ header {
     h1 {
       margin: 0;
       font-size: 1.5rem;
-      color: $text-primary-light;
+      color: --text-primary;
     }
   }
   .user-profile {
@@ -42,7 +42,7 @@ header {
 
       .role {
         font-size: 0.875rem;
-        color: $text-secondary-light;
+        color: --text-secondary;
       }
 
       &:hover {

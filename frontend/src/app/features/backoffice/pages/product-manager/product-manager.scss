@@ -3,7 +3,7 @@
   width: 100%;
 }
 .card-table {
-  background-color: $bg-dark-base;
+  background-color: var(--bg-base);
   border-radius: $radius-md;
   overflow: hidden;
 
@@ -14,7 +14,7 @@
       transition: background 0.2s;
 
       &:nth-child(odd) {
-        background-color: $bg-dark-surface;
+        background-color: var(--bg-surface);
       }
     }
     width: 100%;
@@ -26,7 +26,7 @@
         background-color: transparent;
         font-family: $font-family-base;
         border: none;
-        color: $text-secondary-dark;
+        color: var(--text-secondary);
         font-weight: 500;
         padding: 16px;
         &:hover {
@@ -41,7 +41,7 @@
 
     td {
       padding: 16px;
-      color: $text-primary-dark;
+      color: var(--text-primary);
     }
   }
 }
@@ -58,12 +58,12 @@
 
     .product-name {
       font-size: 1rem;
-      color: $text-primary-dark;
+      color: var(--text-primary);
     }
 
     .product-desc {
       font-size: 0.85rem;
-      color: $text-secondary-dark;
+      color: var(--text-primary);
       margin-top: 2px;
     }
   }
@@ -85,23 +85,23 @@
   .btn-action {
     background: none;
     border: none;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     cursor: pointer;
     margin-left: 12px;
     font-family: $font-family-base;
 
     &:hover {
-      color: $primary-color;
+      color: var(--primary-color);
       text-decoration: underline;
       &.btn-delete {
-        color: $red-status;
+        color: var(--red-status);
       }
     }
   }
 }
 
 .badge-category {
-  background: $bg-dark-elevated;
+  background: var(--bg-elevated);
   padding: 4px 8px;
   border-radius: $radius-pill;
   font-size: 0.85rem;
@@ -119,9 +119,9 @@
 }
 .filter-select,
 .search-input {
-  background: $bg-dark-surface;
-  border: 1px solid $border-color-dark;
-  color: $text-primary-dark;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 8px 12px;
   border-radius: $radius-sm;
 }
@@ -130,11 +130,11 @@
   display: flex;
   justify-content: space-between;
   padding: 20px 16px;
-  color: $text-secondary-dark;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 
   b {
-    color: $primary-color;
+    color: var(--primary-color);
     margin: 0 4px;
   }
 }
@@ -154,7 +154,7 @@
 }
 
 .modal-card {
-  background: $bg-dark-surface;
+  background: var(--bg-surface);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -163,12 +163,12 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: $shadow-md;
-  color: $text-primary-dark;
+  color: var(--text-primary);
 }
 
 .modal-header {
   padding: 20px;
-  border-bottom: 1px solid $border-color-dark;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -176,25 +176,24 @@
 
 .modal-body {
   padding: 20px;
-  overflow-y: auto; // Isso cria o scroll interno quando o conteúdo é grande
+  overflow-y: auto;
   flex: 1;
 }
 
 .modal-footer {
   padding: 15px 20px;
-  border-top: 1px solid $border-color-dark;
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
 }
 
-// Estilização dos inputs dentro do modal
 .form-group {
   margin-bottom: 15px;
   label {
     display: block;
     margin-bottom: 5px;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     font-size: 0.9rem;
   }
   input,
@@ -203,24 +202,22 @@
     font-family: $font-family-base;
     width: 100%;
     padding: 9px;
-    background: $bg-light-base;
-    border: 1px solid $border-color-dark;
+    background: var(--bg-base);
+    border: 1px solid var(--text-primary);
     border-radius: $radius-sm;
-    color: $text-primary-light;
+    color: var(--text-primary);
   }
   textarea,
   select {
     background-color: transparent;
     resize: none;
     width: 96.5%;
-    color: $bg-light-base;
-    border: 1px solid $bg-light-base;
   }
   input,
   select,
   textarea:focus {
     outline: none;
-    border-color: $primary-color;
+    border-color: var(--primary-color);
   }
 }
 
@@ -231,39 +228,39 @@
 }
 
 .upload-zone {
-  border: 2px dashed $border-color-dark;
+  border: 2px dashed var(--border-color);
   border-radius: $radius-md;
   padding: 30px;
   text-align: center;
   margin-bottom: 20px;
-  background: $bg-dark-base;
+  background: var(--bg-base);
 
   .upload-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
   }
 }
 .info-alert {
   display: flex;
   gap: 12px;
-  background: rgba($orange-status, 0.1);
-  border-left: 4px solid $orange-status;
+  background: rgba(var(--orange-status), 0.1);
+  border-left: 4px solid var(--orange-status);
   padding: 16px;
   border-radius: $radius-sm;
-  color: $text-primary-dark;
+  color: var(--text-primary-dark);
   font-size: 0.9rem;
   line-height: 1.5;
 
   p strong {
-    color: $orange-status;
+    color: var(--orange-status);
   }
 }
 
 .modifier-creator-box {
-  background: rgba($bg-dark-base, 0.4);
-  border: 1px solid $border-color-dark;
+  background: rgba(var(--bg-base), 0.4);
+  border: 1px solid var(--border-color);
   border-radius: $radius-md;
   padding: 20px;
   margin-bottom: 24px;
@@ -273,7 +270,7 @@
     font-weight: 600;
     margin-top: 0px;
     margin-bottom: 16px;
-    color: $text-primary-dark;
+    color: var(--text-primary);
   }
 
   .flex-1 {
@@ -287,22 +284,22 @@
     width: 100%;
     padding: 10px;
     background: transparent;
-    border: 1px dashed $primary-color;
-    color: $primary-color;
+    border: 1px dashed var(--primary-color);
+    color: var(--primary-color);
     border-radius: $radius-sm;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-      background: rgba($primary-color, 0.1);
+      background: rgba(var(--primary-color), 0.1);
     }
   }
 }
 
 .modifier-group-card {
-  background: rgba($bg-dark-base, 0.4);
-  border: 1px solid $border-color-dark;
+  background: rgba(var(--bg-base), 0.4);
+  border: 1px solid var(--border-color);
   border-radius: $radius-md;
   padding: 20px;
   margin-bottom: 16px;
@@ -311,7 +308,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid $border-color-dark;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 12px;
     margin-bottom: 12px;
 
@@ -320,11 +317,11 @@
         margin: 0;
         font-size: 1rem;
         font-weight: 600;
-        color: $text-primary-dark;
+        color: var(--text-primary);
       }
       .group-rules {
         font-size: 0.8rem;
-        color: $text-secondary-dark;
+        color: var(--text-secondary);
         display: block;
         margin-top: 2px;
       }
@@ -333,7 +330,7 @@
     .btn-delete {
       background: transparent;
       border: none;
-      color: $red-status;
+      color: var(--red-status);
       cursor: pointer;
       font-size: 0.85rem;
       &:hover {
@@ -353,14 +350,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 12px;
-    background: rgba($bg-dark-surface, 0.3);
+    background: rgba(var(--bg-surface), 0.3);
     border-radius: $radius-sm;
     margin-bottom: 8px;
-    border: 1px solid rgba($border-color-dark, 0.5);
+    border: 1px solid rgba(var(--border-color), 0.5);
 
     .opt-name {
       font-size: 0.9rem;
-      color: $text-primary-dark;
+      color: var(--text-primary);
     }
     .opt-right {
       display: flex;
@@ -374,12 +371,12 @@
     .btn-remove-opt {
       background: transparent;
       border: none;
-      color: $text-secondary-dark;
+      color: var(--text-secondary);
       cursor: pointer;
       font-size: 1.2rem;
       line-height: 1;
       &:hover {
-        color: $red-status;
+        color: var(--red-status);
       }
     }
   }
@@ -387,7 +384,7 @@
   .empty-option {
     padding: 12px;
     text-align: center;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     font-style: italic;
     font-size: 0.85rem;
   }
@@ -400,13 +397,13 @@
   input {
     flex: 1;
     padding: 10px;
-    background: $bg-dark-base;
-    border: 1px solid $border-color-dark;
+    background: var(--bg-base);
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     color: white;
     &:focus {
       outline: none;
-      border-color: $primary-color;
+      border-color: var(--primary-color);
     }
   }
 
@@ -416,7 +413,7 @@
 
   .btn-submit-opt {
     padding: 0 16px;
-    background: $primary-color;
+    background: var(--primary-color);
     border: none;
     color: white;
     border-radius: $radius-sm;
@@ -439,10 +436,10 @@
   .custom-select-trigger {
     width: 100%;
     padding: 11px;
-    background: $bg-dark-surface;
-    border: 1px solid $border-color-light;
+    background: var(--bg-surface);
+    border: 1px solid var(--text-primary);
     border-radius: $radius-sm;
-    color: $text-primary-dark;
+    color: var(--text-primary);
     text-align: left;
     display: flex;
     justify-content: space-between;
@@ -451,13 +448,13 @@
     font-family: $font-family-base;
 
     &:focus {
-      border-color: $primary-color;
+      border-color: var(--primary-color);
       outline: none;
     }
 
     .arrow {
       font-size: 0.7rem;
-      color: $text-secondary-dark;
+      color: var(--text-secondary);
     }
   }
 
@@ -466,8 +463,8 @@
     top: 100%;
     left: 0;
     width: 100%;
-    background-color: $bg-dark-surface;
-    border: 1px solid $border-color-light;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     list-style: none;
     margin: 4px 0 0 0;
@@ -479,17 +476,17 @@
 
     .option {
       padding: 10px 12px;
-      color: $text-primary-dark;
+      color: var(--text-primary);
       cursor: pointer;
       transition: background 0.15s ease;
 
       &:hover {
-        background-color: $border-color-light;
-        color: $bg-dark-base;
+        background-color: var(--border-color);
+        color: var(--primary-color);
       }
 
       &.is-selected {
-        background-color: $primary-color;
+        background-color: var(--primary-color);
         color: white;
       }
     }

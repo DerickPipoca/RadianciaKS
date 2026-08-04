@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: $bg-light-base;
+  background-color: var(--bg-base);
 }
 
 .topbar {
@@ -19,13 +19,13 @@
     border: none;
     font-size: 1rem;
     font-weight: 600;
-    color: $text-primary-light;
+    color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     &:hover {
-      color: $primary-color;
+      color: var(--primary-color);
     }
   }
 
@@ -44,7 +44,7 @@
     background: white;
     border-radius: $radius-pill;
     padding: 10px 16px;
-    border: 1px solid $border-color-light;
+    border: 1px solid var(--border-color);
     input {
       background: none;
       border: none;
@@ -60,7 +60,7 @@
   flex: 1;
   padding: 24px 24px 24px;
   overflow-y: auto;
-  background-color: $bg-light-base;
+  background-color: var(--bg-base);
 }
 
 .filter-section {
@@ -77,7 +77,7 @@
   gap: 8px;
   label {
     font-size: 0.9rem;
-    color: $text-secondary-light;
+    color: var(--text-secondary);
   }
 }
 
@@ -90,7 +90,7 @@
 
   .section-title {
     font-size: 1.5rem;
-    color: $text-primary-light;
+    color: var(--text-primary);
     margin: 0;
     font-weight: 600;
   }
@@ -100,18 +100,18 @@
     gap: 8px;
     .chip {
       background: white;
-      border: 1px solid $border-color-light;
+      border: 1px solid var(--border-color);
       padding: 6px 16px;
       border-radius: $radius-pill;
-      color: $text-primary-light;
+      color: var(--text-primary);
       font-weight: 500;
       cursor: pointer;
       &:hover {
-        border-color: $primary-color;
+        border-color: var(--primary-color);
       }
       &.active {
-        background: $primary-color;
-        border-color: $primary-color;
+        background: var(--primary-color);
+        border-color: var(--primary-color);
         font-weight: 600;
       }
     }
@@ -124,8 +124,8 @@
   gap: 16px;
 
   .order-card {
-    background: white;
-    border: 1px solid $border-color-light;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: $radius-md;
     padding: 16px;
     display: flex;
@@ -139,24 +139,24 @@
     &:hover {
       transform: translateY(-2px);
       box-shadow: $shadow-md;
-      border-color: $primary-color;
+      border-color: var(--primary-color);
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba($border-color-light, 0.5);
+      border-bottom: 1px solid rgba(var(--border-color), 0.5);
       padding-bottom: 12px;
 
       .order-number {
         font-size: 1.2rem;
         font-weight: 700;
-        color: $text-primary-light;
+        color: var(--text-primary);
       }
       .order-time {
         font-size: 0.85rem;
-        color: $text-secondary-light;
+        color: var(--text-secondary);
       }
     }
 
@@ -165,13 +165,13 @@
         margin: 0 0 4px 0;
         font-size: 1rem;
         font-weight: 500;
-        color: $text-secondary-light;
+        color: var(--text-secondary);
       }
       .order-total {
         margin: 0;
         font-size: 1.25rem;
         font-weight: 700;
-        color: $text-primary-light;
+        color: var(--text-primary);
       }
     }
 
@@ -181,14 +181,12 @@
       justify-content: space-between;
       align-items: center;
 
-      // Container flex para manter os badges agrupados lado a lado ou empilhados
       .badges-container {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
       }
 
-      // O badge da cozinha que você já tinha
       .status-badge {
         padding: 4px 10px;
         border-radius: 16px;
@@ -196,7 +194,7 @@
         font-weight: 600;
         &.canceled {
           background: #ff69693b;
-          color: $red-status;
+          color: var(--red-status);
         }
         &.open {
           background: #e2e8f0;
@@ -208,7 +206,6 @@
         }
       }
 
-      // O novo badge financeiro
       .payment-badge {
         padding: 4px 10px;
         border-radius: 16px;
@@ -218,31 +215,31 @@
         &.pending {
           background: #fef08a;
           color: #854d0e;
-        } // Amarelo
+        }
         &.partial {
           background: #bae6fd;
           color: #075985;
-        } // Azul Claro
+        }
         &.paid {
           background: #bbf7d0;
           color: #166534;
-        } // Verde
+        }
         &.refunded {
           background: #fecaca;
           color: #991b1b;
-        } // Vermelho
+        }
       }
 
       .btn-action {
         background: transparent;
-        border: 1px solid $border-color-light;
+        border: 1px solid var(--border-color);
         border-radius: $radius-sm;
         padding: 6px 12px;
-        color: $text-primary-light;
+        color: var(--text-primary);
         font-weight: 500;
         cursor: pointer;
         &:hover {
-          background: $bg-light-base;
+          background: var(--bg-base);
         }
       }
     }
@@ -253,7 +250,7 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 40px;
-  color: $text-secondary-light;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
@@ -285,11 +282,11 @@
 
 .modal-header {
   padding: 16px 24px;
-  border-bottom: 1px solid $border-color-light;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: $bg-light-surface;
+  background: var(--bg-surface);
 
   .header-info {
     display: flex;
@@ -298,7 +295,7 @@
     h2 {
       margin: 0;
       font-size: 1.2rem;
-      color: $text-primary-light;
+      color: var(--text-primary);
     }
   }
 
@@ -307,11 +304,12 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: $text-secondary-light;
+    color: var(--text-secondary);
   }
 }
 
 .modal-body {
+  background-color: var(--bg-surface);
   padding: 24px;
   overflow-y: auto;
   flex: 1;
@@ -319,8 +317,8 @@
   .section-label {
     margin: 0 0 16px 0;
     font-size: 1.1rem;
-    color: $text-primary-light;
-    border-bottom: 2px solid $bg-light-base;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--bg-base);
     padding-bottom: 8px;
   }
 
@@ -341,7 +339,7 @@
         display: flex;
         justify-content: space-between;
         font-weight: 600;
-        color: $text-primary-light;
+        color: var(--text-primary);
         font-size: 1rem;
       }
 
@@ -351,14 +349,14 @@
         margin: 0;
         li {
           font-size: 0.85rem;
-          color: $text-secondary-light;
+          color: var(--text-secondary);
         }
       }
 
       .item-notes {
         margin: 4px 0 0 0;
         font-size: 0.85rem;
-        color: $orange-status;
+        color: var(--orange-status);
         font-style: italic;
       }
     }
@@ -366,7 +364,7 @@
 
   .divider {
     border: none;
-    border-top: 1px dashed $border-color-light;
+    border-top: 1px dashed var(--border-color);
     margin: 24px 0;
   }
 
@@ -378,9 +376,9 @@
       display: flex;
       justify-content: space-between;
       font-size: 1.1rem;
-      color: $text-primary-light;
+      color: var(--text-primary);
       &.change {
-        color: $green-status;
+        color: var(--green-status);
         font-size: 1rem;
       }
     }
@@ -389,10 +387,10 @@
 
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid $border-color-light;
-  background: $bg-light-surface;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface);
   display: flex;
-  justify-content: space-between; // Separa as ações da esquerda e a impressão na direita
+  justify-content: space-between;
   gap: 16px;
   align-items: center;
 
@@ -418,10 +416,10 @@
     .btn-cancel {
       gap: 4px;
       display: flex;
-      background-color: rgba($red-status, 0.1);
-      color: $red-status;
+      background-color: rgba(var(--red-status), 0.1);
+      color: var(--red-status);
       &:hover {
-        background-color: rgba($red-status, 0.2);
+        background-color: rgba(var(--red-status), 0.2);
       }
       align-items: center;
     }
@@ -430,8 +428,8 @@
       gap: 4px;
       display: flex;
       height: auto;
-      background-color: $primary-color;
-      color: $text-primary-light;
+      background-color: var(--primary-color);
+      color: var(--text-primary);
       align-items: center;
     }
   }
@@ -440,14 +438,15 @@
     gap: 4px;
     display: flex;
     padding: 12px 24px;
-    background: white;
-    border: 1px solid $border-color-light;
+    color: var(--text-primary);
+    background: var(--bg-base);
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     font-weight: 600;
     cursor: pointer;
     font-family: $font-family-base;
     &:hover {
-      background: $bg-light-base;
+      background: var(--bg-base);
     }
     align-items: center;
   }
@@ -458,8 +457,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px 16px;
-  border-top: 1px solid $border-color-light;
-  color: $text-primary-light;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-primary);
 
   .page-info {
     display: flex;
@@ -467,17 +466,20 @@
     gap: 4px;
 
     button {
+      background: var(--bg-surface);
+      color: var(--text-primary);
       padding: 6px 12px;
-      border: 1px solid $border-color-dark;
+      border: 1px solid var(--border-color);
       border-radius: $radius-sm;
       cursor: pointer;
 
       &:hover:not([disabled]) {
-        border-color: $border-color-dark;
+        border-color: var(--border-color);
       }
       &.active {
-        background: $primary-color;
-        border-color: $primary-color;
+        color: $dark-base;
+        background: var(--primary-color);
+        border-color: var(--primary-color);
       }
       &:disabled {
         opacity: 0.5;
@@ -488,9 +490,9 @@
 
   .results-info {
     font-size: 0.9rem;
-    color: $text-secondary-light;
+    color: var(--text-secondary);
     b {
-      color: $text-primary-light;
+      color: var(--text-primary);
     }
   }
 }
@@ -503,10 +505,10 @@
     display: block;
     width: 100%;
     box-sizing: border-box;
-    background: $bg-light-surface;
-    color: $text-primary-light;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border-width: 1px;
-    border-color: $text-secondary-light;
+    border-color: var(--text-secondary);
     border-radius: $radius-md;
     border-style: solid;
     text-align: left;
@@ -515,7 +517,7 @@
     font-family: $font-family-base;
 
     &:hover {
-      border-color: $primary-color;
+      border-color: var(--primary-color);
       outline: none;
     }
   }
@@ -527,9 +529,9 @@
     width: 100%;
     min-width: 100%;
     box-sizing: border-box;
-    background-color: $bg-light-base;
-    color: $text-primary-light;
-    border: 1px solid $border-color-light;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     list-style: none;
     font-size: 0.9rem;
@@ -543,7 +545,7 @@
     .option {
       width: 100%;
       padding: 10px 16px;
-      color: $text-primary-light;
+      color: var(--text-primary);
       box-sizing: border-box;
       cursor: pointer;
       transition: background 0.15s ease;
@@ -553,18 +555,18 @@
       text-overflow: ellipsis;
 
       &:hover {
-        background-color: $border-color-light;
-        color: $bg-dark-base;
+        background-color: var(--border-color);
+        color: var(--bg-base);
       }
 
       &.is-selected {
-        background-color: $primary-color;
+        background-color: var(--primary-color);
       }
     }
   }
 }
 .sort-controls {
-  color: $text-secondary-light;
+  color: var(--text-secondary);
   display: flex;
   gap: 8px;
   align-items: center;
@@ -578,15 +580,15 @@
   }
   .order-item {
     font-size: 0.9rem;
-    background: $bg-light-surface;
-    color: $text-primary-light;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border-width: 1px;
-    border-color: $text-secondary-light;
+    border-color: var(--text-secondary);
     border-radius: $radius-sm;
     border-style: solid;
     width: 60px;
     &:focus {
-      border-color: $primary-color;
+      border-color: var(--primary-color);
     }
   }
 }

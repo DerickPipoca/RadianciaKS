@@ -14,7 +14,7 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-surface);
   width: 90%;
   max-width: 500px;
 
@@ -35,12 +35,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: var(--bg-surface);
 
   h2 {
     margin: 0;
     font-size: 1.3rem;
-    color: $text-primary-light;
+    color: var(--text-primary);
     font-weight: 600;
   }
   .close-btn {
@@ -48,7 +48,7 @@
     border: none;
     font-size: 1.6rem;
     cursor: pointer;
-    color: $text-secondary-light;
+    color: var(--text-secondary);
   }
 }
 
@@ -56,7 +56,7 @@
   padding: 0;
   flex: 1;
   overflow-y: auto;
-  background: #fdfdfd;
+  background: var(--bg-surface);
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -75,32 +75,32 @@
   .product-description {
     padding: 0 24px 16px;
     margin: 0;
-    color: $text-secondary-light;
+    color: var(--text-secondary);
     font-size: 0.95rem;
   }
 }
 
 .modifier-group {
   margin-bottom: 8px;
-  background: white;
+  background: var(--bg-base);
 
   &.invalid-group {
-    border-left: 4px solid $orange-status;
+    border-left: 4px solid var(--orange-status);
   }
 
   .group-header {
-    background: #f4f4f5;
+    background: var(--bg-base);
     padding: 16px 24px;
 
     h3 {
       margin: 0 0 4px 0;
       font-size: 1.1rem;
-      color: $text-primary-light;
+      color: var(--text-primary-light);
       font-weight: 600;
     }
     .rules {
       font-size: 0.85rem;
-      color: $text-secondary-light;
+      color: var(--text-secondary);
     }
   }
 }
@@ -113,7 +113,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 0;
-    border-bottom: 1px solid $border-color-light;
+    border-bottom: 1px solid var(--border-color);
 
     &:last-child {
       border-bottom: none;
@@ -127,7 +127,7 @@
 
       .option-name {
         font-size: 1rem;
-        color: $text-primary-light;
+        color: var(--text-primary);
         font-weight: 500;
       }
       .option-desc {
@@ -137,7 +137,7 @@
       }
       .option-price {
         font-size: 0.9rem;
-        color: $text-secondary-light;
+        color: var(--text-secondary);
       }
     }
 
@@ -150,17 +150,17 @@
         border: none;
         font-size: 2.2rem;
         line-height: 1;
-        color: $text-primary-light;
+        color: var(--text-primary);
         cursor: pointer;
         font-weight: 300;
         transition: color 0.2s;
 
         &:disabled {
-          color: $border-color-light;
+          color: var(--border-color);
           cursor: not-allowed;
         }
         &:hover:not(:disabled) {
-          color: $primary-color;
+          color: var(--primary-color);
         }
       }
 
@@ -175,7 +175,7 @@
           background: none;
           border: none;
           font-size: 1.5rem;
-          color: $primary-color;
+          color: var(--primary-color);
           cursor: pointer;
           font-weight: 600;
           padding: 0 4px;
@@ -187,7 +187,7 @@
         }
 
         .qty-number {
-          color: $text-primary-light;
+          color: var(--text-primary);
         }
       }
     }
@@ -197,8 +197,8 @@
 .modal-footer {
   flex-shrink: 0;
   padding: 16px 24px;
-  border-top: 1px solid $border-color-light;
-  background: #fdfdfd;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-base);
   display: flex;
   gap: 12px;
 
@@ -206,18 +206,19 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    background: #ffeebf;
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
     border-radius: $radius-sm;
     padding: 0 16px;
     font-size: 1.2rem;
     font-weight: 600;
-    color: $text-primary-light;
+    color: var(--text-primary);
 
     button {
       background: none;
       border: none;
       font-size: 1.2rem;
-      color: $text-primary-light;
+      color: var(--text-primary);
       cursor: pointer;
       padding: 12px 4px;
       font-weight: bold;
@@ -229,19 +230,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: $primary-color;
+    background: var(--primary-color);
     border: none;
     padding: 16px 20px;
     border-radius: $radius-sm;
     font-size: 1.1rem;
     font-weight: 700;
-    color: $text-primary-light;
+    color: $dark-base;
     cursor: pointer;
     transition: filter 0.2s;
     font-family: $font-family-base;
 
     &:disabled {
-      background: $border-color-light;
+      background: var(--border-color);
       color: #888;
       cursor: not-allowed;
     }

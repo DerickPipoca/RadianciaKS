@@ -15,20 +15,20 @@
   justify-content: center;
 
   &.primary {
-    background-color: $primary-color;
-    color: $text-primary-light;
+    background-color: var(--primary-color);
+    color: $dark-base;
     &:hover {
-      background-color: $primary-color-hover;
+      background-color: var(--primary-color-hover);
     }
   }
 
   &.secondary {
-    background-color: $bg-dark-elevated;
-    color: $text-primary-dark;
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
   }
 
   &.danger {
-    background-color: $red-status;
+    background-color: var(--red-status);
     color: white;
   }
 

@@ -1,7 +1,7 @@
 @use '../../../../../styles' as *;
 
 .card-table {
-  background-color: $bg-dark-base;
+  background-color: var(--bg-base);
   border-radius: $radius-md;
   overflow: hidden;
 
@@ -12,7 +12,7 @@
       transition: background 0.2s;
 
       &:nth-child(odd) {
-        background-color: $bg-dark-surface;
+        background-color: var(--bg-surface);
       }
     }
     width: 100%;
@@ -20,7 +20,7 @@
 
     thead th {
       text-align: left;
-      color: $text-secondary-dark;
+      color: var(--text-secondary);
       font-weight: 500;
       padding: 16px;
       &.actions-column {
@@ -31,7 +31,7 @@
 
     td {
       padding: 16px;
-      color: $text-primary-dark;
+      color: var(--text-primary);
     }
   }
 }
@@ -48,12 +48,12 @@
 
     .product-name {
       font-size: 1rem;
-      color: $text-primary-dark;
+      color: var(--text-primary);
     }
 
     .product-desc {
       font-size: 0.85rem;
-      color: $text-secondary-dark;
+      color: var(--text-secondary);
       margin-top: 2px;
     }
   }
@@ -61,7 +61,7 @@
   .product-thumb-placeholder {
     width: 40px;
     height: 40px;
-    background: $bg-dark-elevated;
+    background: var(--bg-elevated);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -76,23 +76,23 @@
   .btn-action {
     background: none;
     border: none;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     cursor: pointer;
     margin-left: 12px;
     font-family: $font-family-base;
 
     &:hover {
-      color: $primary-color;
+      color: var(--primary-color);
       text-decoration: underline;
       &.btn-delete {
-        color: $red-status;
+        color: var(--red-status);
       }
     }
   }
 }
 
 .badge-category {
-  background: $bg-dark-elevated;
+  background: var(--bg-elevated);
   padding: 4px 8px;
   border-radius: $radius-pill;
   font-size: 0.85rem;
@@ -110,9 +110,9 @@
 }
 .filter-select,
 .search-input {
-  background: $bg-dark-surface;
-  border: 1px solid $border-color-dark;
-  color: $text-primary-dark;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 8px 12px;
   border-radius: $radius-sm;
 }
@@ -121,11 +121,11 @@
   display: flex;
   justify-content: space-between;
   padding: 20px 16px;
-  color: $text-secondary-dark;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 
   b {
-    color: $primary-color;
+    color: var(--primary-color);
     margin: 0 4px;
   }
 }
@@ -145,7 +145,7 @@
 }
 
 .modal-card {
-  background: $bg-dark-surface;
+  background: var(--bg-surface);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -154,12 +154,12 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: $shadow-md;
-  color: $text-primary-dark;
+  color: var(--text-primary);
 }
 
 .modal-header {
   padding: 20px;
-  border-bottom: 1px solid $border-color-dark;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -167,25 +167,24 @@
 
 .modal-body {
   padding: 20px;
-  overflow-y: auto; // Isso cria o scroll interno quando o conteúdo é grande
+  overflow-y: auto;
   flex: 1;
 }
 
 .modal-footer {
   padding: 15px 20px;
-  border-top: 1px solid $border-color-dark;
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
 }
 
-// Estilização dos inputs dentro do modal
 .form-group {
   margin-bottom: 15px;
   label {
     display: block;
     margin-bottom: 5px;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     font-size: 0.9rem;
   }
   input,
@@ -193,8 +192,8 @@
   textarea {
     width: 100%;
     padding: 10px;
-    background: $bg-dark-base;
-    border: 1px solid $border-color-dark;
+    background: var(--bg-base);
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     color: white;
   }
@@ -213,10 +212,10 @@
     height: 32.25px;
     width: 100%;
     padding: 0px 11px;
-    background: $bg-dark-surface;
-    border: 1px solid $border-color-light;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
-    color: $text-primary-dark;
+    color: var(--text-primary);
     text-align: left;
     display: flex;
     justify-content: space-between;
@@ -225,13 +224,13 @@
     font-family: $font-family-base;
 
     &:focus {
-      border-color: $primary-color;
+      border-color: var(--primary-color);
       outline: none;
     }
 
     .arrow {
       font-size: 0.7rem;
-      color: $text-secondary-dark;
+      color: var(--text-secondary);
     }
   }
 
@@ -240,8 +239,8 @@
     top: 100%;
     left: 0;
     width: 100%;
-    background-color: $bg-dark-surface;
-    border: 1px solid $border-color-light;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     list-style: none;
     margin: 4px 0 0 0;
@@ -253,17 +252,17 @@
 
     .option {
       padding: 10px 12px;
-      color: $text-primary-dark;
+      color: var(--text-primary);
       cursor: pointer;
       transition: background 0.15s ease;
 
       &:hover {
-        background-color: $border-color-light;
-        color: $bg-dark-base;
+        background-color: var(--border-color);
+        color: var(--bg-base);
       }
 
       &.is-selected {
-        background-color: $primary-color;
+        background-color: var(--primary-color);
         color: white;
       }
     }

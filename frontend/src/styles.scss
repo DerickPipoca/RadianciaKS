@@ -1,28 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Space+Grotesk&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-$primary-color: #ffd369;
-$primary-color-hover: #ffe5a4;
+:root {
+  --primary-color: #ffd369;
+  --primary-color-transparent: #ffd2698c;
+  --primary-color-hover: #ffe5a4;
 
-$green-status: #22c55e;
-$orange-status: #e59c5b;
-$red-status: #ff6969;
+  --green-status: #22c55e;
+  --orange-status: #e59c5b;
+  --red-status: #ff6969;
 
-$bg-dark-base: #1e1e1e;
-$bg-dark-surface: #2c2e32;
-$bg-dark-elevated: #393e46;
+  --bg-base: #e5e5e5;
+  --bg-surface: #ffffff;
+  --bg-elevated: #dddddd;
 
-$bg-light-base: #e5e5e5;
-$bg-light-surface: #e3e3e3;
+  --text-primary: #1e1e1e;
+  --text-secondary: #393e46;
 
-$text-primary-dark: #e5e5e5;
-$text-secondary-dark: #e3e3e3;
-$text-primary-light: #1e1e1e;
-$text-secondary-light: #393e46;
+  --border-color: #e5e5e5;
+}
+
+body.dark-theme {
+  --primary-color-transparent: #ffd26934;
+
+  --bg-base: #1e1e1e;
+  --bg-surface: #2c2e32;
+  --bg-elevated: #393e46;
+
+  --text-primary: #e5e5e5;
+  --text-secondary: #e3e3e3;
+
+  --border-color: #393e46;
+}
+
+$dark-base: #1e1e1e;
+$light-base: #e5e5e5;
 
 $font-family-base: 'Space Grotesk', sans-serif;
-
-$border-color-dark: #393e46;
-$border-color-light: #e5e5e5;
 $radius-sm: 4px;
 $radius-md: 10px;
 $radius-pill: 9999px;
@@ -34,8 +47,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: $font-family-base;
-  background-color: $bg-dark-surface;
-  color: $text-primary-dark;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
 

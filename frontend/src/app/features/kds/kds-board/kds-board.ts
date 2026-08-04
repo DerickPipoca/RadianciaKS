@@ -5,14 +5,19 @@ import { KdsOrderGroup, OrderItemResponseDto } from '../../../core/models/order.
 import { KdsService } from '../../../core/services/kds-service';
 import { KdsStatus } from '../../../core/enums/kds-status';
 import { firstValueFrom } from 'rxjs';
+import { LucideAngularModule, Rows3, History, Funnel } from 'lucide-angular';
 
 @Component({
   selector: 'app-kds-board',
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './kds-board.html',
   styleUrl: './kds-board.scss',
 })
 export class KdsBoard implements OnInit, OnDestroy {
+  readonly Rows3 = Rows3;
+  readonly Funnel = Funnel;
+  readonly History = History;
+
   private kdsService = inject(KdsService);
   private signalrService = inject(SignalrService);
 

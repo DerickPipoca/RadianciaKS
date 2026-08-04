@@ -4,15 +4,15 @@
   position: absolute;
   width: 100%;
   z-index: 50;
-  background-color: $green-status;
-  color: $text-primary-dark;
+  background-color: var(--green-status);
+  color: $light-base;
   font-size: 1.1rem;
   overflow: hidden;
   white-space: nowrap;
   box-shadow: $shadow-sm;
 
   strong {
-    color: $text-secondary-light;
+    color: var(--text-secondary);
     font-weight: 500;
   }
 

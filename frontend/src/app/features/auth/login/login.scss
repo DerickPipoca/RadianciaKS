@@ -1,19 +1,19 @@
 @use '../../../../styles' as *;
 
 .error-alert {
-  color: $orange-status;
+  color: var(--orange-status);
 }
 
 .login-container {
   height: 92vh;
-  background: linear-gradient(135deg, #e5e5e5, #ffe5a4);
+  background: linear-gradient(135deg, $light-base, var(--primary-color-hover));
   display: flex;
   align-items: center;
   justify-content: center;
 
   .login-card {
     display: flex;
-    background-color: $bg-dark-surface;
+    background-color: var(--bg-surface);
     border-radius: $radius-md;
     width: 700px;
     height: 500px;
@@ -28,7 +28,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      color: $text-primary-dark;
+      color: var(--text-primary);
 
       h1 {
         text-align: center;
@@ -57,7 +57,7 @@
     }
 
     .brand-side {
-      // Largura do lado direito
+      width: auto;
       display: flex;
       align-items: center;
       justify-content: right;

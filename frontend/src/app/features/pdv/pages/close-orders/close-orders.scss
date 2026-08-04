@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 92vh;
-  background-color: $bg-light-base;
+  background-color: var(--bg-base);
 }
 
 .topbar {
@@ -13,20 +13,20 @@
   align-items: center;
   gap: 16px;
   padding: 16px 24px;
-  background-color: $bg-light-base;
+  background-color: var(--bg-base);
 
   .btn-back {
     background: transparent;
     border: none;
     font-size: 1rem;
     font-weight: 600;
-    color: $text-primary-light;
+    color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     &:hover {
-      color: $primary-color;
+      color: var(--primary-color);
     }
   }
 
@@ -39,7 +39,7 @@
     background: white;
     border-radius: $radius-pill;
     padding: 10px 16px;
-    border: 1px solid $border-color-light;
+    border: 1px solid var(--border-color);
     input {
       background: none;
       border: none;
@@ -63,7 +63,7 @@
   margin-bottom: 24px;
   .section-title {
     font-size: 1.5rem;
-    color: $text-primary-light;
+    color: var(--text-primary);
     margin: 0;
     font-weight: 600;
   }
@@ -76,8 +76,8 @@
   gap: 16px;
 
   .order-card {
-    background: white;
-    border: 1px solid $border-color-light;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: $radius-md;
     display: flex;
     flex-direction: column;
@@ -90,7 +90,7 @@
     &:hover {
       transform: translateY(-2px);
       box-shadow: $shadow-md;
-      border-color: $primary-color;
+      border-color: var(--primary-color);
     }
 
     .card-header {
@@ -101,11 +101,11 @@
       .order-number {
         font-size: 1.2rem;
         font-weight: 700;
-        color: $text-primary-light;
+        color: var(--text-primary);
       }
       .order-date {
         font-size: 0.9rem;
-        color: $text-primary-light;
+        color: var(--text-primary);
       }
     }
 
@@ -115,13 +115,13 @@
         margin: 0 0 4px 0;
         font-size: 1rem;
         font-weight: 500;
-        color: $text-secondary-light;
+        color: var(--text-secondary);
       }
       .order-total {
         margin: 0;
         font-size: 1.25rem;
         font-weight: 700;
-        color: $text-primary-light;
+        color: var(--text-primary);
       }
     }
 
@@ -131,14 +131,12 @@
       justify-content: space-between;
       align-items: center;
 
-      // Container flex para manter os badges agrupados lado a lado ou empilhados
       .badges-container {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
       }
 
-      // O badge da cozinha que você já tinha
       .status-badge {
         padding: 4px 10px;
         border-radius: 16px;
@@ -154,7 +152,6 @@
         }
       }
 
-      // O novo badge financeiro
       .payment-badge {
         padding: 4px 10px;
         border-radius: 16px;
@@ -164,31 +161,31 @@
         &.pending {
           background: #fef08a;
           color: #854d0e;
-        } // Amarelo
+        }
         &.partial {
           background: #bae6fd;
           color: #075985;
-        } // Azul Claro
+        }
         &.paid {
           background: #bbf7d0;
           color: #166534;
-        } // Verde
+        }
         &.refunded {
           background: #fecaca;
           color: #991b1b;
-        } // Vermelho
+        }
       }
 
       .btn-action {
         background: transparent;
-        border: 1px solid $border-color-light;
+        border: 1px solid var(--border-color);
         border-radius: $radius-sm;
         padding: 6px 12px;
-        color: $text-primary-light;
+        color: var(--text-primary);
         font-weight: 500;
         cursor: pointer;
         &:hover {
-          background: $bg-light-base;
+          background: var(--bg-base);
         }
       }
     }
@@ -196,8 +193,8 @@
     .btn-express-checkout {
       width: auto;
       padding: 14px;
-      background-color: $primary-color;
-      color: $text-primary-light;
+      background-color: var(--primary-color);
+      color: $dark-base;
       border: none;
       font-size: 1.05rem;
       font-weight: 700;
@@ -214,11 +211,10 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 40px;
-  color: $text-secondary-light;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
-// --- Estilos do Modal (Iguais ao orders.scss) ---
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -245,11 +241,11 @@
 }
 .modal-header {
   padding: 16px 24px;
-  border-bottom: 1px solid $border-color-light;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: $bg-light-surface;
+  background: var(--bg-surface);
   .header-info {
     display: flex;
     align-items: center;
@@ -257,7 +253,7 @@
     h2 {
       margin: 0;
       font-size: 1.2rem;
-      color: $text-primary-light;
+      color: var(--text-primary);
     }
   }
   .close-btn {
@@ -265,18 +261,19 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: $text-secondary-light;
+    color: var(--text-secondary);
   }
 }
 .modal-body {
+  background-color: var(--bg-surface);
   padding: 24px;
   overflow-y: auto;
   flex: 1;
   .section-label {
     margin: 0 0 16px 0;
     font-size: 1.1rem;
-    color: $text-primary-light;
-    border-bottom: 2px solid $bg-light-base;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--bg-base);
     padding-bottom: 8px;
   }
   .items-list {
@@ -294,7 +291,7 @@
         display: flex;
         justify-content: space-between;
         font-weight: 600;
-        color: $text-primary-light;
+        color: var(--text-primary);
         font-size: 1rem;
       }
       .modifier-list {
@@ -303,14 +300,14 @@
         margin: 0;
         li {
           font-size: 0.85rem;
-          color: $text-secondary-light;
+          color: var(--text-secondary);
         }
       }
     }
   }
   .divider {
     border: none;
-    border-top: 1px dashed $border-color-light;
+    border-top: 1px dashed var(--border-color);
     margin: 24px 0;
   }
   .summary-totals {
@@ -321,17 +318,17 @@
       display: flex;
       justify-content: space-between;
       font-size: 1.2rem;
-      color: $text-primary-light;
+      color: var(--text-primary);
       strong {
-        color: $green-status;
+        color: var(--green-status);
       }
     }
   }
 }
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid $border-color-light;
-  background: $bg-light-surface;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface);
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -339,13 +336,13 @@
   .btn-print {
     padding: 12px 24px;
     background: white;
-    border: 1px solid $border-color-light;
+    border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     font-weight: 600;
     cursor: pointer;
     font-family: $font-family-base;
     &:hover {
-      background: $bg-light-base;
+      background: var(--bg-base);
     }
   }
   .btn-checkout {
@@ -356,8 +353,8 @@
     cursor: pointer;
     font-family: $font-family-base;
     border: none;
-    background-color: $primary-color;
-    color: $text-primary-light;
+    background-color: var(--primary-color);
+    color: $dark-base;
     transition: filter 0.2s;
     &:hover {
       filter: brightness(0.95);
@@ -365,7 +362,7 @@
   }
 }
 .sort-controls {
-  color: $text-secondary-light;
+  color: var(--text-secondary);
   display: flex;
   gap: 8px;
   align-items: center;
@@ -379,15 +376,15 @@
   }
   .order-item {
     font-size: 0.9rem;
-    background: $bg-light-surface;
-    color: $text-primary-light;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border-width: 1px;
-    border-color: $text-secondary-light;
+    border-color: var(--text-secondary);
     border-radius: $radius-sm;
     border-style: solid;
     width: 60px;
     &:focus {
-      border-color: $primary-color;
+      border-color: var(--primary-color);
     }
   }
 }

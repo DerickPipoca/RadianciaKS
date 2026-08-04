@@ -1,17 +1,28 @@
 <div class="kds-layout">
   <aside class="kds-sidebar">
-    <div class="logo-area"><i class="icon">📄</i> Fila de produção</div>
+    <div class="logo-area">KDS - Cozinha</div>
+
     <nav class="sidebar-nav">
-      <a href="javascript:void(0)" class="nav-item"> <i class="icon">📑</i> Fila agrupada </a>
-      <a href="javascript:void(0)" class="nav-item"> <i class="icon">🔍</i> Filtros </a>
-      <a href="javascript:void(0)" class="nav-item"> <i class="icon">⏱️</i> Histórico </a>
+      <div class="nav-section">
+        <a href="javascript:void(0)" class="nav-item active">
+          <lucide-icon [img]="Rows3" class="icon" /> Fila agrupada
+        </a>
+
+        <a href="javascript:void(0)" class="nav-item">
+          <lucide-icon [img]="Funnel" class="icon" /> Filtros
+        </a>
+
+        <a href="javascript:void(0)" class="nav-item">
+          <lucide-icon [img]="History" class="icon" /> Histórico
+        </a>
+      </div>
     </nav>
   </aside>
 
   <main class="kds-main">
     <header class="main-header">
       <div class="header-info">
-        <h1>👨‍🍳 Cozinha - KDS</h1>
+        <h1>Fila de Produção</h1>
         <span class="badge">Pendentes: {{ groupedOrders.length }}</span>
       </div>
     </header>
@@ -68,7 +79,7 @@
         </div>
       } @empty {
         <div class="empty-state">
-          <h2>A cozinha está livre! 🎉</h2>
+          <h2>Sem pedidos pendentes...</h2>
         </div>
       }
     </div>

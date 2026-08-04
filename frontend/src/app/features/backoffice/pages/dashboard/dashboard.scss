@@ -24,11 +24,11 @@
 }
 
 .info-alert {
-  background: rgba($red-status, 0.1);
-  border-left: 4px solid $red-status;
+  background: rgba(var(--red-status), 0.1);
+  border-left: 4px solid var(--red-status);
   padding: 16px;
   border-radius: $radius-sm;
-  color: $text-primary-dark;
+  color: var(--text-primary);
 
   p {
     margin: 0;
@@ -42,8 +42,8 @@
   gap: 24px;
 
   .metric-card {
-    background: $bg-dark-surface;
-    border: 1px solid $border-color-dark;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: $radius-md;
     padding: 24px;
     display: flex;
@@ -63,13 +63,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: $bg-dark-base;
+      background: var(--bg-base);
       border-radius: $radius-md;
-      border: 1px solid $border-color-dark;
+      border: 1px solid var(--border-color);
 
       &.revenue {
-        background: rgba($primary-color, 0.1);
-        border-color: rgba($primary-color, 0.3);
+        background: var(--bg-elevated);
+        border-color: rgba(var(--primary-color), 0.3);
       }
       &.ticket {
         background: rgba(#10b981, 0.1);
@@ -87,13 +87,13 @@
       h3 {
         margin: 0 0 8px 0;
         font-size: 0.95rem;
-        color: $text-secondary-dark;
+        color: var(--text-secondary);
         font-weight: 500;
       }
       p {
         margin: 0;
         font-size: 1.75rem;
-        color: $text-primary-dark;
+        color: var(--text-primary);
         font-weight: 700;
         letter-spacing: -0.02em;
       }
@@ -102,9 +102,9 @@
 }
 
 .card-table {
-  background-color: $bg-dark-surface;
+  background-color: var(--bg-surface);
   border-radius: $radius-md;
-  border: 1px solid $border-color-dark;
+  border: 1px solid var(--border-color);
   overflow: hidden;
   box-shadow: $shadow-md;
 
@@ -112,9 +112,9 @@
     margin: 0;
     padding: 20px 24px;
     font-size: 1.1rem;
-    color: $text-primary-dark;
-    border-bottom: 1px solid $border-color-dark;
-    background: rgba($bg-dark-base, 0.4);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(var(--bg-dark-base), 0.4);
   }
 }
 
@@ -142,10 +142,10 @@
 
   thead th {
     text-align: left;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     font-weight: 500;
     padding: 16px 24px;
-    border-bottom: 1px solid $border-color-dark;
+    border-bottom: 1px solid var(--border-color);
 
     &.actions-column {
       text-align: right;
@@ -157,19 +157,19 @@
 
   tbody tr {
     transition: background 0.2s;
-    border-bottom: 1px solid $border-color-dark;
+    border-bottom: 1px solid var(--border-color);
 
     &:nth-child(even) {
-      background-color: rgba($bg-dark-base, 0.3);
+      background-color: rgba(var(--bg-base), 0.3);
     }
     &:hover {
-      background-color: $bg-dark-elevated;
+      background-color: var(--bg-elevated);
     }
   }
 
   td {
     padding: 16px 24px;
-    color: $text-primary-dark;
+    color: var(--text-primary);
 
     &.actions-cell {
       text-align: right;
@@ -179,23 +179,23 @@
     }
     &.bold {
       font-weight: 600;
-      color: $primary-color;
+      color: var(--primary-color);
     }
   }
 
   .empty-row {
     text-align: center;
     padding: 32px;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     font-style: italic;
   }
 }
 
 .input-datetime {
-  background-color: $bg-dark-base;
-  color: $border-color-light;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   font-family: $font-family-base;
-  border: 1px solid $bg-light-base;
+  border: 1px solid var(--text-secondary);
   border-radius: $radius-sm;
 }
 input[type='datetime-local']::-webkit-calendar-picker-indicator {

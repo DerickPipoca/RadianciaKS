@@ -7,7 +7,7 @@ lucide-icon {
 .input-wrapper {
   display: flex;
   align-items: center;
-  border: 1px solid $text-secondary-dark;
+  border: 1px solid var(--text-secondary);
   border-radius: $radius-pill;
 
   height: auto;
@@ -21,15 +21,15 @@ lucide-icon {
   box-sizing: border-box;
 
   &.primary {
-    background-color: $bg-light-base;
-    color: $text-primary-light;
-    border-color: $text-primary-light;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    border-color: var(--text-primary);
   }
 
   &.secondary {
-    background-color: $bg-dark-base;
-    color: $text-primary-light;
-    border-color: $border-color-light;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    border-color: var(--border-color);
   }
 
   &.radius-round {
@@ -41,18 +41,18 @@ lucide-icon {
   }
 
   &:focus-within {
-    border-color: $primary-color;
+    border-color: var(--primary-color);
   }
 
   .icon {
     margin-right: 12px;
-    color: $text-secondary-dark;
+    color: var(--text-secondary);
     font-size: 1rem;
     &.primary {
-      color: $text-primary-light;
+      color: var(--text-primary);
     }
     &.primary {
-      color: $text-primary-dark;
+      color: var(--text-primary);
     }
   }
 
@@ -60,16 +60,16 @@ lucide-icon {
     background: transparent;
     border: none;
     outline: none;
-    color: $text-primary-dark;
+    color: var(--text-primary);
     width: 100%;
     font-family: $font-family-base;
     font-size: 0.9rem;
 
     &.primary {
-      color: $text-primary-light;
+      color: var(--text-primary);
     }
     &.primary {
-      color: $text-primary-dark;
+      color: var(--text-primary);
     }
 
     &::placeholder {

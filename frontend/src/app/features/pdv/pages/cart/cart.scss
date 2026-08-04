@@ -1,7 +1,7 @@
 @use '../../../../../styles' as *;
 
 .icon {
-  color: $bg-dark-base;
+  color: var(--bg-dark-base);
 }
 
 .cart-container {
@@ -9,8 +9,8 @@
   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  height: 100%; // Expande dentro da section pai
-  background-color: $bg-light-base; // Cinza clarinho do fundo
+  height: 100%;
+  background-color: var(--bg-base);
 }
 
 .cart-header {
@@ -19,8 +19,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background-color: $bg-light-surface;
-  border-bottom: 1px solid $border-color-light;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
 
   .cart-title {
     display: flex;
@@ -29,24 +29,24 @@
     h2 {
       margin: 0;
       font-size: 1.1rem;
-      color: $text-primary-light;
+      color: var(--text-primary);
       font-weight: 600;
     }
   }
 
   .clear-btn {
-    background: rgba($red-status, 0.2);
+    background: rgba(var(--red-status), 0.2);
     border: none;
-    color: $red-status;
+    color: var(--red-status);
     border-radius: $radius-sm;
     padding: 8px;
     cursor: pointer;
     transition: background 0.2s;
     .icon {
-      color: $red-status;
+      color: var(--red-status);
     }
     &:hover {
-      background: rgba($red-status, 0.3);
+      background: rgba(var(--red-status), 0.3);
     }
   }
 }
@@ -56,7 +56,7 @@
   overflow-y: auto;
 
   .cart-item {
-    border-bottom: 1px solid $border-color-light;
+    border-bottom: 1px solid var(--border-color);
     padding: 16px 20px;
 
     .item-main {
@@ -73,7 +73,7 @@
       padding-right: 16px;
       .item-name {
         font-size: 1rem;
-        color: $text-primary-light;
+        color: var(--text-primary);
         font-weight: 500;
       }
 
@@ -83,7 +83,7 @@
         margin: 0;
         li {
           font-size: 0.85rem;
-          color: $text-secondary-light;
+          color: var(--text-secondary);
           line-height: 1.4;
         }
       }
@@ -91,7 +91,7 @@
 
     .item-price {
       font-size: 1rem;
-      color: $text-secondary-light;
+      color: var(--text-secondary);
       white-space: nowrap;
     }
   }
@@ -99,7 +99,7 @@
   .empty-cart {
     padding: 40px 20px;
     text-align: center;
-    color: $text-secondary-light;
+    color: var(--text-secondary);
     p {
       font-weight: 600;
       margin-bottom: 8px;
@@ -109,11 +109,10 @@
 
 .cart-footer {
   padding: 20px;
-  background-color: $bg-light-base;
+  background-color: var(--bg-light);
 
-  // Caixa cinza que engloba os valores (Fiel à imagem)
   .summary-wrapper {
-    background-color: #ebebeb; // Fundo cinza suave
+    background-color: var(--bg-surface);
     border-radius: $radius-md;
     padding: 16px;
     margin-bottom: 16px;
@@ -122,18 +121,16 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 6px;
-      color: $text-secondary-light;
+      color: var(--text-secondary-light);
       font-size: 1rem;
     }
 
-    // Linha fina separadora
     .divider {
       height: 1px;
       background-color: #d1d1d1;
       margin: 12px 0;
     }
 
-    // Total empilhado na esquerda
     .total-line {
       display: flex;
       flex-direction: column; // Coloca um embaixo do outro
@@ -141,18 +138,17 @@
 
       .total-label {
         font-size: 0.95rem;
-        color: $text-secondary-light;
+        color: var(--text-secondary);
       }
 
       .total-value {
         font-size: 1.4rem;
         font-weight: 700;
-        color: $text-primary-light;
+        color: var(--text-primary);
       }
     }
   }
 
-  // Área dos botões (agora fora do summary-wrapper)
   .action-buttons {
     display: flex;
     gap: 12px;
@@ -175,18 +171,18 @@
 
     .btn-secondary {
       background-color: transparent;
-      border: 2px solid $primary-color;
-      color: $text-primary-light;
+      border: 2px solid var(--primary-color);
+      color: var(--text-primary);
 
       &:hover:not(:disabled) {
-        background-color: rgba($primary-color, 0.1);
+        background-color: rgba(var(--primary-color), 0.1);
       }
     }
 
     .checkout-btn {
-      background-color: $primary-color;
-      color: $text-primary-light;
-      border: 2px solid $primary-color;
+      background-color: var(--primary-color);
+      color: $dark-base;
+      border: 2px solid var(--primary-color);
 
       &:hover:not(:disabled) {
         filter: brightness(0.95);

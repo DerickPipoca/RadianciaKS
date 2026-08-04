@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 92vh;
-  background-color: $bg-light-base;
+  background-color: var(--bg-base);
 }
 
 .catalog-topbar {
@@ -19,7 +19,7 @@
     border: none;
     font-size: 1rem;
     font-weight: 600;
-    color: $text-primary-light;
+    color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -35,7 +35,7 @@
 
 .section-title {
   font-size: 1.3rem;
-  color: $text-primary-light;
+  color: var(--text-primary);
   margin: 16px 0 24px 0;
   font-weight: 600;
 }
@@ -77,10 +77,9 @@
     }
 
     .bg-placeholder {
-      background-color: $bg-dark-surface; // Cor caso não tenha imagem
+      background-color: var(--bg-surface);
     }
 
-    // Camada escura por cima da foto para dar leitura ao texto
     .overlay {
       position: absolute;
       top: 0;
@@ -93,7 +92,7 @@
 
     h3 {
       position: relative;
-      z-index: 2; // Acima do overlay
+      z-index: 2;
       color: white;
       font-size: 1.3rem;
       font-weight: 500;
@@ -107,23 +106,20 @@
   }
 }
 
-// ==========================================
-// ESTILO DA GRADE DE PRODUTOS
-// ==========================================
 .breadcrumb-header {
   margin: 16px 0 24px 0;
 
   .breadcrumb-title {
     font-size: 1.2rem;
-    color: $text-primary-light;
+    color: var(--text-primary);
     margin: 0;
     font-weight: 500;
 
     .back-link {
       cursor: pointer;
-      color: $text-secondary-light;
+      color: var(--text-secondary);
       &:hover {
-        color: $primary-color;
+        color: var(--primary-color);
         text-decoration: underline;
       }
     }
@@ -140,8 +136,8 @@
   gap: 16px;
 
   .product-card {
-    background: white;
-    border: 1px solid $border-color-light;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: $radius-md;
     padding: 16px;
     display: flex;
@@ -155,7 +151,7 @@
     &:hover {
       transform: translateY(-2px);
       box-shadow: $shadow-md;
-      border-color: rgba($primary-color, 0.5);
+      border-color: rgba(#ffd369, 0.5);
     }
 
     .product-info {
@@ -168,17 +164,17 @@
         margin: 0;
         font-size: 1.1rem;
         font-weight: 500;
-        color: $text-primary-light;
+        color: var(--text-primary);
       }
       .product-desc {
         margin: 0;
         font-size: 0.85rem;
-        color: $text-secondary-light;
+        color: var(--text-secondary);
       }
       .price {
         margin-top: 12px;
         font-size: 0.9rem;
-        color: $text-secondary-light;
+        color: var(--text-secondary);
         font-weight: 500;
       }
     }
@@ -197,7 +193,7 @@
       .no-image {
         width: 100%;
         height: 100%;
-        background: $bg-light-base;
+        background: var(--bg-base);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -210,7 +206,7 @@
 .empty-state {
   text-align: center;
   padding: 40px;
-  color: $text-secondary-light;
+  color: var(--text-secondary);
   font-style: italic;
   grid-column: 1 / -1; // Ocupa a linha inteira do grid
 }
