@@ -5,15 +5,27 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { OrderService } from '../../../../core/services/order-service';
 import { DashboardMetrics } from '../../../../core/models/dashboard-metrics.model';
 import { ChartConfiguration, ChartType } from 'chart.js';
-import { ButtonComponent } from "../../../../shared/components/button-component/button-component";
+import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
+import { LucideAngularModule, TriangleAlert, Landmark, Ticket, ShoppingCart } from 'lucide-angular';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, ReactiveFormsModule, BaseChartDirective, ButtonComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    BaseChartDirective,
+    ButtonComponent,
+    LucideAngularModule,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
+  readonly TriangleAlert = TriangleAlert;
+  readonly Ticket = Ticket;
+  readonly ShoppingCart = ShoppingCart;
+  readonly Landmark = Landmark;
+
   private fb = inject(FormBuilder);
   private orderService = inject(OrderService);
 

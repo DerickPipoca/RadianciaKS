@@ -10,7 +10,7 @@ import { CategoryResponseDto } from '../../../../core/models/category.model';
 import { ModifierService } from '../../../../core/services/modifier-service';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
-import { LucideAngularModule, TextSearch } from 'lucide-angular';
+import { LucideAngularModule, TextSearch, Hamburger } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
@@ -24,6 +24,7 @@ export class ProductManager
   implements OnInit
 {
   TextSearch = TextSearch;
+  Hamburger = Hamburger;
 
   searchSubject = new Subject<string>();
 

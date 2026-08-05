@@ -39,14 +39,14 @@
 
   @if (errorMessage) {
     <div class="info-alert error-alert">
-      <p>⚠️ {{ errorMessage }}</p>
+      <p><lucide-icon [img]="TriangleAlert" class="icon" /> {{ errorMessage }}</p>
     </div>
   }
 
   @if (metrics) {
     <section class="metrics-cards">
       <div class="metric-card">
-        <div class="card-icon revenue">💰</div>
+        <div class="card-icon revenue"><lucide-icon [img]="Landmark" class="icon" /></div>
         <div class="card-info">
           <h3>Faturação Total</h3>
           <p>{{ metrics.totalRevenue | currency: 'BRL' : 'symbol' : '1.2-2' }}</p>
@@ -54,7 +54,7 @@
       </div>
 
       <div class="metric-card">
-        <div class="card-icon ticket">🎫</div>
+        <div class="card-icon ticket"><lucide-icon [img]="Ticket" class="icon" /></div>
         <div class="card-info">
           <h3>Ticket Médio</h3>
           <p>{{ metrics.averageTicket | currency: 'BRL' : 'symbol' : '1.2-2' }}</p>
@@ -62,7 +62,7 @@
       </div>
 
       <div class="metric-card">
-        <div class="card-icon orders">🛒</div>
+        <div class="card-icon orders"><lucide-icon [img]="ShoppingCart" class="icon" /></div>
         <div class="card-info">
           <h3>Total de Pedidos</h3>
           <p>{{ metrics.totalOrders }}</p>
