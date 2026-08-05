@@ -240,6 +240,9 @@ namespace RadianciaKS.Application.Services
             {
                 "tablenumber" => descending ? query.OrderByDescending(o => o.TableNumber) : query.OrderBy(o => o.TableNumber),
                 "id" => descending ? query.OrderByDescending(o => o.Id) : query.OrderBy(o => o.Id),
+                "totalamount" => descending ? query.OrderByDescending(o => o.TotalAmount) : query.OrderBy(o => o.TotalAmount),
+                "orderstatus" => descending ? query.OrderByDescending(o => o.OrderStatus) : query.OrderBy(o => o.OrderStatus),
+                "paymentstatus" => descending ? query.OrderByDescending(o => o.PaymentStatus) : query.OrderBy(o => o.PaymentStatus),
                 _ => descending ? query.OrderByDescending(o => o.CreatedAt) : query.OrderBy(o => o.CreatedAt)
             });
 
