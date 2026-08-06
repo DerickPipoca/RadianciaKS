@@ -1,6 +1,8 @@
 @use '../../../../styles' as *;
 
 .kitchen-status-bar {
+  display: flex;
+  flex-direction: row;
   position: absolute;
   width: 100%;
   z-index: 50;
@@ -11,14 +13,37 @@
   white-space: nowrap;
   box-shadow: $shadow-sm;
 
+  span {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   strong {
     color: $dark-base;
     font-weight: 500;
   }
+}
 
-  marquee {
-    span {
-      margin-right: 24px;
-    }
+.scrolling-text {
+  width: 100%;
+  overflow: hidden;
+}
+
+.scrolling-text-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll-left 20s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100vw);
   }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.space {
+  width: 20px;
 }

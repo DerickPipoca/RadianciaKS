@@ -1,7 +1,18 @@
 <div class="kitchen-status-bar">
-  <marquee scrollamount="12">
-    <span>Pedido <strong>#67</strong> pronto na cozinha</span>
-    <span>Pedido <strong>#68</strong> pronto na cozinha</span>
-  </marquee>
+  @if (readyOrders.length > 0) {
+    <div class="scrolling-text">
+      <div class="scrolling-text-content">
+        @for (item of readyOrders; track item.id) {
+          <span>
+            Pedido
+            <strong>{{
+              item.tableNumber ?? 'Balcão #' + item.id.slice(0, 6).toUpperCase()
+            }}</strong>
+            pronto na cozinha!
+          </span>
+        }
+      </div>
+    </div>
+  }
 </div>
 <router-outlet></router-outlet>
