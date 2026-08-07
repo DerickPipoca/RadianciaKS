@@ -59,9 +59,9 @@
       <button
         class="btn-secondary"
         [disabled]="cartService.totalItems() === 0 || isProcessing"
-        (click)="closeOrder()"
+        (click)="openCustomerModal()"
       >
-        {{ isProcessing ? 'Enviando...' : 'Finalizar Pedido' }}
+        Finalizar Pedido
       </button>
 
       <button
@@ -74,3 +74,37 @@
     </div>
   </footer>
 </div>
+
+@if (showCustomerModal) {
+  <div class="modal-overlay" (click)="closeCustomerModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h3>Identificação do Pedido</h3>
+        <button class="close-btn" (click)="closeCustomerModal()">&times;</button>
+      </header>
+
+      <main class="modal-body">
+        <div class="form-group">
+          <label for="customerNameInput">Nome do Cliente / Mesa (Opcional)</label>
+
+          <input
+            id="customerNameInput"
+            type="text"
+            class="modal-input"
+            placeholder="Ex: João, Mesa 04, Balcão..."
+            [(ngModel)]="customerName"
+            (keyup.enter)="confirmOrder()"
+            autofocus
+          />
+        </div>
+      </main>
+
+      <footer class="modal-footer">
+        <button class="btn-cancel" (click)="closeCustomerModal()">Cancelar</button>
+        <button class="btn-confirm" [disabled]="isProcessing" (click)="confirmOrder()">
+          {{ isProcessing ? 'Enviando...' : 'Confirmar e Enviar' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}

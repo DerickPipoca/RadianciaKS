@@ -1,6 +1,7 @@
 import { CartService } from './../../../../core/services/cart-service';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OrderService } from '../../../../core/services/order-service';
 import { OrderItemRequestDto, OrderRequestDto } from '../../../../core/models/order.model';
@@ -8,7 +9,7 @@ import { LucideAngularModule, ShoppingBagIcon, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './cart.html',
   styleUrl: './cart.scss',
 })
@@ -19,22 +20,39 @@ export class Cart {
   public cartService = inject(CartService);
   private orderService = inject(OrderService);
   private router = inject(Router);
+
   isProcessing = false;
+  showCustomerModal = false;
+  customerName = '';
 
   removeItem(id: string) {
     this.cartService.removeItem(id);
   }
+
   clearCart(): void {
     if (confirm('Tem a certeza que deseja limpar todo o pedido?')) {
       this.cartService.clearCart();
     }
   }
+
   checkout(): void {
     console.log('A iniciar checkout com total de:', this.cartService.subTotal());
     this.router.navigate(['/pdv/checkout']);
   }
-  closeOrder(): void {
+
+  openCustomerModal(): void {
     if (this.cartService.totalItems() === 0) return;
+    this.customerName = '';
+    this.showCustomerModal = true;
+  }
+
+  closeCustomerModal(): void {
+    this.showCustomerModal = false;
+    this.customerName = '';
+  }
+
+  confirmOrder(): void {
+    if (this.cartService.totalItems() === 0 || this.isProcessing) return;
 
     this.isProcessing = true;
 
@@ -45,10 +63,10 @@ export class Cart {
       selectedModifierIds: cartItem.selectedModifiers.map((mod) => mod.id),
     }));
 
-    // Cria o payload com o array de pagamentos VAZIO
     const payload: OrderRequestDto = {
       items: orderItems,
       payments: [],
+      tableNumber: this.customerName.trim() || undefined,
     };
 
     this.orderService.create(payload).subscribe({
@@ -56,6 +74,7 @@ export class Cart {
         alert(`Pedido #${response.id.substring(0, 8)} enviado para a cozinha!`);
         this.cartService.clearCart();
         this.isProcessing = false;
+        this.closeCustomerModal();
       },
       error: (err) => {
         console.error('Erro ao lançar pedido: ', err);
