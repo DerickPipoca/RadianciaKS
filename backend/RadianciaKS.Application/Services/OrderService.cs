@@ -86,14 +86,6 @@ namespace RadianciaKS.Application.Services
             return orderResponse;
         }
 
-        private async Task<Order> CheckoutOrderAsync(Order order, Guid paidById)
-        {
-            order.PaymentStatus = PaymentStatus.Paid;
-            order.PaidById = paidById;
-            order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
-            return order;
-        }
-
         public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(DateTime startDate, DateTime endDate)
         {
             var baseQuery = _context.Orders
@@ -329,6 +321,9 @@ namespace RadianciaKS.Application.Services
         public async Task<OrderResponseDto> CancelOrder(Guid orderId)
         {
             var order = await FindOrderByIdAsync(orderId);
+
+            if (order.PaymentStatus == PaymentStatus.Refunded)
+                throw new ArgumentException("Não é possível cancelar um pedido estornado.");
             if (order.PaymentStatus == PaymentStatus.Paid)
                 throw new ArgumentException("Não é possível cancelar um pedido já pago.");
 
@@ -336,6 +331,33 @@ namespace RadianciaKS.Application.Services
 
             await _context.SaveChangesAsync();
             return _mapper.ToDto(order);
+        }
+
+        public async Task<OrderResponseDto> DeliverOrder(Guid orderId)
+        {
+            var order = await FindOrderByIdAsync(orderId);
+
+            if (order.OrderStatus == OrderStatus.Canceled)
+                throw new ArgumentException("Não é possível entregar um pedido cancelado.");
+
+            if (order.PaymentStatus == PaymentStatus.Refunded)
+                throw new ArgumentException("Não é possível entregar um pedido estornado.");
+
+            order.OrderStatus = OrderStatus.Delivered;
+
+            await _context.SaveChangesAsync();
+            var responseDto = _mapper.ToDto(order);
+            await _kdsNotification.NotifyDeliveredItemAsync(order.TenantId.ToString(), responseDto);
+
+            return responseDto;
+        }
+
+        private async Task<Order> CheckoutOrderAsync(Order order, Guid paidById)
+        {
+            order.PaymentStatus = PaymentStatus.Paid;
+            order.PaidById = paidById;
+            order.ReceiptUrl = await _taxService.GenerateNfceAsync(order);
+            return order;
         }
 
         private async Task<OrderItem> BuildOrderItemAsync(OrderItemRequestDto itemDto)

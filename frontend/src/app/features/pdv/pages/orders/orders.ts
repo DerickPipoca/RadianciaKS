@@ -19,6 +19,7 @@ import { InputComponent } from '../../../../shared/components/input-component/in
   styleUrl: './orders.scss',
 })
 export class Orders implements OnInit, OnDestroy {
+  public readonly OrderStatus = OrderStatus;
   public readonly CreditCard = CreditCard;
   public readonly XIcon = X;
   public readonly Printer = Printer;
@@ -66,7 +67,11 @@ export class Orders implements OnInit, OnDestroy {
     this.signalrService.startConnection();
 
     this.subscriptions.add(
-      merge(this.signalrService.newItem$, this.signalrService.itemReady$)
+      merge(
+        this.signalrService.newItem$,
+        this.signalrService.itemReady$,
+        this.signalrService.orderDelivered$,
+      )
         .pipe(debounceTime(300))
         .subscribe(() => {
           this.loadOrders();
@@ -188,6 +193,26 @@ export class Orders implements OnInit, OnDestroy {
         error: (err) => {
           console.error('Erro ao cancelar pedido:', err);
           alert('Não foi possível cancelar o pedido. Tente novamente.');
+        },
+      });
+    }
+  }
+
+  deliverOrder(order: OrderResponseDto) {
+    if (
+      confirm(
+        `Confirmar a entrega do pedido #${order.id.substring(0, 6).toUpperCase()} ao cliente?`,
+      )
+    ) {
+      this.orderService.deliverOrder(order.id).subscribe({
+        next: () => {
+          order.orderStatus = OrderStatus.Delivered as any;
+          this.closeDetails();
+          this.loadOrders();
+        },
+        error: (err) => {
+          console.error('Erro ao entregar pedido:', err);
+          alert('Não foi possível registrar a entrega. Tente novamente.');
         },
       });
     }

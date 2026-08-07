@@ -72,6 +72,11 @@ export class OrderService {
     return this.http.put<OrderResponseDto>(urlEndPoint, null);
   }
 
+  deliverOrder(orderId: string): Observable<OrderResponseDto> {
+    const urlEndPoint = `${this.endPoint}/${orderId}/deliver`;
+    return this.http.put<OrderResponseDto>(urlEndPoint, null);
+  }
+
   update(id: string, order: OrderRequestDto): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${id}`;
     return this.http.put<OrderResponseDto>(urlEndPoint, order);

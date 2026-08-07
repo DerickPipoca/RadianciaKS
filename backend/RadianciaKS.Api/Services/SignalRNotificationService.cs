@@ -22,5 +22,10 @@ namespace RadianciaKS.Api.Services
         {
             await _hubContext.Clients.Group(tenantId).SendAsync("OnNewOrder", item);
         }
+
+        public async Task NotifyDeliveredItemAsync(string tenantId, object item)
+        {
+            await _hubContext.Clients.Group(tenantId).SendAsync("OnItemDelivered", item);
+        }
     }
 }

@@ -25,7 +25,11 @@ export class Layout implements OnInit, OnDestroy {
     this.signalrService.startConnection();
 
     this.subscriptions.add(
-      merge(this.signalrService.newItem$, this.signalrService.itemReady$)
+      merge(
+        this.signalrService.newItem$,
+        this.signalrService.itemReady$,
+        this.signalrService.orderDelivered$,
+      )
         .pipe(debounceTime(300))
         .subscribe(() => {
           this.loadReadyOrders();

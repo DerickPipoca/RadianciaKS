@@ -16,6 +16,7 @@ namespace RadianciaKS.Application.Services.Interfaces
         Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto);
         Task<OrderResponseDto> UpdateItemStatus(Guid orderId, Guid itemId, KdsStatus status);
         Task<OrderResponseDto> RemoveItemFromOrder(Guid orderId, Guid itemId);
+        Task<OrderResponseDto> DeliverOrder(Guid orderId);
         Task<OrderResponseDto> CancelOrder(Guid orderId);
     }
 }

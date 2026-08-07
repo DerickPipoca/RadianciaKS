@@ -5,7 +5,7 @@ import {
   HttpTransportType,
 } from '@microsoft/signalr';
 import { inject, Injectable, NgZone } from '@angular/core';
-import { OrderItemResponseDto } from '../models/order.model';
+import { OrderItemResponseDto, OrderResponseDto } from '../models/order.model';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -20,6 +20,7 @@ export class SignalrService {
 
   public newItem$ = new Subject<OrderItemResponseDto>();
   public itemReady$ = new Subject<OrderItemResponseDto>();
+  public orderDelivered$ = new Subject<OrderResponseDto | any>();
 
   public startConnection(): void {
     if (this.hubConnection && this.hubConnection.state !== 'Disconnected') {
@@ -33,6 +34,11 @@ export class SignalrService {
       .configureLogging(LogLevel.Information)
       .withAutomaticReconnect()
       .build();
+
+    this.hubConnection.onreconnected(() => {
+      console.log('SignalR reconectado! Reentrando no grupo...');
+      this.joinKitchenGroup();
+    });
 
     this.hubConnection
       .start()
@@ -67,6 +73,13 @@ export class SignalrService {
       this.zone.run(() => {
         console.log('Item pronto na cozinha!', item);
         this.itemReady$.next(item);
+      });
+    });
+
+    this.hubConnection.on('OnItemDelivered', (order: any) => {
+      this.zone.run(() => {
+        console.log('Pedido entregue ao cliente!', order);
+        this.itemReady$.next(order);
       });
     });
   }

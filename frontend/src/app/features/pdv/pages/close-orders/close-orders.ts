@@ -64,7 +64,11 @@ export class CloseOrders implements OnInit, OnDestroy {
     this.loadOrders();
 
     this.subscriptions.add(
-      merge(this.signalrService.newItem$, this.signalrService.itemReady$)
+      merge(
+        this.signalrService.newItem$,
+        this.signalrService.itemReady$,
+        this.signalrService.orderDelivered$,
+      )
         .pipe(debounceTime(300))
         .subscribe(() => {
           this.loadOrders();
