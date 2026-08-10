@@ -1,0 +1,70 @@
+@use '../../../../styles' as *;
+
+.kds-layout {
+  height: 92vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  font-family: $font-family-base;
+  overflow: hidden;
+}
+
+.kds-sidebar {
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.5);
+  border: 0px !important;
+  position: relative;
+  z-index: 10;
+
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+
+  .logo-area {
+    padding: 2px 12px;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 12px;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      gap: 12px;
+
+      &:hover {
+        background-color: var(--bg-elevated);
+        color: var(--primary-color);
+      }
+
+      &.active {
+        background: var(--primary-color-transparent);
+        color: $dark-base;
+        border-right: 4px solid var(--primary-color);
+      }
+    }
+  }
+}
+
+.kds-content-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}

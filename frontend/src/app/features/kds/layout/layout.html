@@ -1,0 +1,24 @@
+<div class="kds-layout">
+  <aside class="kds-sidebar">
+    <div class="logo-area">KDS - Cozinha</div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a routerLink="/kds/tabela" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="Rows3" class="icon" /> Fila agrupada
+        </a>
+
+        <a routerLink="/kds/filtros" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="Funnel" class="icon" /> Filtros
+        </a>
+
+        <a routerLink="/kds/historico" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="History" class="icon" /> Histórico
+        </a>
+      </div>
+    </nav>
+  </aside>
+  <div class="kds-content-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</div>

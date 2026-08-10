@@ -20,6 +20,7 @@ export interface OrderItemResponseDto {
   id: string;
   orderId: string;
   productId: string;
+  categoryId: string;
   productName: string;
   notes?: string;
   quantity: number;

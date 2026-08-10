@@ -1,0 +1,100 @@
+<main class="kds-main">
+  <header class="main-header">
+    <div class="header-info">
+      <h1>Filtros da Produção</h1>
+      <span class="badge">Mostrando: {{ filteredOrders.length }} comandas</span>
+      <div class="category-dropdown-container">
+        <button class="btn-dropdown" (click)="isCategoryDropdownOpen = !isCategoryDropdownOpen">
+          <lucide-icon [img]="ListFilter" class="icon"></lucide-icon>
+          Filtro de Categorias
+          @if (selectedCategoryIds.size > 0) {
+            <span class="filter-count">{{ selectedCategoryIds.size }}</span>
+          }
+        </button>
+
+        @if (isCategoryDropdownOpen) {
+          <div class="dropdown-backdrop" (click)="isCategoryDropdownOpen = false"></div>
+
+          <div class="dropdown-menu">
+            <div class="menu-header">
+              <span class="menu-title">Selecione as praças</span>
+              <button class="btn-clear" (click)="selectAllCategories()">Limpar</button>
+            </div>
+
+            <div class="menu-list">
+              @for (category of categories; track category.id) {
+                <div class="menu-item" (click)="toggleCategory(category.id)">
+                  <div class="custom-check" [class.checked]="selectedCategoryIds.has(category.id)">
+                    @if (selectedCategoryIds.has(category.id)) {
+                      ✓
+                    }
+                  </div>
+                  <span class="category-name">{{ category.name }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="kds-grid">
+    @for (order of filteredOrders; track order.id) {
+      <div class="kds-card">
+        <div
+          class="card-header"
+          [ngClass]="order.orderStatus === OrderStatus.Preparing ? 'bg-green' : 'bg-orange'"
+        >
+          <div class="header-row">
+            <span class="time">{{ order.createdAt | date: 'HH:mm' }}</span>
+            <span class="customer-name">{{ order.tableNumber || 'Balcão' }}</span>
+          </div>
+          <div class="header-row">
+            <span class="table-info">Mesa: {{ order.tableNumber || '-' }}</span>
+            <span class="order-number">#{{ order.id | slice: -6 | uppercase }}</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- AQUI ELE VAI RENDERIZAR SÓ OS ITENS QUE PASSARAM NO FILTRO -->
+          @for (item of order.items; track item.id) {
+            <div class="item-row" [class.checked-item]="item.kdsStatus === KdsStatus.Done">
+              <div class="item-content">
+                <div class="item-title-line">
+                  <strong class="qty">{{ item.quantity || 1 }}x</strong>
+                  <span class="product-name">{{ item.productName }}</span>
+                </div>
+
+                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                  <ul class="modifier-list">
+                    @for (mod of item.selectedModifiers; track mod.id) {
+                      <li>{{ mod.name }}</li>
+                    }
+                  </ul>
+                } @else if (item.notes) {
+                  <p class="modifier-list">Obs: {{ item.notes }}</p>
+                }
+              </div>
+
+              <button
+                class="custom-checkbox"
+                [class.active]="item.kdsStatus === KdsStatus.Done"
+                [disabled]="item.kdsStatus === KdsStatus.Done"
+                (click)="markItemAsDone(order.id, item.id)"
+              >
+                <i class="check-icon" *ngIf="item.kdsStatus === KdsStatus.Done">✓</i>
+              </button>
+            </div>
+          }
+        </div>
+
+        <button class="btn-pronto" (click)="markOrderAsDone(order)">Pronto</button>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <h2>Nenhuma comanda atende a este filtro...</h2>
+      </div>
+    }
+  </div>
+</main>

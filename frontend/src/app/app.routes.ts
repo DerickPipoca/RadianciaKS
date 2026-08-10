@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { KdsBoard } from './features/kds/kds-board/kds-board';
 import { Login } from './features/auth/login/login';
 import { authGuard } from './core/guards/auth-guard';
 import { LandingPage } from './features/landing-page/landing-page';
@@ -27,6 +26,7 @@ export const routes: Routes = [
   },
   {
     path: 'kds',
-    component: KdsBoard,
+    loadChildren: () => import('./features/kds/kds.routes').then((m) => m.KDS_ROUTES),
+    canActivate: [authGuard],
   },
 ];

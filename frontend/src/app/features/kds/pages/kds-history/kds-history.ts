@@ -1,0 +1,86 @@
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Search, RefreshCcw } from 'lucide-angular';
+import { OrderResponseDto } from '../../../../core/models/order.model';
+import { OrderStatus } from '../../../../core/enums/order-status';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { OrderService } from '../../../../core/services/order-service';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
+
+@Component({
+  selector: 'app-kds-history',
+  imports: [CommonModule, FormsModule, LucideAngularModule, InputComponent],
+  templateUrl: './kds-history.html',
+  styleUrl: './kds-history.scss',
+})
+export class KdsHistory {
+  readonly Search = Search;
+  readonly RefreshCcw = RefreshCcw;
+  private orderService = inject(OrderService);
+
+  historicalOrders: OrderResponseDto[] = [];
+  public readonly OrderStatus = OrderStatus;
+
+  searchTerm: string = '';
+  searchSubject = new Subject<string>();
+
+  pageNumber = 1;
+  pageSize = 12;
+  totalRecords = 0;
+
+  constructor() {
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe(() => {
+      this.pageNumber = 1;
+      this.loadHistory();
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadHistory();
+  }
+
+  loadHistory(): void {
+    this.orderService
+      .getAll({
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+        searchTerm: this.searchTerm,
+        sortBy: 'createdAt',
+        isDescending: true,
+      })
+      .subscribe({
+        next: (res) => {
+          this.historicalOrders = res.data;
+          this.totalRecords = res.totalRecords;
+        },
+        error: (err) => console.error('Erro ao carregar histórico do KDS', err),
+      });
+  }
+
+  changePage(newPage: number) {
+    this.pageNumber = newPage;
+    this.loadHistory();
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalRecords / this.pageSize);
+  }
+
+  getOrderStatusLabel(order: OrderResponseDto): string {
+    switch (order.orderStatus) {
+      case OrderStatus.Canceled:
+        return 'Cancelado';
+      case OrderStatus.Preparing:
+        return 'Preparando';
+      case OrderStatus.ReadyToServe:
+        return 'Pronto';
+      case OrderStatus.Delivered:
+        return 'Entregue';
+      case OrderStatus.Open:
+        return 'Aberto';
+      default:
+        return 'Desconhecido';
+    }
+  }
+}

@@ -1,0 +1,71 @@
+<main class="kds-main">
+  <header class="main-header">
+    <div class="header-info">
+      <h1>Histórico da Cozinha</h1>
+      <span class="badge">Total: {{ totalRecords }} pedidos cadastrados</span>
+      <app-input-component
+        class="input"
+        [icon]="Search"
+        placeholder="Procurar por Mesa ou Nº Pedido..."
+        [value]="searchTerm"
+        (valueChange)="searchTerm = $event; searchSubject.next($event)"
+      ></app-input-component>
+    </div>
+  </header>
+
+  <div class="kds-grid">
+    @for (order of historicalOrders; track order.id) {
+      <div class="kds-card history-card">
+        <div class="card-header bg-dark">
+          <div class="header-row">
+            <span class="time">{{ order.createdAt | date: 'dd/MM HH:mm' }}</span>
+            <span class="customer-name">{{ order.tableNumber || 'Balcão' }}</span>
+          </div>
+          <div class="header-row">
+            <span class="status-badge" [ngClass]="'status-' + order.orderStatus">
+              {{ getOrderStatusLabel(order) }}
+            </span>
+            <span class="order-number">#{{ order.id | slice: -6 | uppercase }}</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          @for (item of order.items; track item.id) {
+            <div class="item-row">
+              <div class="item-content">
+                <div class="item-title-line">
+                  <strong class="qty">{{ item.quantity || 1 }}x</strong>
+                  <span class="product-name">{{ item.productName }}</span>
+                </div>
+
+                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                  <ul class="modifier-list">
+                    @for (mod of item.selectedModifiers; track mod.id) {
+                      <li>{{ mod.name }}</li>
+                    }
+                  </ul>
+                } @else if (item.notes) {
+                  <p class="modifier-list">Obs: {{ item.notes }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <h2>Nenhum pedido encontrado no histórico.</h2>
+      </div>
+    }
+  </div>
+
+  <footer class="pagination-footer">
+    <div class="page-info">
+      <button [disabled]="pageNumber === 1" (click)="changePage(pageNumber - 1)">‹</button>
+      <span>Página {{ pageNumber }} de {{ getTotalPages() || 1 }}</span>
+      <button [disabled]="pageNumber >= getTotalPages()" (click)="changePage(pageNumber + 1)">
+        ›
+      </button>
+    </div>
+  </footer>
+</main>
