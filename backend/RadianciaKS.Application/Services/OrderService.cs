@@ -44,12 +44,12 @@ namespace RadianciaKS.Application.Services
             order.Items.Add(newItem);
             order.TotalAmount += newItem.UnitPrice * newItem.Quantity;
 
-            var tenantId = order.TenantId.ToString();
-            var itemResponse = _orderItemMapper.ToDto(newItem);
-            await _kdsNotification.NotifyNewItemAsync(tenantId, itemResponse);
-
             await _context.SaveChangesAsync();
-            return _mapper.ToDto(order);
+
+            var orderResponseDto = _mapper.ToDto(order);
+            await _kdsNotification.NotifyOrderUpdatedAsync(order.TenantId.ToString(), orderResponseDto);
+
+            return orderResponseDto;
         }
 
         public async Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto)
@@ -156,7 +156,6 @@ namespace RadianciaKS.Application.Services
             var orderToAdd = _mapper.ToEntity(dto);
 
             orderToAdd.EmployeeId = employeeId;
-
             orderToAdd.Items.Clear();
 
             decimal totalPrice = 0;
@@ -172,7 +171,6 @@ namespace RadianciaKS.Application.Services
 
             orderToAdd.TotalAmount = totalPrice;
             orderToAdd.EmployeeId = employeeId;
-
 
             decimal totalValue = 0;
             foreach (var paymentDto in dto.Payments)
@@ -193,12 +191,10 @@ namespace RadianciaKS.Application.Services
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                foreach (var item in order.Entity.Items)
-                {
-                    var itemResponse = _orderItemMapper.ToDto(item);
-                    await _kdsNotification.NotifyNewItemAsync(tenantId, itemResponse);
-                }
-                return _mapper.ToDto(orderToAdd);
+                var orderResponseDto = _mapper.ToDto(order.Entity);
+                await _kdsNotification.NotifyOrderUpdatedAsync(tenantId, orderResponseDto);
+
+                return orderResponseDto;
             }
             catch
             {
@@ -245,8 +241,6 @@ namespace RadianciaKS.Application.Services
                 .Take(queryParameters.PageSize)
                 .ToListAsync();
 
-            var data = orders.Select(c => _mapper.ToDto(c));
-
             return new PagedResponse<OrderResponseDto>
             {
                 Data = orders.Select(c => _mapper.ToDto(c)),
@@ -272,7 +266,6 @@ namespace RadianciaKS.Application.Services
             var item = await FindItemByIdAsync(order, itemId);
 
             _context.OrderItems.Remove(item);
-
             order.TotalAmount -= (item.UnitPrice * item.Quantity);
 
             await _context.SaveChangesAsync();
@@ -288,34 +281,34 @@ namespace RadianciaKS.Application.Services
 
             bool isAllItemsDone = order.Items.All(i => i.KdsStatus == KdsStatus.Done);
 
-            if (isAllItemsDone && order.OrderStatus != OrderStatus.Canceled)
+            if (isAllItemsDone && order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.Delivered)
             {
                 order.OrderStatus = OrderStatus.ReadyToServe;
+            }
+            else if (status == KdsStatus.Preparing && order.OrderStatus == OrderStatus.Open)
+            {
+                order.OrderStatus = OrderStatus.Preparing;
             }
 
             await _context.SaveChangesAsync();
 
-            var itemResponse = _orderItemMapper.ToDto(item);
-            await _kdsNotification.NotifyItemReadyAsync(order.TenantId.ToString(), itemResponse);
+            var orderResponseDto = _mapper.ToDto(order);
+            await _kdsNotification.NotifyOrderUpdatedAsync(order.TenantId.ToString(), orderResponseDto);
 
-            return _mapper.ToDto(order);
+            return orderResponseDto;
         }
 
-        public async Task<IEnumerable<OrderItemResponseDto>> GetPendingKdsItemsAsync()
+        public async Task<IEnumerable<OrderResponseDto>> GetPendingKdsOrdersAsync()
         {
-            var items = await _context.OrderItems
-                        .Include(x => x.Product)
-                        .Include(x => x.SelectedModifiers)
-                        .Include(x => x.Order)
-                        .Where(x => x.KdsStatus == KdsStatus.Pending).ToListAsync();
-            List<OrderItemResponseDto> itemsDto = [];
-            foreach (var item in items)
-            {
-                var dto = _orderItemMapper.ToDto(item);
-                dto.CreatedAt = item.Order.CreatedAt;
-                itemsDto.Add(_orderItemMapper.ToDto(item));
-            }
-            return itemsDto;
+            var orders = await _context.Orders
+                            .Include(o => o.Items).ThenInclude(i => i.Product)
+                            .Include(o => o.Items).ThenInclude(i => i.SelectedModifiers)
+                            .Include(o => o.Employee)
+                            .Where(o => o.OrderStatus == OrderStatus.Open || o.OrderStatus == OrderStatus.Preparing)
+                            .OrderBy(o => o.CreatedAt)
+                            .ToListAsync();
+
+            return orders.Select(o => _mapper.ToDto(o)).ToList();
         }
 
         public async Task<OrderResponseDto> CancelOrder(Guid orderId)

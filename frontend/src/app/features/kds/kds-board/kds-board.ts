@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { SignalrService } from '../../../core/services/signalr-service';
-import { KdsOrderGroup, OrderItemResponseDto } from '../../../core/models/order.model';
+import {
+  KdsOrderGroup,
+  OrderItemResponseDto,
+  OrderResponseDto,
+} from '../../../core/models/order.model';
 import { KdsService } from '../../../core/services/kds-service';
 import { KdsStatus } from '../../../core/enums/kds-status';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { firstValueFrom, forkJoin, Subscription } from 'rxjs';
 import { LucideAngularModule, Rows3, History, Funnel } from 'lucide-angular';
+import { OrderStatus } from '../../../core/enums/order-status';
 
 @Component({
   selector: 'app-kds-board',
@@ -23,10 +28,10 @@ export class KdsBoard implements OnInit, OnDestroy {
 
   private notificationSound = new Audio('/notificationSound.mp3');
 
-  pendingItems: OrderItemResponseDto[] = [];
-  KdsStatus = KdsStatus;
+  activeOrders: OrderResponseDto[] = [];
 
-  checkedItems = new Set<string>();
+  public readonly KdsStatus = KdsStatus;
+  public readonly OrderStatus = OrderStatus;
 
   private subscriptions = new Subscription();
 
@@ -35,17 +40,15 @@ export class KdsBoard implements OnInit, OnDestroy {
     this.signalrService.startConnection();
 
     this.subscriptions.add(
-      this.signalrService.newItem$.subscribe((newItem) => {
-        if (!this.pendingItems.find((i) => i.id === newItem.id)) {
-          this.pendingItems = [...this.pendingItems, newItem];
-          this.playSound();
-        }
+      this.signalrService.orderUpdated$.subscribe((updatedOrder) => {
+        this.playSound();
+        this.handleOrderUpdate(updatedOrder);
       }),
     );
 
     this.subscriptions.add(
-      this.signalrService.itemReady$.subscribe((readyItem) => {
-        this.pendingItems = this.pendingItems.filter((i) => i.id !== readyItem.id);
+      this.signalrService.orderDelivered$.subscribe((deliveredOrder) => {
+        this.removeOrderFromScreen(deliveredOrder.id);
       }),
     );
   }
@@ -56,84 +59,73 @@ export class KdsBoard implements OnInit, OnDestroy {
   }
 
   loadPendingItems(): void {
-    this.kdsService.getPendingItems().subscribe({
-      next: (items) => (this.pendingItems = items),
-      error: (err) => console.error('Erro ao carregar KDS:', err),
-    });
-  }
-
-  get groupedOrders(): KdsOrderGroup[] {
-    const map = new Map<string, KdsOrderGroup>();
-
-    for (const item of this.pendingItems) {
-      if (!map.has(item.orderId)) {
-        const orderTime = item.createdAt ? new Date(item.createdAt) : new Date();
-
-        map.set(item.orderId, {
-          orderId: item.orderId,
-          items: [],
-          status: item.kdsStatus,
-          tableNumber: '00',
-          customerName: 'Cliente',
-          time: orderTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          createdAt: orderTime,
-        });
-      }
-      map.get(item.orderId)!.items.push(item);
-    }
-
-    const groups = Array.from(map.values());
-
-    groups.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-
-    return groups;
-  }
-
-  toggleItemCheck(itemId: string) {
-    if (this.checkedItems.has(itemId)) {
-      this.checkedItems.delete(itemId);
-    } else {
-      this.checkedItems.add(itemId);
-    }
-  }
-
-  isItemChecked(itemId: string): boolean {
-    return this.checkedItems.has(itemId);
-  }
-
-  async markOrderAsDone(orderGroup: KdsOrderGroup) {
-    for (const item of orderGroup.items) {
-      try {
-        await firstValueFrom(
-          this.kdsService.updateItemStatus(orderGroup.orderId, item.id, KdsStatus.Done),
-        );
-
-        this.pendingItems = this.pendingItems.filter((i) => i.id !== item.id);
-        this.checkedItems.delete(item.id);
-      } catch (err) {
-        console.error('Erro ao atualizar item', item.id, err);
-      }
-    }
-  }
-
-  updateStatus(item: OrderItemResponseDto, newStatus: KdsStatus): void {
-    const orderId = (item as any).orderId;
-
-    if (!orderId) {
-      alert('Erro: ID do Pedido não encontrado neste item.');
-      return;
-    }
-
-    this.kdsService.updateItemStatus(orderId, item.id, newStatus).subscribe({
-      next: () => {
-        if (newStatus === KdsStatus.Done) {
-          this.pendingItems = this.pendingItems.filter((i) => i.id !== item.id);
-        } else {
-          item.kdsStatus = newStatus;
-        }
+    this.kdsService.getPendingKdsOrders().subscribe({
+      next: (orders) => {
+        this.activeOrders = orders;
       },
-      error: () => alert('Erro ao atualizar o status na cozinha.'),
+      error: (err) => console.error('Erro ao carregar comandas do KDS', err),
     });
+  }
+
+  markItemAsDone(orderId: string, itemId: string): void {
+    const order = this.activeOrders.find((o) => o.id === orderId);
+    if (order) {
+      const item = order.items.find((i) => i.id === itemId);
+      if (item) item.kdsStatus = KdsStatus.Done;
+    }
+
+    this.kdsService.updateItemStatus(orderId, itemId, KdsStatus.Done).subscribe({
+      next: () => {},
+      error: (err) => {
+        console.error('Erro ao atualizar item na cozinha:', err);
+      },
+    });
+  }
+
+  markOrderAsDone(order: OrderResponseDto): void {
+    const pendingItems = order.items.filter((i) => i.kdsStatus !== KdsStatus.Done);
+    if (pendingItems.length === 0) return;
+
+    this.removeOrderFromScreen(order.id);
+
+    const requests = pendingItems.map((item) =>
+      this.kdsService.updateItemStatus(order.id, item.id, KdsStatus.Done),
+    );
+
+    forkJoin(requests).subscribe({
+      next: () => {
+        console.log(`Comanda #${order.id.substring(0, 6)} finalizada na API!`);
+      },
+      error: (err) => {
+        console.error('Erro ao finalizar comanda na API:', err);
+        this.loadPendingItems();
+      },
+    });
+  }
+
+  handleOrderUpdate(updatedOrder: OrderResponseDto): void {
+    const shouldRemove =
+      updatedOrder.orderStatus === OrderStatus.ReadyToServe ||
+      updatedOrder.orderStatus === OrderStatus.Delivered ||
+      updatedOrder.orderStatus === OrderStatus.Canceled;
+
+    if (shouldRemove) {
+      this.removeOrderFromScreen(updatedOrder.id);
+    } else {
+      const existingIndex = this.activeOrders.findIndex((o) => o.id === updatedOrder.id);
+      if (existingIndex !== -1) {
+        this.activeOrders[existingIndex] = updatedOrder;
+      } else {
+        this.activeOrders.push(updatedOrder);
+      }
+      this.activeOrders.sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+    }
+  }
+
+  removeOrderFromScreen(orderId: string): void {
+    this.activeOrders = this.activeOrders.filter((o) => o.id !== orderId);
   }
 
   private playSound(): void {

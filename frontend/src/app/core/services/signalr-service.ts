@@ -17,9 +17,8 @@ export class SignalrService {
 
   private readonly testTenantId = '8d1ed281-9f3b-4659-8a46-7eb26c5d550e';
   private readonly hubUrl = 'https://localhost:7047/hubs/kds';
+  public orderUpdated$ = new Subject<OrderResponseDto>();
 
-  public newItem$ = new Subject<OrderItemResponseDto>();
-  public itemReady$ = new Subject<OrderItemResponseDto>();
   public orderDelivered$ = new Subject<OrderResponseDto | any>();
 
   public startConnection(): void {
@@ -62,24 +61,17 @@ export class SignalrService {
   private addListeners(): void {
     if (!this.hubConnection) return;
 
-    this.hubConnection.on('OnNewOrder', (item: OrderItemResponseDto) => {
+    this.hubConnection.on('OnOrderUpdated', (order: OrderResponseDto) => {
       this.zone.run(() => {
-        console.log('Novo item recebido na cozinha!', item);
-        this.newItem$.next(item);
-      });
-    });
-
-    this.hubConnection.on('OnItemReady', (item: OrderItemResponseDto) => {
-      this.zone.run(() => {
-        console.log('Item pronto na cozinha!', item);
-        this.itemReady$.next(item);
+        console.log('Comanda atualizada recebida!', order);
+        this.orderUpdated$.next(order);
       });
     });
 
     this.hubConnection.on('OnItemDelivered', (order: any) => {
       this.zone.run(() => {
         console.log('Pedido entregue ao cliente!', order);
-        this.itemReady$.next(order);
+        this.orderDelivered$.next(order);
       });
     });
   }

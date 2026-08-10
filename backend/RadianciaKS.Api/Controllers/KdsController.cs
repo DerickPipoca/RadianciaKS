@@ -20,7 +20,7 @@ namespace RadianciaKS.Api.Controllers
         [HttpGet("pending")]
         public async Task<IActionResult> GetPendingItems()
         {
-            var items = await _orderService.GetPendingKdsItemsAsync();
+            var items = await _orderService.GetPendingKdsOrdersAsync();
             return Ok(items);
         }
 

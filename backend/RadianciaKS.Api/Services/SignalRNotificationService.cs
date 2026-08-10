@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using RadianciaKS.Api.Hubs;
+using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Application.Services.Interfaces;
 
 namespace RadianciaKS.Api.Services
@@ -13,14 +14,9 @@ namespace RadianciaKS.Api.Services
             _hubContext = hubContext;
         }
 
-        public async Task NotifyItemReadyAsync(string tenantId, object item)
+        public async Task NotifyOrderUpdatedAsync(string tenantId, OrderResponseDto order)
         {
-            await _hubContext.Clients.Group(tenantId).SendAsync("OnItemReady", item);
-        }
-
-        public async Task NotifyNewItemAsync(string tenantId, object item)
-        {
-            await _hubContext.Clients.Group(tenantId).SendAsync("OnNewOrder", item);
+            await _hubContext.Clients.Group(tenantId).SendAsync("OnOrderUpdated", order);
         }
 
         public async Task NotifyDeliveredItemAsync(string tenantId, object item)

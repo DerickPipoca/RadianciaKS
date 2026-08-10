@@ -23,30 +23,30 @@
     <header class="main-header">
       <div class="header-info">
         <h1>Fila de Produção</h1>
-        <span class="badge">Pendentes: {{ groupedOrders.length }}</span>
+        <span class="badge">Pendentes: {{ activeOrders.length }}</span>
       </div>
     </header>
 
     <div class="kds-grid">
-      @for (order of groupedOrders; track order.orderId) {
+      @for (order of activeOrders; track order.id) {
         <div class="kds-card">
           <div
             class="card-header"
-            [ngClass]="order.status === KdsStatus.Preparing ? 'bg-green' : 'bg-orange'"
+            [ngClass]="order.orderStatus === OrderStatus.Preparing ? 'bg-green' : 'bg-orange'"
           >
             <div class="header-row">
-              <span class="time">{{ order.time }}</span>
-              <span class="customer-name">{{ order.customerName }}</span>
+              <span class="time">{{ order.createdAt | date: 'HH:mm' }}</span>
+              <span class="customer-name">{{ order.tableNumber || 'Balcão' }}</span>
             </div>
             <div class="header-row">
-              <span class="table-info">Mesa: {{ order.tableNumber }}</span>
-              <span class="order-number">#{{ order.orderId | slice: -4 | uppercase }}</span>
+              <span class="table-info">Mesa: {{ order.tableNumber || '-' }}</span>
+              <span class="order-number">#{{ order.id | slice: -6 | uppercase }}</span>
             </div>
           </div>
 
           <div class="card-body">
             @for (item of order.items; track item.id) {
-              <div class="item-row" [class.checked-item]="isItemChecked(item.id)">
+              <div class="item-row" [class.checked-item]="item.kdsStatus === KdsStatus.Done">
                 <div class="item-content">
                   <div class="item-title-line">
                     <strong class="qty">{{ item.quantity || 1 }}x</strong>
@@ -66,10 +66,11 @@
 
                 <button
                   class="custom-checkbox"
-                  [class.active]="isItemChecked(item.id)"
-                  (click)="toggleItemCheck(item.id)"
+                  [class.active]="item.kdsStatus === KdsStatus.Done"
+                  [disabled]="item.kdsStatus === KdsStatus.Done"
+                  (click)="markItemAsDone(order.id, item.id)"
                 >
-                  <i class="check-icon" *ngIf="isItemChecked(item.id)">✓</i>
+                  <i class="check-icon" *ngIf="item.kdsStatus === KdsStatus.Done">✓</i>
                 </button>
               </div>
             }
