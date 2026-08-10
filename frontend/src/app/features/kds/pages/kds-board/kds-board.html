@@ -38,7 +38,8 @@
                       <li>{{ mod.name }}</li>
                     }
                   </ul>
-                } @else if (item.notes) {
+                }
+                @if (item.notes) {
                   <p class="modifier-list">Obs: {{ item.notes }}</p>
                 }
               </div>

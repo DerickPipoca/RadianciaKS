@@ -57,7 +57,6 @@
         </div>
 
         <div class="card-body">
-          <!-- AQUI ELE VAI RENDERIZAR SÓ OS ITENS QUE PASSARAM NO FILTRO -->
           @for (item of order.items; track item.id) {
             <div class="item-row" [class.checked-item]="item.kdsStatus === KdsStatus.Done">
               <div class="item-content">
@@ -72,7 +71,8 @@
                       <li>{{ mod.name }}</li>
                     }
                   </ul>
-                } @else if (item.notes) {
+                }
+                @if (item.notes) {
                   <p class="modifier-list">Obs: {{ item.notes }}</p>
                 }
               </div>
