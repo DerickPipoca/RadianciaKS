@@ -386,41 +386,38 @@
 }
 
 .modal-footer {
-  padding: 16px 24px;
+  padding: 16px 12px;
   border-top: 1px solid var(--border-color);
   background: var(--bg-surface);
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 6px;
   align-items: center;
+  button {
+    padding: 6px 8px;
+    border-radius: $radius-sm;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: $font-family-base;
+    border: none;
+    transition: filter 0.2s;
 
+    &:hover {
+      filter: brightness(0.95);
+    }
+  }
   .modal-actions-left {
     display: flex;
-    gap: 12px;
+    gap: 6px;
     flex: 1;
-
-    button {
-      padding: 12px 16px;
-      border-radius: $radius-sm;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: $font-family-base;
-      border: none;
-      transition: filter 0.2s;
-
-      &:hover {
-        filter: brightness(0.95);
-      }
-    }
 
     .btn-cancel {
       gap: 4px;
       display: flex;
-      background-color: rgba(var(--red-status), 0.1);
+      background: transparent;
       color: var(--red-status);
-      &:hover {
-        background-color: rgba(var(--red-status), 0.2);
-      }
+      border: 1px solid var(--red-status);
+      border-radius: $radius-sm;
       align-items: center;
     }
 
@@ -429,20 +426,27 @@
       display: flex;
       height: auto;
       background-color: var(--primary-color);
-      color: var(--text-primary);
+      color: $dark-base;
       align-items: center;
     }
   }
-
-  .btn-print {
-    gap: 4px;
+  .btn-action {
     display: flex;
-    padding: 12px 24px;
     color: var(--text-primary);
     background: var(--bg-base);
     border: 1px solid var(--border-color);
     border-radius: $radius-sm;
     font-weight: 600;
+    align-items: center;
+  }
+  .btn-print {
+    display: flex;
+    color: var(--text-primary);
+    background: var(--bg-base);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-sm;
+    font-weight: 600;
+    justify-content: center;
     cursor: pointer;
     font-family: $font-family-base;
     &:hover {

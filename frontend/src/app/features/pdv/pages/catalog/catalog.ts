@@ -106,10 +106,6 @@ export class Catalog implements OnInit {
   }
 
   onProductClick(product: ProductResponseDto): void {
-    if (product.modifierGroups && product.modifierGroups.length > 0) {
-      this.selectedProductForModal = product;
-    } else {
-      this.cartService.addProduct(product);
-    }
+    this.selectedProductForModal = product;
   }
 }

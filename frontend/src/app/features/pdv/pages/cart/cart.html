@@ -16,7 +16,7 @@
       <div class="cart-item">
         <div class="item-main">
           <div class="item-details">
-            <span class="item-name">{{ item.product.name }}</span>
+            <span class="item-name">{{ item.quantity }}x {{ item.product.name }}</span>
             @if (item.selectedModifiers.length > 0) {
               <ul class="modifiers-list">
                 @for (modifier of item.selectedModifiers; track modifier.id) {
@@ -25,8 +25,12 @@
               </ul>
             }
           </div>
-          <div class="item-price">R$ {{ item.totalPrice.toFixed(2) }}</div>
+          <div>
+            <div class="item-unit-price">R$ {{ item.unitPrice.toFixed(2) }}</div>
+            <div class="item-price">R$ {{ item.totalPrice.toFixed(2) }}</div>
+          </div>
         </div>
+        <span class="item-notes">{{ item.notes }}</span>
       </div>
     } @empty {
       <div class="empty-cart">

@@ -7,10 +7,11 @@ import {
   ModifierOptionResponseDto,
   OrderItemModifierResponseDto,
 } from '../../../../core/models/modifier.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-modifier-modal',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './modifier-modal.html',
   styleUrl: './modifier-modal.scss',
 })
@@ -21,7 +22,8 @@ export class ModifierModal implements OnInit {
 
   private cartService = inject(CartService);
 
-  quantity = 1;
+  quantity: number = 1;
+  notes: string = '';
   selections = new Map<string, ModifierOptionResponseDto[]>();
 
   ngOnInit(): void {
@@ -101,7 +103,7 @@ export class ModifierModal implements OnInit {
         });
       });
     });
-    this.cartService.addProduct(this.product, this.quantity, selectedModifiers);
+    this.cartService.addProduct(this.product, this.quantity, selectedModifiers, this.notes);
     this.close.emit();
   }
 }

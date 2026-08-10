@@ -9,61 +9,73 @@
       @if (product.description) {
         <p class="product-description">{{ product.description }}</p>
       }
+      @if (product.modifierGroups && product.modifierGroups.length > 0) {
+        @for (group of product.modifierGroups; track group.id) {
+          <div class="modifier-group" [class.invalid-group]="!isGroupValid(group)">
+            <div class="group-header">
+              <h3>{{ group.name }}</h3>
+              <span class="rules">
+                @if (group.minChoices > 0) {
+                  escolha {{ group.maxChoices }} opções.
+                } @else {
+                  Opcional (Até {{ group.maxChoices }})
+                }
+              </span>
+            </div>
 
-      @for (group of product.modifierGroups; track group.id) {
-        <div class="modifier-group" [class.invalid-group]="!isGroupValid(group)">
-          <div class="group-header">
-            <h3>{{ group.name }}</h3>
-            <span class="rules">
-              @if (group.minChoices > 0) {
-                escolha {{ group.maxChoices }} opções.
-              } @else {
-                Opcional (Até {{ group.maxChoices }})
+            <div class="options-list">
+              @for (option of group.options; track option.id) {
+                <div class="option-item" [class.selected]="isOptionSelected(group.id, option.id)">
+                  <div class="option-info">
+                    <span class="option-name">{{ option.name }}</span>
+
+                    @if (option.description) {
+                      <span class="option-desc">{{ option.description }}</span>
+                    }
+                    @if (option.additionalPrice > 0) {
+                      <span class="option-price"
+                        >+ R$ {{ option.additionalPrice | number: '1.2-2' }}</span
+                      >
+                    }
+                  </div>
+
+                  <div class="option-controls">
+                    @if (!isOptionSelected(group.id, option.id)) {
+                      <button
+                        class="btn-add-option"
+                        (click)="toggleOption(group, option)"
+                        [disabled]="
+                          group.maxChoices > 1 &&
+                          (selections.get(group.id)?.length || 0) >= group.maxChoices
+                        "
+                      >
+                        +
+                      </button>
+                    } @else {
+                      <div class="inline-qty-control">
+                        <button class="btn-yellow" (click)="toggleOption(group, option)">—</button>
+                        <span class="qty-number">1</span>
+                        <button class="btn-yellow disabled">+</button>
+                      </div>
+                    }
+                  </div>
+                </div>
               }
-            </span>
+            </div>
           </div>
-
-          <div class="options-list">
-            @for (option of group.options; track option.id) {
-              <div class="option-item" [class.selected]="isOptionSelected(group.id, option.id)">
-                <div class="option-info">
-                  <span class="option-name">{{ option.name }}</span>
-
-                  @if (option.description) {
-                    <span class="option-desc">{{ option.description }}</span>
-                  }
-                  @if (option.additionalPrice > 0) {
-                    <span class="option-price"
-                      >+ R$ {{ option.additionalPrice | number: '1.2-2' }}</span
-                    >
-                  }
-                </div>
-
-                <div class="option-controls">
-                  @if (!isOptionSelected(group.id, option.id)) {
-                    <button
-                      class="btn-add-option"
-                      (click)="toggleOption(group, option)"
-                      [disabled]="
-                        group.maxChoices > 1 &&
-                        (selections.get(group.id)?.length || 0) >= group.maxChoices
-                      "
-                    >
-                      +
-                    </button>
-                  } @else {
-                    <div class="inline-qty-control">
-                      <button class="btn-yellow" (click)="toggleOption(group, option)">—</button>
-                      <span class="qty-number">1</span>
-                      <button class="btn-yellow disabled">+</button>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
+        }
       }
+      <div class="order-preferences-section">
+        <div class="notes-group">
+          <label for="itemNotes">Observações (Opcional):</label>
+          <textarea
+            id="itemNotes"
+            placeholder="Ex: Sem cebola, ponto da carne..."
+            [(ngModel)]="notes"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
     </main>
 
     <footer class="modal-footer">

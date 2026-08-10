@@ -56,13 +56,19 @@
   overflow-y: auto;
 
   .cart-item {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--text-transparent);
     padding: 16px 20px;
 
     .item-main {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+    }
+
+    .item-notes {
+      color: var(--text-transparent);
+      font-style: italic;
+      font-size: 0.8rem;
     }
 
     .item-details {
@@ -88,11 +94,17 @@
         }
       }
     }
-
+    .item-unit-price {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      text-align: right;
+    }
     .item-price {
       font-size: 1rem;
       color: var(--text-secondary);
       white-space: nowrap;
+      text-align: right;
     }
   }
 

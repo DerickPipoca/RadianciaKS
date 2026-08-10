@@ -138,9 +138,6 @@
       cursor: pointer;
       transition: all 0.2s;
 
-      &:hover:not(:disabled) {
-        background: var(--bg-base);
-      }
       &.selected {
         background: var(--primary-color);
         color: $dark-base;
@@ -313,6 +310,7 @@
 
 .action-row {
   margin-top: auto;
+  display: flex;
 
   .confirm-page-btn {
     width: 100%;

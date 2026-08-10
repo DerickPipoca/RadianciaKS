@@ -58,7 +58,7 @@ export class Orders implements OnInit, OnDestroy {
   filteredOrders: OrderResponseDto[] = [];
 
   filterStatus: string = '';
-  availableStatuses = ['Open', 'ReadyToServe', 'Paid', 'Canceled'];
+  availableStatuses = ['Open', 'ReadyToServe', 'Delivered', 'Paid', 'Canceled'];
 
   selectedOrder: OrderResponseDto | null = null;
 

@@ -37,7 +37,7 @@ export class CartService {
       quantity: quantity,
       selectedModifiers: selectedModifiers,
       notes: notes,
-      unitPrice: product.price,
+      unitPrice: unitPricewithModifiers,
       totalPrice: totalPrice,
     };
 

@@ -192,16 +192,12 @@
             </div>
           }
           @if (selectedOrder.orderStatus === OrderStatus.ReadyToServe) {
-            <button
-              class="btn-action"
-              style="color: var(--green-status)"
-              (click)="deliverOrder(selectedOrder)"
-            >
-              Entregar
+            <button class="btn-action" (click)="deliverOrder(selectedOrder)">
+              Entregar pedido
             </button>
           }
           <button (click)="confirmPrint()" class="btn-print">
-            <lucide-icon [img]="Printer" class="icon" /> Imprimir Comanda
+            <lucide-icon [img]="Printer" class="icon" /> Imprimir comanda
           </button>
         </footer>
       </div>
