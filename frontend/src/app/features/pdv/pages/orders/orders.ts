@@ -111,7 +111,7 @@ export class Orders implements OnInit, OnDestroy {
     const params = {
       pageNumber: this.pageNumber,
       pageSize: this.pageSize,
-      tableNumber: this.searchTerm,
+      searchTerm: this.searchTerm,
       sortBy: this.currentSortColumn,
       isDescending: this.isDescending,
       status: statusEnum,
