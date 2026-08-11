@@ -49,8 +49,6 @@ namespace RadianciaKS.Application.Services
                 newItem.KdsStatus = KdsStatus.Pending;
 
                 _context.OrderItems.Add(newItem);
-
-                order.Items.Add(newItem);
             }
 
             order.TotalAmount = order.Items.Sum(i => i.UnitPrice * i.Quantity);
