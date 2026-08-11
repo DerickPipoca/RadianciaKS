@@ -1,6 +1,6 @@
 import { OrderResponseDto } from './../../../../core/models/order.model';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Search, SquarePen, Plus } from 'lucide-angular';
 import { OrderService } from '../../../../core/services/order-service';
@@ -44,6 +44,19 @@ export class OpenOrders {
 
   private allOrders: OrderResponseDto[] = [];
   selectedOrder: OrderResponseDto | null = null;
+
+  @ViewChild('selectContainer') selectContainer!: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    if (
+      this.dropdownOpen &&
+      this.selectContainer &&
+      !this.selectContainer.nativeElement.contains(event.target)
+    ) {
+      this.dropdownOpen = false;
+    }
+  }
 
   ngOnInit(): void {
     this.loadOrders();
@@ -113,7 +126,7 @@ export class OpenOrders {
   }
 
   goToCheckout(order: OrderResponseDto): void {
-    this.router.navigate(['/pdv/checkout'], { queryParams: { orderId: order.id } });
+    this.router.navigate(['/pdv/checkout'], { queryParams: { orderId: order.id , abertos: true} });
   }
 
   changeSort(column: string): void {

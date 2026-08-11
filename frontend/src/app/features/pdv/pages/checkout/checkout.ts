@@ -34,6 +34,8 @@ export class Checkout implements OnInit {
   tableNumber: string = '';
   isProcessing: boolean = false;
 
+  abertos = false;
+
   addedPayments: PaymentRequestDto[] = [];
   selectedMethod: PaymentMethod = PaymentMethod.Pix;
   amountToAdd: number = 0;
@@ -41,6 +43,12 @@ export class Checkout implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const orderId = params['orderId'];
+      const abertos = params['abertos'];
+
+      if (params['abertos']) {
+        this.abertos = true;
+      }
+
       if (params['orderId']) {
         this.existingOrderId = orderId;
         this.loadExistingOrder(orderId);
@@ -132,9 +140,13 @@ export class Checkout implements OnInit {
 
   goBack(): void {
     if (this.existingOrderId) {
-      this.router.navigate(['/pdv/pedidos']);
+      if (this.abertos) {
+        this.router.navigate(['/pdv/pedidos-aberto']);
+      } else {
+        this.router.navigate(['/pdv/pedidos']);
+      }
     } else {
-      this.router.navigate(['/pdv/pedido']);
+      this.router.navigate(['/pdv/catalogo']);
     }
   }
 
@@ -159,8 +171,7 @@ export class Checkout implements OnInit {
           this.isProcessing = false;
         },
       });
-    }
-    else {
+    } else {
       const orderItems: OrderItemRequestDto[] = this.cartService.items().map((cartItem) => ({
         productId: cartItem.product.id,
         quantity: cartItem.quantity,

@@ -13,7 +13,7 @@
     />
     <div class="filter-group">
       <label>Status:</label>
-      <div class="custom-select-container">
+      <div class="custom-select-container" #selectContainer>
         <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
           {{ getOrderStatus(filterStatus) || 'Todos' }} ▼
         </button>

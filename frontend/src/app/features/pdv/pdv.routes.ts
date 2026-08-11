@@ -14,7 +14,7 @@ export const PDV_ROUTES: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: Home },
       { path: 'catalogo', component: Order },
-      { path: 'pedidos-abertos', component: OpenOrders },
+      { path: 'pedidos-aberto', component: OpenOrders },
       { path: 'pedidos', component: Orders },
       { path: 'checkout', component: Checkout },
     ],
