@@ -21,10 +21,14 @@ export class SignalrService {
 
   public orderDelivered$ = new Subject<OrderResponseDto | any>();
 
+  private orderCanceledSource = new Subject<OrderResponseDto>();
+  public orderCanceled$ = this.orderCanceledSource.asObservable();
+
   public startConnection(): void {
     if (this.hubConnection && this.hubConnection.state !== 'Disconnected') {
       return;
     }
+
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         skipNegotiation: true,
@@ -33,6 +37,10 @@ export class SignalrService {
       .configureLogging(LogLevel.Information)
       .withAutomaticReconnect()
       .build();
+
+    this.hubConnection.on('ReceiveOrderCanceled', (order: OrderResponseDto) => {
+      this.orderCanceledSource.next(order);
+    });
 
     this.hubConnection.onreconnected(() => {
       console.log('SignalR reconectado! Reentrando no grupo...');

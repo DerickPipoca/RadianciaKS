@@ -8,7 +8,7 @@
 
   <div class="kds-grid">
     @for (order of activeOrders; track order.id) {
-      <div class="kds-card">
+      <div class="kds-card" [class.canceled-card]="order.orderStatus === OrderStatus.Canceled">
         <div
           class="card-header"
           [ngClass]="order.orderStatus === OrderStatus.Preparing ? 'bg-green' : 'bg-orange'"
@@ -21,6 +21,9 @@
             <span class="table-info">Mesa: {{ order.tableNumber || '-' }}</span>
             <span class="order-number">#{{ order.id.slice(0, 6).toUpperCase() }}</span>
           </div>
+          @if (order.orderStatus === OrderStatus.Canceled) {
+            <span class="cancel-banner">CANCELADO PELO CAIXA</span>
+          }
         </div>
 
         <div class="card-body">

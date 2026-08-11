@@ -361,9 +361,12 @@ namespace RadianciaKS.Application.Services
                 throw new ArgumentException("Não é possível cancelar um pedido já pago.");
 
             order.OrderStatus = OrderStatus.Canceled;
-
             await _context.SaveChangesAsync();
-            return _mapper.ToDto(order);
+
+            var responseDto = _mapper.ToDto(order);
+            await _kdsNotification.NotifyOrderCanceledAsync(order.TenantId.ToString(), responseDto);
+
+            return responseDto;
         }
 
         public async Task<OrderResponseDto> DeliverOrder(Guid orderId)

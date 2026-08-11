@@ -6,5 +6,6 @@ namespace RadianciaKS.Application.Services.Interfaces
     {
         Task NotifyOrderUpdatedAsync(string tenantId, OrderResponseDto order);
         Task NotifyDeliveredItemAsync(string tenantId, object item);
+        Task NotifyOrderCanceledAsync(string tenantId, OrderResponseDto order);
     }
 }

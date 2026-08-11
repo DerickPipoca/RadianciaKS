@@ -24,6 +24,7 @@ export class KdsBoard implements OnInit, OnDestroy {
   private signalrService = inject(SignalrService);
 
   private notificationSound = new Audio('/notificationSound.mp3');
+  private cancelSound = new Audio('/cancelSound.wav');
 
   activeOrders: OrderResponseDto[] = [];
 
@@ -35,6 +36,14 @@ export class KdsBoard implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadPendingItems();
     this.signalrService.startConnection();
+
+    this.subscriptions.add(
+      this.signalrService.orderCanceled$.subscribe((canceledOrder) => {
+        this.handleOrderCanceled(canceledOrder);
+
+        this.playCancelSound();
+      }),
+    );
 
     this.subscriptions.add(
       this.signalrService.orderUpdated$.subscribe((updatedOrder) => {
@@ -121,6 +130,18 @@ export class KdsBoard implements OnInit, OnDestroy {
     }
   }
 
+  handleOrderCanceled(canceledOrder: OrderResponseDto): void {
+    const orderToCancel = this.activeOrders.find((o) => o.id === canceledOrder.id);
+
+    if (orderToCancel) {
+      orderToCancel.orderStatus = OrderStatus.Canceled as any;
+
+      setTimeout(() => {
+        this.activeOrders = this.activeOrders.filter((o) => o.id !== canceledOrder.id);
+      }, 10000);
+    }
+  }
+
   removeOrderFromScreen(orderId: string): void {
     this.activeOrders = this.activeOrders.filter((o) => o.id !== orderId);
   }
@@ -129,6 +150,17 @@ export class KdsBoard implements OnInit, OnDestroy {
     this.notificationSound.currentTime = 0;
 
     this.notificationSound.play().catch((error) => {
+      console.warn(
+        'O navegador bloqueou o áudio automático. O usuário precisa clicar na tela primeiro.',
+        error,
+      );
+    });
+  }
+
+  private playCancelSound(): void {
+    this.cancelSound.currentTime = 0;
+
+    this.cancelSound.play().catch((error) => {
       console.warn(
         'O navegador bloqueou o áudio automático. O usuário precisa clicar na tela primeiro.',
         error,

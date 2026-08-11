@@ -115,6 +115,22 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 
+  &.canceled-card {
+    background-color: rgba(255, 77, 77, 0.12);
+    border: 2px dashed var(--red-status, #ff4d4d);
+    opacity: 0.75;
+
+    .customer-name,
+    .product-name {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+
+    .card-header {
+      background-color: rgba(255, 77, 77, 0.3) !important;
+    }
+  }
+
   .card-header {
     padding: 12px 16px;
     color: white;
@@ -400,4 +416,34 @@
       }
     }
   }
+}
+
+.order-card {
+  transition: all 0.5s ease-in-out;
+
+  &.canceled-card {
+    background-color: rgba(255, 77, 77, 0.12);
+    border: 2px dashed var(--red-status, #ff4d4d);
+    opacity: 0.75;
+
+    .customer-name,
+    .item-name {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+
+    .card-header {
+      background-color: rgba(255, 77, 77, 0.2);
+    }
+  }
+}
+
+.cancel-banner {
+  background-color: var(--red-status);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
 }
