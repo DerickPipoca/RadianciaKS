@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CloseOrders } from './close-orders';
+import { OpenOrders } from './open-orders';
 
-describe('CloseOrders', () => {
-  let component: CloseOrders;
-  let fixture: ComponentFixture<CloseOrders>;
+describe('OpenOrders', () => {
+  let component: OpenOrders;
+  let fixture: ComponentFixture<OpenOrders>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CloseOrders]
+      imports: [OpenOrders]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CloseOrders);
+    fixture = TestBed.createComponent(OpenOrders);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

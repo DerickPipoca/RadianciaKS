@@ -63,7 +63,7 @@
       @for (order of dataList; track order.id) {
         <tr>
           <td>
-            <strong>{{ order.tableNumber ?? 'Balcão' }}</strong>
+            <strong>{{ order.tableNumber ?? '#' + order.id.slice(0, 6).toUpperCase() }}</strong>
           </td>
           <td>
             <strong>{{ order.createdAt | date: 'dd/MM/yyyy | HH:mm' }}</strong>

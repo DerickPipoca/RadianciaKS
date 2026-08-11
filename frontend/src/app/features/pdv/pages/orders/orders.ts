@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  ElementRef,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderService } from '../../../../core/services/order-service';
@@ -44,6 +53,19 @@ export class Orders implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   @ViewChild(PrintPreview) printPreview!: PrintPreview;
+
+  @ViewChild('selectContainer') selectContainer!: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    if (
+      this.dropdownOpen &&
+      this.selectContainer &&
+      !this.selectContainer.nativeElement.contains(event.target)
+    ) {
+      this.dropdownOpen = false;
+    }
+  }
 
   constructor() {
     this.subscriptions.add(
@@ -132,6 +154,7 @@ export class Orders implements OnInit, OnDestroy {
     const statusName = OrderStatus[order.orderStatus];
     if (!statusName) return 'open';
 
+    if (statusName === 'Preparing') return 'preparing';
     if (statusName === 'ReadyToServe') return 'ready-to-serve';
     if (statusName === 'Canceled') return 'canceled';
     if (statusName === 'Paid') return 'paid';
@@ -189,6 +212,7 @@ export class Orders implements OnInit, OnDestroy {
         next: () => {
           order.orderStatus = OrderStatus.Canceled as any;
           this.closeDetails();
+          this.loadOrders();
         },
         error: (err) => {
           console.error('Erro ao cancelar pedido:', err);

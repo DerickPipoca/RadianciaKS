@@ -13,6 +13,7 @@ namespace RadianciaKS.Application.Services.Interfaces
         Task<DashboardMetricsDto> GetDashboardMetricsAsync(DateTime startDate, DateTime endDate);
         Task<OrderResponseDto> GetOrderById(Guid orderId);
         Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto);
+        Task<OrderResponseDto> AddItemsToOrder(Guid orderId, List<OrderItemRequestDto> itemsDto);
         Task<OrderResponseDto> CheckoutOrder(Guid orderId, CheckoutRequestDto checkoutDto);
         Task<OrderResponseDto> UpdateItemStatus(Guid orderId, Guid itemId, KdsStatus status);
         Task<OrderResponseDto> RemoveItemFromOrder(Guid orderId, Guid itemId);

@@ -105,5 +105,13 @@
       color: $dark-base;
       font-weight: 600;
     }
+
+    &.green {
+      width: calc(640px + 16px);
+      padding: 24px;
+      background-color: var(--green-status);
+      color: $light-base;
+      font-weight: 600;
+    }
   }
 }

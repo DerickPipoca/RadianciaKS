@@ -35,6 +35,46 @@ namespace RadianciaKS.Application.Services
             _userProvider = userProvider;
         }
 
+        public async Task<OrderResponseDto> AddItemsToOrder(Guid orderId, List<OrderItemRequestDto> itemsDto)
+        {
+            var order = await FindOrderByIdAsync(orderId);
+            if (order == null)
+                throw new ArgumentException("Pedido não encontrado.");
+
+            foreach (var item in itemsDto)
+            {
+                var newItem = await BuildOrderItemAsync(item);
+
+                newItem.OrderId = orderId;
+                newItem.KdsStatus = KdsStatus.Pending;
+
+                _context.OrderItems.Add(newItem);
+
+                order.Items.Add(newItem);
+            }
+
+            order.TotalAmount = order.Items.Sum(i => i.UnitPrice * i.Quantity);
+
+            var totalPaid = order.Payments.Sum(p => p.Amount);
+            if (order.PaymentStatus == PaymentStatus.Paid && order.TotalAmount > totalPaid)
+            {
+                order.PaymentStatus = PaymentStatus.Partial;
+            }
+
+            if (order.OrderStatus == OrderStatus.ReadyToServe || order.OrderStatus == OrderStatus.Delivered)
+            {
+                order.OrderStatus = OrderStatus.Preparing;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var orderResponseDto = _mapper.ToDto(order);
+
+            await _kdsNotification.NotifyOrderUpdatedAsync(order.TenantId.ToString(), orderResponseDto);
+
+            return orderResponseDto;
+        }
+
         public async Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto)
         {
             var order = await FindOrderByIdAsync(orderId);
@@ -358,6 +398,8 @@ namespace RadianciaKS.Application.Services
             var product = await FindProductByIdAsync(itemDto.ProductId);
             var newItem = _orderItemMapper.ToEntity(itemDto);
 
+            newItem.Id = Guid.NewGuid();
+            newItem.ProductId = product.Id;
             newItem.Product = product;
             decimal modifiersTotal = 0;
 
@@ -375,6 +417,7 @@ namespace RadianciaKS.Application.Services
 
                     newItem.SelectedModifiers.Add(new OrderItemModifier
                     {
+                        Id = Guid.NewGuid(),
                         Name = modifierOption.Name,
                         AdditionalPrice = modifierOption.AdditionalPrice
                     });

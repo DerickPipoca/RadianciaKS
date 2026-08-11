@@ -4,7 +4,7 @@ import { Home } from './pages/home/home';
 import { Order } from './pages/order/order';
 import { Orders } from './pages/orders/orders';
 import { Checkout } from './pages/checkout/checkout';
-import { CloseOrders } from './pages/close-orders/close-orders';
+import { OpenOrders } from './pages/open-orders/open-orders';
 
 export const PDV_ROUTES: Routes = [
   {
@@ -13,8 +13,8 @@ export const PDV_ROUTES: Routes = [
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: Home },
-      { path: 'novo-pedido', component: Order },
-      { path: 'fechar-pedidos', component: CloseOrders },
+      { path: 'catalogo', component: Order },
+      { path: 'pedidos-abertos', component: OpenOrders },
       { path: 'pedidos', component: Orders },
       { path: 'checkout', component: Checkout },
     ],

@@ -19,7 +19,7 @@
           </div>
           <div class="header-row">
             <span class="table-info">Mesa: {{ order.tableNumber || '-' }}</span>
-            <span class="order-number">#{{ order.id | slice: -6 | uppercase }}</span>
+            <span class="order-number">#{{ order.id.slice(0, 6).toUpperCase() }}</span>
           </div>
         </div>
 

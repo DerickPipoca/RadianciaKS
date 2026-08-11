@@ -2,7 +2,19 @@
   <header class="cart-header">
     <div class="cart-title">
       <lucide-icon [img]="ShoppingBag" class="icon" />
-      <h2>Pedido</h2>
+      <h2>
+        @if (cartService.editingOrderId()) {
+          Mesa Aberta
+          {{
+            cartService.existingOrderData()?.tableNumber ||
+              '#' + cartService.existingOrderData()?.id
+              | slice: 0 : 6
+              | uppercase
+          }}
+        } @else {
+          Novo Pedido
+        }
+      </h2>
     </div>
     @if (cartService.totalItems() > 0) {
       <button class="clear-btn" (click)="clearCart()" title="Limpar carrinho">
@@ -13,10 +25,16 @@
 
   <main class="cart-items">
     @for (item of cartService.items(); track item.id) {
-      <div class="cart-item">
+      <div class="cart-item" [class.existing-item]="item.isExistingItem">
         <div class="item-main">
           <div class="item-details">
-            <span class="item-name">{{ item.quantity }}x {{ item.product.name }}</span>
+            <span class="item-name">
+              {{ item.quantity }}x {{ item.product.name }}
+              @if (item.isExistingItem) {
+                <span class="sent-badge">Já lançado</span>
+              }
+            </span>
+
             @if (item.selectedModifiers.length > 0) {
               <ul class="modifiers-list">
                 @for (modifier of item.selectedModifiers; track modifier.id) {
@@ -54,27 +72,38 @@
       <div class="divider"></div>
 
       <div class="total-line">
-        <span class="total-label">Total</span>
+        <span class="total-label">Total da Mesa</span>
         <span class="total-value">R$ {{ cartService.subTotal().toFixed(2) }}</span>
       </div>
     </div>
 
     <div class="action-buttons">
-      <button
-        class="btn-secondary"
-        [disabled]="cartService.totalItems() === 0 || isProcessing"
-        (click)="openCustomerModal()"
-      >
-        Finalizar Pedido
-      </button>
+      @if (cartService.editingOrderId()) {
+        <button
+          class="checkout-btn"
+          style="flex: 1"
+          [disabled]="cartService.getNewItemsOnly().length === 0 || isProcessing"
+          (click)="appendItemsToOrder()"
+        >
+          Lançar Novo Pedido
+        </button>
+      } @else {
+        <button
+          class="btn-secondary"
+          [disabled]="cartService.totalItems() === 0 || isProcessing"
+          (click)="openCustomerModal()"
+        >
+          Lançar Pedido
+        </button>
 
-      <button
-        class="checkout-btn"
-        [disabled]="cartService.totalItems() === 0 || isProcessing"
-        (click)="checkout()"
-      >
-        Checkout
-      </button>
+        <button
+          class="checkout-btn"
+          [disabled]="cartService.totalItems() === 0 || isProcessing"
+          (click)="checkout()"
+        >
+          Checkout
+        </button>
+      }
     </div>
   </footer>
 </div>

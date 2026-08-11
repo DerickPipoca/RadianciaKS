@@ -41,7 +41,7 @@ export class OrderManager extends BaseCrud<OrderRequestDto, OrderResponseDto, st
 
   get formattedOrderId(): string {
     if (!this.currentItem || !this.currentItem.id) return '';
-    return String(this.currentItem.id).slice(-4).toUpperCase();
+    return String(this.currentItem.id).slice(0, 6).toUpperCase();
   }
 
   override loadData(): void {

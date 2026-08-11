@@ -4,18 +4,47 @@
 
     <app-input-component
       type="text"
-      [icon]="TextSearch"
+      [icon]="Search"
       style="width: 300px"
       [variant]="'primary'"
-      placeholder="Buscar por Mesa ou Nº do Pedido..."
+      placeholder="Buscar por Mesa ou Nº..."
       [value]="searchTerm"
       (valueChange)="searchTerm = $event; searchSubject.next($event)"
     />
+    <div class="filter-group">
+      <label>Status:</label>
+      <div class="custom-select-container">
+        <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
+          {{ getOrderStatus(filterStatus) || 'Todos' }} ▼
+        </button>
+
+        @if (dropdownOpen) {
+          <ul class="options-list">
+            <li
+              class="option"
+              [class.is-selected]="filterStatus === ''"
+              (click)="changeFilterStatus('')"
+            >
+              Todos
+            </li>
+            @for (item of availableStatuses; track $index) {
+              <li
+                class="option"
+                [class.is-selected]="filterStatus === item"
+                (click)="changeFilterStatus(item)"
+              >
+                {{ getOrderStatus(item) }}
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
     <div class="sort-controls">
       <span class="order-by">Ordenar por: </span>
       <div class="order-items">
-        <button class="order-item" (click)="changeSort('tablenumber')">
-          Mesa {{ currentSortColumn === 'tablenumber' ? (isDescending ? '▼' : '▲') : '' }}
+        <button class="order-item" (click)="changeSort('tableNumber')">
+          Mesa {{ currentSortColumn === 'tableNumber' ? (isDescending ? '▼' : '▲') : '' }}
         </button>
         <button class="order-item" (click)="changeSort('id')">
           ID {{ currentSortColumn === 'id' ? (isDescending ? '▼' : '▲') : '' }}
@@ -29,15 +58,15 @@
 
   <div class="content-area">
     <div class="header-section">
-      <h2 class="section-title">Contas em Aberto</h2>
+      <h2 class="section-title">Painel de Operações (Contas Ativas)</h2>
     </div>
 
     <main class="orders-grid">
       @for (order of filteredOrders; track order.id) {
         <div class="order-card">
           <div class="card-header">
-            <span class="order-number">#{{ order.id | slice: 0 : 6 | uppercase }}</span>
-            <span class="order-date">{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            <span class="order-number">#{{ formattedOrderId(order) }}</span>
+            <span class="order-date">{{ order.createdAt | date: 'HH:mm' }}</span>
           </div>
 
           <div class="card-body">
@@ -52,22 +81,34 @@
               <span class="status-badge" [ngClass]="getStatusClass(order)">
                 {{ getOrderStatusLabel(order) }}
               </span>
-
               <span class="payment-badge" [ngClass]="getPaymentStatusClass(order)">
-                {{ getPaymentStatusLabel(order) }}
+                <b>
+                  {{
+                    order.paymentStatus === PaymentStatus.Paid
+                      ? 'Pago'
+                      : getPaymentStatusLabel(order)
+                  }}
+                </b>
               </span>
             </div>
 
             <button class="btn-action" (click)="openDetails(order)">Detalhes</button>
           </div>
 
-          <button class="btn-express-checkout" (click)="goToCheckout(order)">
-            Cobrar R$ {{ order.totalAmount | number: '1.2-2' }}
-          </button>
+          <div class="card-actions">
+            <button class="btn-edit" (click)="openTableForEditing(order)">
+              <div class="icon"><lucide-icon [img]="Plus"></lucide-icon></div>
+              <p>Itens</p>
+            </button>
+
+            @if (canCheckout(order)) {
+              <button class="btn-express-checkout" (click)="goToCheckout(order)">Checkout</button>
+            }
+          </div>
         </div>
       } @empty {
         <div class="empty-state">
-          <p>Nenhuma conta em aberto no momento. 🎉</p>
+          <p>Nenhuma conta precisando de atenção no momento. 🎉</p>
         </div>
       }
     </main>
@@ -79,7 +120,7 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <header class="modal-header">
         <div class="header-info">
-          <h2>Mesa {{ selectedOrder.tableNumber || 'Balcão' }}</h2>
+          <h2>{{ selectedOrder.tableNumber ? 'Mesa ' + selectedOrder.tableNumber : 'Balcão' }}</h2>
           <span class="status-badge" [ngClass]="getStatusClass(selectedOrder)">
             {{ getOrderStatusLabel(selectedOrder) }}
           </span>
@@ -88,7 +129,7 @@
       </header>
 
       <main class="modal-body">
-        <h3 class="section-label">Consumo da Mesa</h3>
+        <h3 class="section-label">Consumo Atual</h3>
         <ul class="items-list">
           @for (item of selectedOrder.items; track item.id) {
             <li class="item-row">
@@ -113,14 +154,16 @@
 
         <div class="summary-totals">
           <div class="line total-highlight">
-            <span>Total a Pagar:</span>
+            <span>Total Parcial:</span>
             <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
           </div>
         </div>
       </main>
 
       <footer class="modal-footer">
-        <button class="btn-checkout" (click)="goToCheckout(selectedOrder)">Fazer Checkout</button>
+        <button class="btn-checkout" (click)="openTableForEditing(selectedOrder)">
+          Adicionar Mais Itens
+        </button>
       </footer>
     </div>
   </div>

@@ -25,7 +25,7 @@
             <span class="status-badge" [ngClass]="'status-' + order.orderStatus">
               {{ getOrderStatusLabel(order) }}
             </span>
-            <span class="order-number">#{{ order.id | slice: -6 | uppercase }}</span>
+            <span class="order-number">#{{ order.id.slice(0, 6).toUpperCase() }}</span>
           </div>
         </div>
 
@@ -44,7 +44,7 @@
                       <li>{{ mod.name }}</li>
                     }
                   </ul>
-                } 
+                }
                 @if (item.notes) {
                   <p class="modifier-list">Obs: {{ item.notes }}</p>
                 }

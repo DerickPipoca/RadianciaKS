@@ -183,8 +183,9 @@
 
       .badges-container {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: 8px;
+        align-items: flex-start;
       }
 
       .status-badge {
@@ -199,6 +200,10 @@
         &.open {
           background: #e2e8f0;
           color: #475569;
+        }
+        &.preparing {
+          background: #dbeafe;
+          color: #1e3a8a;
         }
         &.ready-to-serve {
           background: #dbeafe;
@@ -560,7 +565,6 @@
 
       &:hover {
         background-color: var(--border-color);
-        color: var(--bg-base);
       }
 
       &.is-selected {

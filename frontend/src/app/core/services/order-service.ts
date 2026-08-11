@@ -58,8 +58,13 @@ export class OrderService {
   }
 
   addItemToOrder(orderId: string, orderItem: OrderItemRequestDto): Observable<OrderResponseDto> {
-    const urlEndPoint = `${this.endPoint}/${orderId}/items`;
+    const urlEndPoint = `${this.endPoint}/${orderId}/item`;
     return this.http.post<OrderResponseDto>(urlEndPoint, orderItem);
+  }
+
+  addItemsToOrder(orderId: string, orderItems: OrderItemRequestDto[]): Observable<OrderResponseDto> {
+    const urlEndPoint = `${this.endPoint}/${orderId}/items`;
+    return this.http.post<OrderResponseDto>(urlEndPoint, orderItems);
   }
 
   checkoutOrder(orderId: string, checkout: CheckoutRequestDto): Observable<OrderResponseDto> {
@@ -83,7 +88,7 @@ export class OrderService {
   }
 
   removeItemFromOrder(orderId: string, itemId: string): Observable<OrderResponseDto> {
-    const urlEndPoint = `${this.endPoint}/${orderId}/items/${itemId}`;
+    const urlEndPoint = `${this.endPoint}/${orderId}/item/${itemId}`;
     return this.http.delete<OrderResponseDto>(urlEndPoint);
   }
 }

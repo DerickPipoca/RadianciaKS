@@ -59,10 +59,33 @@
     border-bottom: 1px solid var(--text-transparent);
     padding: 16px 20px;
 
+    &.existing-item {
+      background-color: rgba(255, 255, 255, 0.02);
+      opacity: 0.6;
+      pointer-events: none;
+
+      .item-name {
+        color: var(--text-secondary);
+      }
+    }
+
     .item-main {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+    }
+
+    .sent-badge {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 0.65rem;
+      background-color: #333;
+      color: #aaa;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 700;
+      vertical-align: middle;
     }
 
     .item-notes {

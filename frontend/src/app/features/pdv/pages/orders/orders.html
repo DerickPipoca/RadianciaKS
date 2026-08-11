@@ -15,7 +15,7 @@
       <div class="filter-controls">
         <div class="filter-group">
           <label>Status:</label>
-          <div class="custom-select-container">
+          <div class="custom-select-container" #selectContainer>
             <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
               {{ getOrderStatus(filterStatus) || 'Todos' }} ▼
             </button>
@@ -67,7 +67,7 @@
     @for (order of filteredOrders; track order.id) {
       <div class="order-card">
         <div class="card-header">
-          <span class="order-number">#{{ order.id | slice: 0 : 6 | uppercase }}</span>
+          <span class="order-number">#{{ order.id.slice(0, 6).toUpperCase() }}</span>
           <span class="order-time">{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
         </div>
 
@@ -125,7 +125,7 @@
       <div class="modal-content" (click)="$event.stopPropagation()">
         <header class="modal-header">
           <div class="header-info">
-            <h2>Pedido #{{ selectedOrder.id | slice: 0 : 6 | uppercase }}</h2>
+            <h2>Pedido #{{ selectedOrder.id.slice(0, 6).toUpperCase() }}</h2>
             <span class="status-badge" [ngClass]="getStatusClass(selectedOrder)">
               {{ getOrderStatusLabel(selectedOrder) }}
             </span>

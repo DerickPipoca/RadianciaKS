@@ -83,4 +83,27 @@ export class Cart {
       },
     });
   }
+
+  appendItemsToOrder() {
+    this.isProcessing = true;
+    const orderId = this.cartService.editingOrderId();
+    const newItems = this.cartService.getNewItemsOnly();
+
+    const payload = newItems.map((item) => ({
+      productId: item.product.id,
+      quantity: item.quantity,
+      notes: item.notes,
+      selectedModifierIds: item.selectedModifiers.map((m) => m.id),
+    }));
+
+    this.orderService.addItemsToOrder(orderId!, payload).subscribe({
+      next: () => {
+        this.cartService.clearCart();
+        this.isProcessing = false;
+      },
+      error: () => {
+        this.isProcessing = false;
+      },
+    });
+  }
 }
