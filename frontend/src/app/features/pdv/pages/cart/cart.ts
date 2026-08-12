@@ -1,6 +1,6 @@
 import { CartService } from './../../../../core/services/cart-service';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OrderService } from '../../../../core/services/order-service';
@@ -13,7 +13,7 @@ import { LucideAngularModule, ShoppingBagIcon, Trash2 } from 'lucide-angular';
   templateUrl: './cart.html',
   styleUrl: './cart.scss',
 })
-export class Cart {
+export class Cart implements OnDestroy {
   public readonly ShoppingBag = ShoppingBagIcon;
   public readonly Trash = Trash2;
 
@@ -24,6 +24,12 @@ export class Cart {
   isProcessing = false;
   showCustomerModal = false;
   customerName = '';
+
+  ngOnDestroy(): void {
+    if (this.cartService.existingOrderData !== null) {
+      this.cartService.clearCart();
+    }
+  }
 
   removeItem(id: string) {
     this.cartService.removeItem(id);
@@ -100,6 +106,7 @@ export class Cart {
       next: () => {
         this.cartService.clearCart();
         this.isProcessing = false;
+        this.router.navigate(['/pdv/pedidos-aberto']);
       },
       error: () => {
         this.isProcessing = false;
