@@ -71,7 +71,8 @@
                 variant="primary"
                 size="md"
                 (click)="addPayment()"
-                [disabled]="amountToAdd <= 0 || isProcessing"
+                [disabled]="amountToAdd <= 0"
+                [isLoading]="isProcessing"
               >
                 Incluir
               </app-button-component>
@@ -124,17 +125,14 @@
       }
 
       <div class="action-row">
-        <button
-          class="confirm-page-btn"
+        <app-button-component
+          size="full"
           [disabled]="!isFormValid || isProcessing"
+          [isLoading]="isProcessing"
           (click)="confirm()"
         >
-          @if (isProcessing) {
-            A processar...
-          } @else {
-            Confirmar Venda
-          }
-        </button>
+          Confirmar Venda
+        </app-button-component>
       </div>
     </aside>
   </div>

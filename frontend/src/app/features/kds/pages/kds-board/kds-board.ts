@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { LucideAngularModule, Rows3, History, Funnel } from 'lucide-angular';
 import { SignalrService } from '../../../../core/services/signalr-service';
 import { KdsService } from '../../../../core/services/kds-service';
@@ -15,13 +16,14 @@ import { forkJoin } from 'rxjs';
   templateUrl: './kds-board.html',
   styleUrl: './kds-board.scss',
 })
-export class KdsBoard implements OnInit, OnDestroy {
+export class KdsBoard implements OnInit {
   readonly Rows3 = Rows3;
   readonly Funnel = Funnel;
   readonly History = History;
 
   private kdsService = inject(KdsService);
   private signalrService = inject(SignalrService);
+  private destroyRef = inject(DestroyRef);
 
   private notificationSound = new Audio('/notificationSound.mp3');
   private cancelSound = new Audio('/cancelSound.wav');
@@ -37,30 +39,35 @@ export class KdsBoard implements OnInit, OnDestroy {
     this.loadPendingItems();
     this.signalrService.startConnection();
 
-    this.subscriptions.add(
-      this.signalrService.orderCanceled$.subscribe((canceledOrder) => {
-        this.handleOrderCanceled(canceledOrder);
+    this.destroyRef.onDestroy(() => {
+      this.signalrService.stopConnection();
+    });
 
-        this.playCancelSound();
-      }),
+    this.subscriptions.add(
+      this.signalrService.orderCanceled$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((canceledOrder) => {
+          this.handleOrderCanceled(canceledOrder);
+
+          this.playCancelSound();
+        }),
     );
 
     this.subscriptions.add(
-      this.signalrService.orderUpdated$.subscribe((updatedOrder) => {
-        this.handleOrderUpdate(updatedOrder);
-      }),
+      this.signalrService.orderUpdated$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((updatedOrder) => {
+          this.handleOrderUpdate(updatedOrder);
+        }),
     );
 
     this.subscriptions.add(
-      this.signalrService.orderDelivered$.subscribe((deliveredOrder) => {
-        this.removeOrderFromScreen(deliveredOrder.id);
-      }),
+      this.signalrService.orderDelivered$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((deliveredOrder) => {
+          this.removeOrderFromScreen(deliveredOrder.id);
+        }),
     );
-  }
-
-  ngOnDestroy(): void {
-    this.signalrService.stopConnection();
-    this.subscriptions.unsubscribe();
   }
 
   loadPendingItems(): void {

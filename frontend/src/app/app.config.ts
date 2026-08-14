@@ -7,12 +7,23 @@ import { tenantInterceptor } from './core/interceptors/tenant-interceptor';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { loadingInterceptor } from './core/interceptors/loading-interceptor';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideToastr } from 'ngx-toastr';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAnimationsAsync(),
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-top-left',
+      preventDuplicates: true,
+    }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([tenantInterceptor, errorInterceptor, authInterceptor])),
+    provideHttpClient(
+      withInterceptors([tenantInterceptor, loadingInterceptor, errorInterceptor, authInterceptor]),
+    ),
     provideCharts(withDefaultRegisterables()),
   ],
 };

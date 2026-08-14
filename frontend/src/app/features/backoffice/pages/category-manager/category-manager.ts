@@ -9,10 +9,11 @@ import { ButtonComponent } from '../../../../shared/components/button-component/
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { LucideAngularModule, TextSearch } from 'lucide-angular';
+import { ModalComponent } from "../../../../shared/components/modal-component/modal-component";
 
 @Component({
   selector: 'app-category-manager',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule, ModalComponent],
   templateUrl: './category-manager.html',
   styleUrl: './category-manager.scss',
 })
@@ -21,7 +22,6 @@ export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryRespon
 
   private categoryService = inject(CategoryService);
 
-  searchTerm: string = '';
   searchSubject = new Subject<string>();
 
   private allCategories: CategoryResponseDto[] = [];

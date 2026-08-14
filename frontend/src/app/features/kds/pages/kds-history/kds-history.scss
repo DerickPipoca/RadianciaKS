@@ -173,17 +173,22 @@
         font-weight: bold;
         text-transform: uppercase;
 
-        &.status-3 {
-          background: #82b982;
-          color: #fff;
+        &.ready-to-serve,
+        &.delivered {
+          background: var(--green-status);
+          color: $light-base;
         }
-        &.status-4 {
+        &.preparing {
           background: #007bff;
-          color: #fff;
+          color: $light-base;
         }
-        &.status-5 {
-          background: #ff4d4d;
-          color: #fff;
+        &.canceled {
+          background: var(--red-status);
+          color: $light-base;
+        }
+        &.open {
+          background: #007bff;
+          color: $light-base;
         }
       }
     }
@@ -229,46 +234,6 @@
           font-size: 0.8rem;
           color: var(--text-secondary);
         }
-      }
-    }
-  }
-}
-
-.pagination-footer {
-  flex-shrink: 0;
-  padding: 16px 24px;
-  background: var(--bg-surface);
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: center;
-
-  .page-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    color: var(--text-primary);
-    font-weight: 600;
-
-    button {
-      background: var(--bg-base);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover:not(:disabled) {
-        background: var(--primary-color);
-        color: $dark-base;
-      }
-      &:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
       }
     }
   }

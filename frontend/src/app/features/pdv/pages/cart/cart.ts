@@ -1,3 +1,4 @@
+import { provideToastr, ToastrService } from 'ngx-toastr';
 import { CartService } from './../../../../core/services/cart-service';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy } from '@angular/core';
@@ -6,10 +7,12 @@ import { Router } from '@angular/router';
 import { OrderService } from '../../../../core/services/order-service';
 import { OrderItemRequestDto, OrderRequestDto } from '../../../../core/models/order.model';
 import { LucideAngularModule, ShoppingBagIcon, Trash2 } from 'lucide-angular';
+import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
+import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent, ModalComponent],
   templateUrl: './cart.html',
   styleUrl: './cart.scss',
 })
@@ -20,13 +23,15 @@ export class Cart implements OnDestroy {
   public cartService = inject(CartService);
   private orderService = inject(OrderService);
   private router = inject(Router);
+  private toastr = inject(ToastrService);
 
   isProcessing = false;
+  checkingOut = false;
   showCustomerModal = false;
   customerName = '';
 
   ngOnDestroy(): void {
-    if (this.cartService.existingOrderData !== null) {
+    if (this.cartService.existingOrderData() !== null && this.checkingOut) {
       this.cartService.clearCart();
     }
   }
@@ -43,6 +48,7 @@ export class Cart implements OnDestroy {
 
   checkout(): void {
     console.log('A iniciar checkout com total de:', this.cartService.subTotal());
+    this.checkingOut = true;
     this.router.navigate(['/pdv/checkout']);
   }
 
@@ -77,14 +83,16 @@ export class Cart implements OnDestroy {
 
     this.orderService.create(payload).subscribe({
       next: (response) => {
-        alert(`Pedido #${response.id.substring(0, 8)} enviado para a cozinha!`);
+        this.toastr.success(
+          `Pedido #${response.id.substring(0, 6).toUpperCase()} enviado para a cozinha!`,
+        );
         this.cartService.clearCart();
         this.isProcessing = false;
         this.closeCustomerModal();
       },
       error: (err) => {
         console.error('Erro ao lançar pedido: ', err);
-        alert('Ocorreu um erro ao enviar o pedido.');
+        this.toastr.error('Ocorreu um erro ao enviar o pedido.');
         this.isProcessing = false;
       },
     });
@@ -104,11 +112,13 @@ export class Cart implements OnDestroy {
 
     this.orderService.addItemsToOrder(orderId!, payload).subscribe({
       next: () => {
+        this.toastr.success('Novos itens adicionados ao pedido com sucesso!');
         this.cartService.clearCart();
         this.isProcessing = false;
         this.router.navigate(['/pdv/pedidos-aberto']);
       },
       error: () => {
+        this.toastr.error('Falha ao adicionar novos itens à mesa.');
         this.isProcessing = false;
       },
     });

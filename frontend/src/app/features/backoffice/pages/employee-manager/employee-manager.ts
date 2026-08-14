@@ -11,10 +11,19 @@ import { ButtonComponent } from '../../../../shared/components/button-component/
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { LucideAngularModule, TextSearch } from 'lucide-angular';
+import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-employee-manager',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    InputComponent,
+    LucideAngularModule,
+    ModalComponent,
+  ],
   templateUrl: './employee-manager.html',
   styleUrl: './employee-manager.scss',
 })
@@ -22,8 +31,8 @@ export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeRespon
   TextSearch = TextSearch;
 
   private employeeService = inject(EmployeeService);
+  private toastr = inject(ToastrService);
 
-  searchTerm: string = '';
   searchSubject = new Subject<string>();
 
   private allEmployees: EmployeeResponseDto[] = [];
@@ -41,7 +50,10 @@ export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeRespon
         this.allEmployees = data;
         this.dataList = data;
       },
-      error: (err) => console.error('Erro ao carregar:', err),
+      error: (err) => {
+        console.error('Erro ao carregar:', err);
+        this.toastr.error('Falha ao carregar lista de funcionários.');
+      },
     });
   }
 
@@ -73,7 +85,7 @@ export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeRespon
       next: (fullEmployeeDetails) => {
         super.openEditModal(fullEmployeeDetails);
       },
-      error: () => alert('Erro ao carregar os detalhes do funcionário.'),
+      error: () => this.toastr.error('Erro ao carregar os detalhes do funcionário.'),
     });
   }
 
@@ -95,12 +107,12 @@ export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeRespon
   protected override validateSave(item: EmployeeRequestDto): boolean {
     console.log(item);
     if (!item.name || item.name.trim() === '') {
-      alert('O nome do funcionário é obrigatório.');
+      this.toastr.warning('O nome do funcionário é obrigatório.');
       return false;
     }
 
     if (!this.isEditing && (!item.password || item.password.trim() === '')) {
-      alert('A senha é obrigatória ao criar um novo funcionário.');
+      this.toastr.warning('A senha é obrigatória ao criar um novo funcionário.');
       return false;
     }
     return true;

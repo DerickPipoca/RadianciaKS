@@ -156,68 +156,6 @@
   border-radius: $radius-sm;
 }
 
-.pagination-footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 16px;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-
-  b {
-    color: var(--text-primary);
-    margin: 0 4px;
-  }
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-card {
-  background: var(--bg-surface);
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  border-radius: $radius-md;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: $shadow-md;
-  color: var(--text-primary);
-}
-
-.modal-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-body {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.modal-footer {
-  padding: 15px 20px;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 .form-group {
   margin-bottom: 15px;
   label {

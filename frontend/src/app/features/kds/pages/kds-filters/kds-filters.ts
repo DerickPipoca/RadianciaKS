@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription, forkJoin } from 'rxjs';
 import { SignalrService } from '../../../../core/services/signalr-service';
@@ -10,6 +10,7 @@ import { CategoryResponseDto } from '../../../../core/models/category.model';
 import { KdsStatus } from '../../../../core/enums/kds-status';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { LucideAngularModule, Search, ListFilter } from 'lucide-angular';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-kds-filters',
@@ -25,6 +26,7 @@ export class KdsFilters implements OnInit, OnDestroy {
   private kdsService = inject(KdsService);
   private signalrService = inject(SignalrService);
   private categoryService = inject(CategoryService);
+  private destroyRef = inject(DestroyRef);
 
   private notificationSound = new Audio('/notificationSound.mp3');
   private cancelSound = new Audio('/cancelSound.wav');
@@ -45,24 +47,34 @@ export class KdsFilters implements OnInit, OnDestroy {
     this.loadPendingOrders();
     this.signalrService.startConnection();
 
-    this.subscriptions.add(
-      this.signalrService.orderCanceled$.subscribe((canceledOrder) => {
-        this.handleOrderCanceled(canceledOrder);
+    this.destroyRef.onDestroy(() => {
+      this.signalrService.stopConnection();
+    });
 
-        this.playCancelSound();
-      }),
+    this.subscriptions.add(
+      this.signalrService.orderCanceled$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((canceledOrder) => {
+          this.handleOrderCanceled(canceledOrder);
+
+          this.playCancelSound();
+        }),
     );
 
     this.subscriptions.add(
-      this.signalrService.orderUpdated$.subscribe((updatedOrder) => {
-        this.handleOrderUpdate(updatedOrder);
-      }),
+      this.signalrService.orderUpdated$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((updatedOrder) => {
+          this.handleOrderUpdate(updatedOrder);
+        }),
     );
 
     this.subscriptions.add(
-      this.signalrService.orderDelivered$.subscribe((deliveredOrder) => {
-        this.removeOrderFromScreen(deliveredOrder.id);
-      }),
+      this.signalrService.orderDelivered$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((deliveredOrder) => {
+          this.removeOrderFromScreen(deliveredOrder.id);
+        }),
     );
   }
 

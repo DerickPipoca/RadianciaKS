@@ -12,6 +12,6 @@ export class ButtonComponent {
   @Input() isLoading: boolean = false;
   @Input() disabled: boolean = false;
   @Input() type: 'button' | 'submit' = 'button';
-  @Input() size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() size: 'sm' | 'md' | 'lg' | 'full' = 'md';
   @Input() radius: 'default' | 'round' = 'default';
 }

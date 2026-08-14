@@ -1,0 +1,52 @@
+<div class="pagination-container">
+  <div class="results-info">
+    Resultados <strong>{{ rangeStart }} a {{ rangeEnd }}</strong> de
+    <strong>{{ totalRecords }}</strong>
+  </div>
+
+  <div class="pagination-controls">
+    <button
+      class="nav-btn"
+      [disabled]="pageNumber <= 1"
+      (click)="changePage(1)"
+      title="Primeira página"
+    >
+      «
+    </button>
+
+    <button
+      class="nav-btn"
+      [disabled]="pageNumber <= 1"
+      (click)="changePage(pageNumber - 1)"
+      title="Página anterior"
+    >
+      ‹
+    </button>
+
+    <div class="pages-list">
+      @for (page of pages; track page) {
+        <button class="page-btn" [class.active]="page === pageNumber" (click)="changePage(page)">
+          {{ page }}
+        </button>
+      }
+    </div>
+
+    <button
+      class="nav-btn"
+      [disabled]="pageNumber >= totalPages"
+      (click)="changePage(pageNumber + 1)"
+      title="Próxima página"
+    >
+      ›
+    </button>
+
+    <button
+      class="nav-btn"
+      [disabled]="pageNumber >= totalPages"
+      (click)="changePage(totalPages)"
+      title="Última página"
+    >
+      »
+    </button>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CategoryService } from '../../../../core/services/category-service';
 import { ProductService } from '../../../../core/services/product-service';
 import { CategoryResponseDto } from '../../../../core/models/category.model';
@@ -10,7 +10,8 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 import { LucideAngularModule, TextSearch } from 'lucide-angular';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
+import { Pagination } from '../../../../shared/components/pagination/pagination';
 
 @Component({
   selector: 'app-catalog',
@@ -21,11 +22,12 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
     FormsModule,
     InputComponent,
     LucideAngularModule,
+    Pagination,
   ],
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss',
 })
-export class Catalog implements OnInit {
+export class Catalog implements OnInit, OnDestroy {
   TextSearch = TextSearch;
 
   private categoryService = inject(CategoryService);
@@ -39,28 +41,40 @@ export class Catalog implements OnInit {
   searchTerm: string = '';
   pageNumber: number = 1;
   pageSize: number = 12;
+  totalRecords: number = 0;
+
   searchSubject = new Subject<string>();
+  private subscription = new Subscription();
 
   activeCategory: CategoryResponseDto | null = null;
-
   selectedProductForModal: ProductResponseDto | null = null;
 
   constructor() {
-    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
-      this.pageNumber = 1;
-      this.fetchProducts();
-    });
+    this.subscription.add(
+      this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
+        this.pageNumber = 1;
+        this.fetchProducts();
+      }),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadCategories();
   }
 
-  loadData(): void {
+  loadCategories(): void {
     this.categoryService.getAll().subscribe({
       next: (data) => (this.categories = data),
       error: (err) => console.error('Erro ao carregar categorias', err),
     });
+  }
+
+  fetchProducts(): void {
+    if (!this.activeCategory) return;
 
     this.productService
       .getAll({
@@ -72,36 +86,28 @@ export class Catalog implements OnInit {
       .subscribe({
         next: (products) => {
           this.products = products.data;
-          this.fetchProducts();
+          this.filteredProducts = [...this.products];
+          this.totalRecords = products.totalRecords;
         },
         error: (err) => console.error('Erro ao carregar produtos', err),
-      });
-  }
-  fetchProducts(): void {
-    this.productService
-      .getAll({
-        pageNumber: this.pageNumber,
-        pageSize: this.pageSize,
-        searchTerm: this.searchTerm,
-        categoryId: this.activeCategory?.id,
-      })
-      .subscribe({
-        next: (response) => {
-          this.products = response.data;
-          this.filteredProducts = [...this.products];
-        },
-        error: (err) => console.error('Erro ao buscar produtos:', err),
       });
   }
 
   selectCategory(category: CategoryResponseDto): void {
     this.activeCategory = category;
+    this.pageNumber = 1;
+    this.searchTerm = '';
     this.fetchProducts();
   }
 
   clearCategory(): void {
     this.activeCategory = null;
     this.pageNumber = 1;
+    this.searchTerm = '';
+  }
+
+  changePage(newPage: number): void {
+    this.pageNumber = newPage;
     this.fetchProducts();
   }
 

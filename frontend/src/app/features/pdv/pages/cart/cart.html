@@ -79,14 +79,14 @@
 
     <div class="action-buttons">
       @if (cartService.editingOrderId()) {
-        <button
-          class="checkout-btn"
+        <app-button-component
           style="flex: 1"
-          [disabled]="cartService.getNewItemsOnly().length === 0 || isProcessing"
+          [disabled]="cartService.getNewItemsOnly().length === 0"
+          [isLoading]="isProcessing"
           (click)="appendItemsToOrder()"
         >
           Lançar Pedido
-        </button>
+        </app-button-component>
       } @else {
         <button
           class="btn-secondary"
@@ -96,48 +96,40 @@
           Lançar Pedido
         </button>
 
-        <button
-          class="checkout-btn"
-          [disabled]="cartService.totalItems() === 0 || isProcessing"
+        <app-button-component
+          [disabled]="cartService.totalItems() === 0"
+          [isLoading]="isProcessing"
           (click)="checkout()"
         >
           Checkout
-        </button>
+        </app-button-component>
       }
     </div>
   </footer>
 </div>
 
 @if (showCustomerModal) {
-  <div class="modal-overlay" (click)="closeCustomerModal()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <header class="modal-header">
-        <h3>Identificação do Pedido</h3>
-        <button class="close-btn" (click)="closeCustomerModal()">&times;</button>
-      </header>
+  <app-modal-component title="Identificação do Pedido" (onClose)="closeCustomerModal()">
+    <main class="modal-body">
+      <div class="form-group">
+        <label for="customerNameInput">Nome do Cliente / Mesa (Opcional)</label>
+        <input
+          id="customerNameInput"
+          type="text"
+          class="modal-input"
+          placeholder="Ex: João, Mesa 04, Balcão..."
+          [(ngModel)]="customerName"
+          (keyup.enter)="confirmOrder()"
+          autofocus
+        />
+      </div>
+    </main>
 
-      <main class="modal-body">
-        <div class="form-group">
-          <label for="customerNameInput">Nome do Cliente / Mesa (Opcional)</label>
-
-          <input
-            id="customerNameInput"
-            type="text"
-            class="modal-input"
-            placeholder="Ex: João, Mesa 04, Balcão..."
-            [(ngModel)]="customerName"
-            (keyup.enter)="confirmOrder()"
-            autofocus
-          />
-        </div>
-      </main>
-
-      <footer class="modal-footer">
-        <button class="btn-cancel" (click)="closeCustomerModal()">Cancelar</button>
-        <button class="btn-confirm" [disabled]="isProcessing" (click)="confirmOrder()">
-          {{ isProcessing ? 'Enviando...' : 'Confirmar e Enviar' }}
-        </button>
-      </footer>
-    </div>
-  </div>
+    <footer class="modal-footer">
+      <button class="btn-cancel" (click)="closeCustomerModal()">Cancelar</button>
+      <app-button-component [isLoading]="isProcessing" (click)="confirmOrder()">
+        Confirmar e Enviar
+      </app-button-component>
+    </footer>
+  </app-modal-component>
 }

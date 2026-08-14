@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, RefreshCcw } from 'lucide-angular';
 import { OrderResponseDto } from '../../../../core/models/order.model';
@@ -7,14 +7,28 @@ import { OrderStatus } from '../../../../core/enums/order-status';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { OrderService } from '../../../../core/services/order-service';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import {
+  OrderStatusClassPipe,
+  OrderStatusLabelPipe,
+} from '../../../../core/pipes/order-status-pipe-pipe';
+import { Pagination } from '../../../../shared/components/pagination/pagination';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-kds-history',
-  imports: [CommonModule, FormsModule, LucideAngularModule, InputComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideAngularModule,
+    InputComponent,
+    OrderStatusClassPipe,
+    OrderStatusLabelPipe,
+    Pagination,
+  ],
   templateUrl: './kds-history.html',
   styleUrl: './kds-history.scss',
 })
-export class KdsHistory {
+export class KdsHistory implements OnInit {
   readonly Search = Search;
   readonly RefreshCcw = RefreshCcw;
   private orderService = inject(OrderService);
@@ -30,10 +44,13 @@ export class KdsHistory {
   totalRecords = 0;
 
   constructor() {
-    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe(() => {
-      this.pageNumber = 1;
-      this.loadHistory();
-    });
+    this.searchSubject
+      .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((term) => {
+        this.searchTerm = term;
+        this.pageNumber = 1;
+        this.loadHistory();
+      });
   }
 
   ngOnInit(): void {

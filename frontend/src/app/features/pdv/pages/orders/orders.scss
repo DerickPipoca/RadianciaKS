@@ -259,59 +259,6 @@
   font-style: italic;
 }
 
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-}
-
-.modal-content {
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  border-radius: $radius-md;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: $shadow-md;
-}
-
-.modal-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg-surface);
-
-  .header-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: var(--text-primary);
-    }
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-secondary);
-  }
-}
-
 .modal-body {
   background-color: var(--bg-surface);
   padding: 24px;

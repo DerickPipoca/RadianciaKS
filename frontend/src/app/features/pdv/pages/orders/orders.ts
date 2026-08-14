@@ -1,14 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  effect,
-  ElementRef,
-  HostListener,
-  inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { OrderResponseDto } from '../../../../core/models/order.model';
 import { OrderService } from '../../../../core/services/order-service';
@@ -20,22 +11,52 @@ import { PaymentStatus } from '../../../../core/enums/payment-status';
 import { PrintPreview } from '../../components/print-preview/print-preview';
 import { debounceTime, distinctUntilChanged, merge, Subject, Subscription } from 'rxjs';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import {
+  OrderStatusClassPipe,
+  OrderStatusLabelPipe,
+} from '../../../../core/pipes/order-status-pipe-pipe';
+import {
+  PaymentStatusClassPipe,
+  PaymentStatusLabelPipe,
+} from '../../../../core/pipes/payment-status-pipe-pipe';
+import { ClickOutsideDirective } from '../../../../core/directives/click-outside-directive';
+import { Pagination } from '../../../../shared/components/pagination/pagination';
+import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
+import { ToastrService } from 'ngx-toastr';
+import { PrintService } from '../../../../core/services/print-service';
 
 @Component({
   selector: 'app-orders',
-  imports: [CommonModule, FormsModule, LucideAngularModule, PrintPreview, InputComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideAngularModule,
+    PrintPreview,
+    InputComponent,
+    OrderStatusClassPipe,
+    PaymentStatusClassPipe,
+    OrderStatusLabelPipe,
+    PaymentStatusLabelPipe,
+    ClickOutsideDirective,
+    Pagination,
+    ModalComponent,
+  ],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
 })
 export class Orders implements OnInit, OnDestroy {
   public readonly OrderStatus = OrderStatus;
+  public readonly PaymentStatus = PaymentStatus;
   public readonly CreditCard = CreditCard;
   public readonly XIcon = X;
   public readonly Printer = Printer;
   public readonly TextSearch = TextSearch;
+
   private orderService = inject(OrderService);
   private router = inject(Router);
   private signalrService = inject(SignalrService);
+  private toastr = inject(ToastrService);
+  private printService = inject(PrintService);
 
   isPrinting = false;
 
@@ -54,18 +75,13 @@ export class Orders implements OnInit, OnDestroy {
 
   @ViewChild(PrintPreview) printPreview!: PrintPreview;
 
-  @ViewChild('selectContainer') selectContainer!: ElementRef;
+  recentOrders: OrderResponseDto[] = [];
+  filteredOrders: OrderResponseDto[] = [];
 
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: Event) {
-    if (
-      this.dropdownOpen &&
-      this.selectContainer &&
-      !this.selectContainer.nativeElement.contains(event.target)
-    ) {
-      this.dropdownOpen = false;
-    }
-  }
+  filterStatus: string = '';
+  availableStatuses = ['Open', 'ReadyToServe', 'Delivered', 'Paid', 'Canceled'];
+
+  selectedOrder: OrderResponseDto | null = null;
 
   constructor() {
     this.subscriptions.add(
@@ -75,14 +91,6 @@ export class Orders implements OnInit, OnDestroy {
       }),
     );
   }
-
-  recentOrders: OrderResponseDto[] = [];
-  filteredOrders: OrderResponseDto[] = [];
-
-  filterStatus: string = '';
-  availableStatuses = ['Open', 'ReadyToServe', 'Delivered', 'Paid', 'Canceled'];
-
-  selectedOrder: OrderResponseDto | null = null;
 
   ngOnInit() {
     this.loadOrders();
@@ -150,18 +158,6 @@ export class Orders implements OnInit, OnDestroy {
     });
   }
 
-  getStatusClass(order: OrderResponseDto): string {
-    const statusName = OrderStatus[order.orderStatus];
-    if (!statusName) return 'open';
-
-    if (statusName === 'Preparing') return 'preparing';
-    if (statusName === 'ReadyToServe') return 'ready-to-serve';
-    if (statusName === 'Canceled') return 'canceled';
-    if (statusName === 'Paid') return 'paid';
-
-    return 'open';
-  }
-
   openDetails(order: OrderResponseDto) {
     this.selectedOrder = order;
   }
@@ -213,10 +209,11 @@ export class Orders implements OnInit, OnDestroy {
           order.orderStatus = OrderStatus.Canceled as any;
           this.closeDetails();
           this.loadOrders();
+          this.toastr.success('Pedido cancelado com sucesso!');
         },
         error: (err) => {
           console.error('Erro ao cancelar pedido:', err);
-          alert('Não foi possível cancelar o pedido. Tente novamente.');
+          this.toastr.error('Não foi possível cancelar o pedido. Tente novamente.');
         },
       });
     }
@@ -233,29 +230,13 @@ export class Orders implements OnInit, OnDestroy {
           order.orderStatus = OrderStatus.Delivered as any;
           this.closeDetails();
           this.loadOrders();
+          this.toastr.success('Entrega registrada com sucesso!');
         },
         error: (err) => {
           console.error('Erro ao entregar pedido:', err);
-          alert('Não foi possível registrar a entrega. Tente novamente.');
+          this.toastr.error('Não foi possível registrar a entrega. Tente novamente.');
         },
       });
-    }
-  }
-
-  getOrderStatusLabel(order: OrderResponseDto): string {
-    switch (order.orderStatus) {
-      case OrderStatus.Canceled:
-        return 'Cancelado';
-      case OrderStatus.Preparing:
-        return 'Preparando';
-      case OrderStatus.ReadyToServe:
-        return 'Pronto p/ servir';
-      case OrderStatus.Delivered:
-        return 'Entregue';
-      case OrderStatus.Open:
-        return 'Aberto';
-      default:
-        return 'Desconhecido';
     }
   }
 
@@ -263,86 +244,11 @@ export class Orders implements OnInit, OnDestroy {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  getOrderStatus(orderStatus: string): string | null {
-    if (orderStatus === 'Paid') return 'Pago';
-    let statusEnum = orderStatus ? (OrderStatus[orderStatus as any] as any) : null;
-    switch (statusEnum) {
-      case OrderStatus.Canceled:
-        return 'Cancelado';
-      case OrderStatus.Preparing:
-        return 'Preparando';
-      case OrderStatus.ReadyToServe:
-        return 'Pronto p/ servir';
-      case OrderStatus.Delivered:
-        return 'Entregue';
-      case OrderStatus.Open:
-        return 'Aberto';
-      default:
-        return null;
-    }
-  }
-
-  getPaymentStatusLabel(order: OrderResponseDto): string {
-    switch (order.paymentStatus) {
-      case PaymentStatus.Pending:
-        return 'Pag. Pendente';
-      case PaymentStatus.Partial:
-        return 'Pago Parcial';
-      case PaymentStatus.Paid:
-        return 'Pago';
-      case PaymentStatus.Refunded:
-        return 'Estornado';
-      default:
-        return 'Desconhecido';
-    }
-  }
-
-  getPaymentStatusClass(order: OrderResponseDto): string {
-    switch (order.paymentStatus) {
-      case PaymentStatus.Pending:
-        return 'pending';
-      case PaymentStatus.Partial:
-        return 'partial';
-      case PaymentStatus.Paid:
-        return 'paid';
-      case PaymentStatus.Refunded:
-        return 'refunded';
-      default:
-        return 'pending';
-    }
-  }
-
   goToCheckout(order: OrderResponseDto) {
     this.router.navigate(['/pdv/checkout'], { queryParams: { orderId: order.id } });
   }
 
   confirmPrint() {
-    const printWindow = window.open('', '_blank', 'width=300,height=600');
-
-    if (printWindow) {
-      const content = document.getElementById('print-section')?.innerHTML;
-
-      printWindow.document.write(`
-      <html>
-        <head>
-          <title>Imprimir Comanda</title>
-          <style>
-            body { font-family: 'Courier New', monospace; font-size: 14px; margin: 0; padding: 10px; width: 80mm; }
-            .receipt-container { width: 80mm; }
-          </style>
-        </head>
-        <body>
-          <div class="receipt-container">${content}</div>
-        </body>
-      </html>
-    `);
-
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 100);
-    }
+    this.printService.printElement('print-section', 'Imprimir Comanda');
   }
 }

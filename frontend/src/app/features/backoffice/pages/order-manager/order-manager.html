@@ -17,7 +17,7 @@
     <thead>
       <tr>
         <th>
-          <button (click)="orderBy('tablenumber')">
+          <button (click)="changeSort('tablenumber')">
             Cliente
             @if (isOrderBy('tablenumber')) {
               {{ descendingIcon() }}
@@ -25,7 +25,7 @@
           </button>
         </th>
         <th>
-          <button (click)="orderBy('createdat')">
+          <button (click)="changeSort('createdat')">
             Data
             @if (isOrderBy('createdat')) {
               {{ descendingIcon() }}
@@ -33,7 +33,7 @@
           </button>
         </th>
         <th>
-          <button (click)="orderBy('totalamount')">
+          <button (click)="changeSort('totalamount')">
             Valor
             @if (isOrderBy('totalamount')) {
               {{ descendingIcon() }}
@@ -41,7 +41,7 @@
           </button>
         </th>
         <th>
-          <button (click)="orderBy('orderstatus')">
+          <button (click)="changeSort('orderstatus')">
             Status
             @if (isOrderBy('orderstatus')) {
               {{ descendingIcon() }}
@@ -49,7 +49,7 @@
           </button>
         </th>
         <th>
-          <button (click)="orderBy('paymentstatus')">
+          <button (click)="changeSort('paymentstatus')">
             Pagamento
             @if (isOrderBy('paymentstatus')) {
               {{ descendingIcon() }}
@@ -72,16 +72,16 @@
             <strong>R$ {{ order.totalAmount | number: '1.2-2' }}</strong>
           </td>
           <td>
-            <span class="badge-status" [ngClass]="getOrderStatusClass(order.orderStatus)">
-              {{ getOrderStatusLabel(order.orderStatus) }}
+            <span class="badge-status" [ngClass]="order.orderStatus | orderStatusClass">
+              {{ order.orderStatus | orderStatusLabel }}
             </span>
           </td>
           <td>
-            @if (getOrderStatusLabel(order.orderStatus) === 'Cancelado') {
+            @if (order.orderStatus === OrderStatus.Canceled) {
               <span class="badge-status canceled">Cancelado</span>
             } @else {
-              <span class="badge-status" [ngClass]="getPaymentStatusClass(order.paymentStatus)">
-                {{ getPaymentStatusLabel(order.paymentStatus) }}
+              <span class="badge-status" [ngClass]="order.paymentStatus | paymentStatusClass">
+                {{ order.paymentStatus | paymentStatusLabel }}
               </span>
             }
           </td>
@@ -96,127 +96,95 @@
       }
     </tbody>
   </table>
-  <div class="pagination-footer">
-    <span class="page-info">
-      <button
-        [disabled]="pageNumber === 1"
-        (click)="changePage(pageNumber - 1)"
-        style="background: none; border: none; cursor: pointer; padding: 0 4px"
-      >
-        &lt;
-      </button>
-
-      @for (p of pageNumbers; track p) {
-        <span
-          (click)="changePage(p)"
-          style="cursor: pointer; padding: 0 6px"
-          [style.font-weight]="p === pageNumber ? 'bold' : 'normal'"
-          [style.text-decoration]="p === pageNumber ? 'underline' : 'none'"
-        >
-          {{ p }}
-        </span>
-      }
-
-      <button
-        [disabled]="pageNumber >= getTotalPages()"
-        (click)="changePage(pageNumber + 1)"
-        style="background: none; border: none; cursor: pointer; padding: 0 4px"
-      >
-        &gt;
-      </button>
-    </span>
-
-    <span class="results-info">
-      Resultados <b>{{ rangeStart }} a {{ rangeEnd }}</b> de <b>{{ totalRecords }}</b>
-    </span>
-  </div>
+  @if (totalRecords > 0) {
+    <app-pagination
+      [pageNumber]="pageNumber"
+      [pageSize]="pageSize"
+      [totalRecords]="totalRecords"
+      (pageChange)="changePage($event)"
+    >
+    </app-pagination>
+  }
 </div>
 
 @if (showModal) {
-  <div class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2 style="margin: 0px">Detalhes do Pedido #{{ formattedOrderId }}</h2>
-        <app-button-component variant="danger" size="sm" (click)="closeModal()">
-          &times;
-        </app-button-component>
+  <app-modal-component [title]="'Detalhes do Pedido #' + formattedOrderId" (onClose)="closeModal()">
+    <div class="modal-body">
+      <div class="form-row" style="margin-bottom: 20px">
+        <div class="form-group flex-1">
+          <label>Cliente / Mesa</label>
+          <strong style="font-size: 1.1rem; color: var(--text-primary)">
+            {{ currentItem.tableNumber ?? 'Balcão' }}
+          </strong>
+        </div>
+        <div class="form-group flex-1" style="text-align: right">
+          <label>Data do Pedido</label>
+          <strong style="color: var(--text-primary)">
+            {{ currentItem.createdAt | date: 'dd/MM/yyyy - HH:mm' }}
+          </strong>
+        </div>
       </div>
 
-      <div class="modal-body">
-        <div class="form-row" style="margin-bottom: 20px">
-          <div class="form-group flex-1">
-            <label>Cliente / Mesa</label>
-            <strong style="font-size: 1.1rem; color: var(--text-primary)">
-              {{ currentItem.tableNumber ?? 'Balcão' }}
-            </strong>
-          </div>
-          <div class="form-group flex-1" style="text-align: right">
-            <label>Data do Pedido</label>
-            <strong style="color: var(--text-primary)">
-              {{ currentItem.createdAt | date: 'dd/MM/yyyy - HH:mm' }}
-            </strong>
-          </div>
-        </div>
+      <hr class="divider" />
 
-        <hr class="divider" />
+      <h3 class="section-title" style="margin-top: 0; color: var(--text-primary)">
+        Itens Consumidos
+      </h3>
 
-        <h3 class="section-title" style="margin-top: 0; color: var(--text-primary)">
-          Itens Consumidos
-        </h3>
+      <ul class="options-list" style="max-height: 280px; overflow-y: auto; padding-right: 8px">
+        @for (item of currentItem.items; track item.id) {
+          <li class="option-item">
+            <div class="opt-left" style="display: flex; flex-direction: column; gap: 4px">
+              <span class="opt-name">
+                <strong>{{ item.quantity }}x</strong> {{ item.productName }}
+              </span>
 
-        <ul class="options-list" style="max-height: 280px; overflow-y: auto; padding-right: 8px">
-          @for (item of currentItem.items; track item.id) {
-            <li class="option-item">
-              <div class="opt-left" style="display: flex; flex-direction: column; gap: 4px">
-                <span class="opt-name"
-                  ><strong>{{ item.quantity }}x</strong> {{ item.productName }}</span
-                >
-
-                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-                  <span class="opt-desc">
-                    @for (mod of item.selectedModifiers; track mod.id) {
-                      {{ mod.name }}<span *ngIf="!$last">, </span>
+              @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                <span class="opt-desc">
+                  @for (mod of item.selectedModifiers; track mod.id) {
+                    {{ mod.name }}
+                    @if (!$last) {
+                      ,
                     }
-                  </span>
-                }
-              </div>
+                  }
+                </span>
+              }
+            </div>
 
-              <div class="opt-right">
-                <span class="opt-price"
-                  >R$ {{ item.unitPrice * item.quantity | number: '1.2-2' }}</span
-                >
-              </div>
-            </li>
-          } @empty {
-            <li class="empty-option">Nenhum item registrado neste pedido.</li>
-          }
-        </ul>
+            <div class="opt-right">
+              <span class="opt-price">
+                R$ {{ item.unitPrice * item.quantity | number: '1.2-2' }}
+              </span>
+            </div>
+          </li>
+        } @empty {
+          <li class="empty-option">Nenhum item registrado neste pedido.</li>
+        }
+      </ul>
 
-        <div class="summary-box">
-          <div>
-            <label>Status de Pagamento</label>
-            <strong
-              class="badge-status"
-              [ngClass]="getPaymentStatusLabel(currentItem.paymentStatus)"
-            >
-              {{ getPaymentStatusLabel(currentItem.paymentStatus) }}
-            </strong>
-          </div>
-          <div style="text-align: right">
-            <label>Total Pago</label>
-            <strong class="total-price">R$ {{ currentItem.totalAmount | number: '1.2-2' }}</strong>
-          </div>
+      <div class="summary-box">
+        <div>
+          <label>Status de Pagamento</label>
+          <strong class="badge-status" [ngClass]="currentItem.paymentStatus | paymentStatusClass">
+            {{ currentItem.paymentStatus | paymentStatusLabel }}
+          </strong>
+        </div>
+        <div style="text-align: right">
+          <label>Total Pago</label>
+          <strong class="total-price">R$ {{ currentItem.totalAmount | number: '1.2-2' }}</strong>
         </div>
       </div>
+    </div>
 
-      <div class="modal-footer">
+    <div class="modal-footer">
+      @if (currentItem.orderStatus !== OrderStatus.Canceled) {
         <app-button-component variant="danger" size="md" (click)="cancel(currentItem.id)">
           Cancelar pedido
         </app-button-component>
-        <app-button-component variant="secondary" size="md" (click)="closeModal()">
-          Fechar Detalhes
-        </app-button-component>
-      </div>
+      }
+      <app-button-component variant="secondary" size="md" (click)="closeModal()">
+        Fechar Detalhes
+      </app-button-component>
     </div>
-  </div>
+  </app-modal-component>
 }

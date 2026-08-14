@@ -55,93 +55,88 @@
 </div>
 
 @if (showModal) {
-  <div class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2 style="margin: 0px">{{ isEditing ? 'Editar Categoria' : 'Nova Categoria' }}</h2>
-        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
-          &times;
-        </app-button-component>
-      </div>
-
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Imagem da Categoria</label>
-          <div
-            class="upload-zone"
-            (click)="fileInput.click()"
-            style="
-              cursor: pointer;
-              position: relative;
-              border: 2px dashed #334155;
-              padding: 20px;
-              border-radius: 8px;
-              text-align: center;
-            "
-          >
-            @if (currentItem.imagePath) {
-              <img
-                [src]="'https://localhost:7047' + currentItem.imagePath"
-                alt="Preview"
-                style="max-width: 100%; max-height: 140px; border-radius: 8px; object-fit: cover"
-              />
-              <p style="color: #888; font-size: 0.8rem; margin-top: 8px">
-                Clique na imagem para alterar
-              </p>
-            } @else {
-              <div class="upload-content">
-                <p class="icon" style="font-size: 2rem; margin: 0 0 8px 0">☁️</p>
-                <p style="color: #94a3b8; font-size: 0.9rem">
-                  Selecione uma imagem ou arraste aqui
-                </p>
-                <small style="color: #64748b">png, jpg ou webp.</small>
-                <app-button-component
-                  variant="primary"
-                  size="md"
-                  class="w-full-btn"
-                  style="margin-top: 8px"
-                  (click)="fileInput.click(); $event.stopPropagation()"
-                >
-                  Procurar
-                </app-button-component>
-              </div>
-            }
-
-            <input
-              type="file"
-              #fileInput
-              style="display: none"
-              accept="image/png, image/jpeg, image/webp"
-              (change)="onFileSelected($event)"
+  <app-modal-component
+    [title]="isEditing ? 'Editar Categoria' : 'Nova Categoria'"
+    (onClose)="closeModal()"
+  >
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Imagem da Categoria</label>
+        <div
+          class="upload-zone"
+          (click)="fileInput.click()"
+          style="
+            cursor: pointer;
+            position: relative;
+            border: 2px dashed #334155;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+          "
+        >
+          @if (currentItem.imagePath) {
+            <img
+              [src]="'https://localhost:7047' + currentItem.imagePath"
+              alt="Preview"
+              style="max-width: 100%; max-height: 140px; border-radius: 8px; object-fit: cover"
             />
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="catPriority">Nome da categoria</label>
-          <app-input-component
-            placeholder="(Ex: Hambúrgueres)"
-            [(value)]="currentItem.name"
-          ></app-input-component>
-        </div>
+            <p style="color: #888; font-size: 0.8rem; margin-top: 8px">
+              Clique na imagem para alterar
+            </p>
+          } @else {
+            <div class="upload-content">
+              <p class="icon" style="font-size: 2rem; margin: 0 0 8px 0">☁️</p>
+              <p style="color: #94a3b8; font-size: 0.9rem">Selecione uma imagem ou arraste aqui</p>
+              <small style="color: #64748b">png, jpg ou webp.</small>
+              <app-button-component
+                variant="primary"
+                size="md"
+                class="w-full-btn"
+                style="margin-top: 8px"
+                (click)="fileInput.click(); $event.stopPropagation()"
+              >
+                Procurar
+              </app-button-component>
+            </div>
+          }
 
-        <div class="form-group">
-          <label for="catPriority">Prioridade / Ordem de Exibição</label>
-          <app-input-component
-            type="number"
-            placeholder="Prioridade (Ex: 1)"
-            [(value)]="currentItem.priority"
-          ></app-input-component>
+          <input
+            type="file"
+            #fileInput
+            style="display: none"
+            accept="image/png, image/jpeg, image/webp"
+            (change)="onFileSelected($event)"
+          />
         </div>
       </div>
 
-      <div class="modal-footer">
-        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
-          Cancelar
-        </app-button-component>
-        <app-button-component variant="primary" size="sm" class="w-full-btn" (click)="save()">
-          Salvar Categoria
-        </app-button-component>
+      <div class="form-group">
+        <label for="catName">Nome da categoria</label>
+        <app-input-component
+          id="catName"
+          placeholder="(Ex: Hambúrgueres)"
+          [(value)]="currentItem.name"
+        ></app-input-component>
+      </div>
+
+      <div class="form-group">
+        <label for="catPriority">Prioridade / Ordem de Exibição</label>
+        <app-input-component
+          id="catPriority"
+          type="number"
+          placeholder="Prioridade (Ex: 1)"
+          [(value)]="currentItem.priority"
+        ></app-input-component>
       </div>
     </div>
-  </div>
+
+    <div class="modal-footer">
+      <app-button-component variant="danger" size="sm" (click)="closeModal()">
+        Cancelar
+      </app-button-component>
+      <app-button-component variant="primary" size="sm" (click)="save()">
+        Salvar Categoria
+      </app-button-component>
+    </div>
+  </app-modal-component>
 }

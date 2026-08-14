@@ -13,6 +13,7 @@ import {
   OrderResponseDto,
 } from '../../../../core/models/order.model';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-checkout',
@@ -25,6 +26,7 @@ export class Checkout implements OnInit {
   private orderService = inject(OrderService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private toastr = inject(ToastrService);
 
   public PaymentMethod = PaymentMethod;
 
@@ -74,7 +76,7 @@ export class Checkout implements OnInit {
       },
       error: (err) => {
         console.error('Erro ao carregar pedido existente:', err);
-        alert('Pedido não encontrado.');
+        this.toastr.error('Pedido não encontrado.');
         this.goBack();
       },
     });
@@ -163,11 +165,13 @@ export class Checkout implements OnInit {
 
       this.orderService.checkoutOrder(this.existingOrderId, checkoutDto).subscribe({
         next: () => {
-          alert(`Pagamento do Pedido #${this.existingOrderId!.substring(0, 8)} realizado!`);
+          this.toastr.success(
+            `Pagamento do Pedido #${this.existingOrderId!.substring(0, 6).toUpperCase()} realizado!`,
+          );
           this.router.navigate(['/pdv/pedidos']);
         },
         error: (err) => {
-          console.error('Erro ao pagar pedido existente: ', err);
+          this.toastr.error('Ocorreu um erro ao processar o pagamento.');
           this.isProcessing = false;
         },
       });
@@ -187,12 +191,15 @@ export class Checkout implements OnInit {
 
       this.orderService.create(payload).subscribe({
         next: (response) => {
-          alert(`Venda finalizada com sucesso! (Pedido #${response.id.substring(0, 8)})`);
+          this.toastr.success(
+            `Venda finalizada com sucesso! (Pedido #${response.id.substring(0, 6).toUpperCase()})`,
+          );
           this.cartService.clearCart();
           this.router.navigate(['/pdv']);
         },
         error: (err) => {
           console.error('Erro ao finalizar venda: ', err);
+          this.toastr.error('Ocorreu um erro ao finalizar a venda.');
           this.isProcessing = false;
         },
       });

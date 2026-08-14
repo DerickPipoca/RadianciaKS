@@ -2,6 +2,7 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SignalrService } from './core/services/signalr-service';
 import { HeaderComponent } from './shared/components/header/header';
+import { LoadingService } from './core/services/loading-service';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import { HeaderComponent } from './shared/components/header/header';
 })
 export class App implements OnInit, OnDestroy {
   private signalRService = inject(SignalrService);
+  public loadingService = inject(LoadingService);
 
   protected readonly title = signal('RadianciaKS');
 

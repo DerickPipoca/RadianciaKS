@@ -15,9 +15,20 @@
       <div class="filter-controls">
         <div class="filter-group">
           <label>Status:</label>
-          <div class="custom-select-container" #selectContainer>
+          <div
+            class="custom-select-container"
+            appClickOutsideDirective
+            (clickOutside)="dropdownOpen = false"
+          >
             <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
-              {{ getOrderStatus(filterStatus) || 'Todos' }} ▼
+              {{
+                filterStatus === ''
+                  ? 'Todos'
+                  : filterStatus === 'Paid'
+                    ? 'Pago'
+                    : (filterStatus | orderStatusLabel)
+              }}
+              ▼
             </button>
 
             @if (dropdownOpen) {
@@ -35,7 +46,7 @@
                     [class.is-selected]="filterStatus === item"
                     (click)="changeFilterStatus(item)"
                   >
-                    {{ getOrderStatus(item) }}
+                    {{ item === 'Paid' ? 'Pago' : (item | orderStatusLabel) }}
                   </li>
                 }
               </ul>
@@ -80,12 +91,12 @@
 
         <div class="card-footer">
           <div class="badges-container">
-            <span class="status-badge" [ngClass]="getStatusClass(order)">
-              {{ getOrderStatusLabel(order) }}
+            <span class="status-badge" [ngClass]="order.orderStatus | orderStatusClass">
+              {{ order.orderStatus | orderStatusLabel }}
             </span>
-            @if (getOrderStatusLabel(order) !== 'Canceled') {
-              <span class="payment-badge" [ngClass]="getPaymentStatusClass(order)">
-                {{ getPaymentStatusLabel(order) }}
+            @if (order.orderStatus !== OrderStatus.Canceled) {
+              <span class="payment-badge" [ngClass]="order.paymentStatus | paymentStatusClass">
+                {{ order.paymentStatus | paymentStatusLabel }}
               </span>
             }
           </div>
@@ -99,111 +110,95 @@
       </div>
     }
   </main>
-  <footer class="pagination-footer">
-    <div class="page-info">
-      <span>Página</span>
-      <button [disabled]="pageNumber === 1" (click)="changePage(pageNumber - 1)">‹</button>
-
-      @for (p of pageNumbers; track p) {
-        <button [class.active]="p === pageNumber" (click)="changePage(p)">
-          {{ p }}
-        </button>
-      }
-
-      <button [disabled]="pageNumber >= getTotalPages()" (click)="changePage(pageNumber + 1)">
-        ›
-      </button>
-    </div>
-
-    <span class="results-info">
-      Resultados <b>{{ rangeStart }} a {{ rangeEnd }}</b> de <b>{{ totalRecords }}</b>
-    </span>
-  </footer>
+  <app-pagination
+    [pageNumber]="pageNumber"
+    [pageSize]="pageSize"
+    [totalRecords]="totalRecords"
+    (pageChange)="changePage($event)"
+  >
+  </app-pagination>
 
   @if (selectedOrder) {
-    <div class="modal-backdrop" (click)="closeDetails()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <header class="modal-header">
-          <div class="header-info">
-            <h2>Pedido #{{ selectedOrder.id.slice(0, 6).toUpperCase() }}</h2>
-            <span class="status-badge" [ngClass]="getStatusClass(selectedOrder)">
-              {{ getOrderStatusLabel(selectedOrder) }}
-            </span>
-          </div>
-          <button class="close-btn" (click)="closeDetails()">✕</button>
-        </header>
+    <!-- NOVO MODAL APLICADO -->
+    <app-modal-component
+      [title]="'Pedido #' + selectedOrder.id.slice(0, 6).toUpperCase()"
+      (onClose)="closeDetails()"
+    >
+      <main class="modal-body">
+        <div style="margin-bottom: 16px">
+          <span class="status-badge" [ngClass]="selectedOrder.orderStatus | orderStatusClass">
+            {{ selectedOrder.orderStatus | orderStatusLabel }}
+          </span>
+        </div>
 
-        <main class="modal-body">
-          <h3 class="section-label">Itens do Pedido</h3>
-          <ul class="items-list">
-            @for (item of selectedOrder.items; track item.id) {
-              <li class="item-row">
-                <div class="item-main-info">
-                  <strong>{{ item.quantity }}x {{ item.productName }}</strong>
-                  <span>R$ {{ item.unitPrice | number: '1.2-2' }}</span>
-                </div>
-
-                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-                  <ul class="modifier-list">
-                    @for (mod of item.selectedModifiers; track mod.id) {
-                      <li>+ {{ mod.name }}</li>
-                    }
-                  </ul>
-                }
-
-                @if (item.notes) {
-                  <p class="item-notes">Obs: {{ item.notes }}</p>
-                }
-              </li>
-            } @empty {
-              <li class="empty-row">Nenhum item registrado.</li>
-            }
-          </ul>
-
-          <hr class="divider" />
-
-          <div class="summary-totals">
-            <div class="line">
-              <span>Total Cobrado:</span>
-              <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
-            </div>
-            @if (selectedOrder.changeAmount > 0) {
-              <div class="line change">
-                <span>Troco Devolvido:</span>
-                <strong>R$ {{ selectedOrder.changeAmount | number: '1.2-2' }}</strong>
+        <h3 class="section-label">Itens do Pedido</h3>
+        <ul class="items-list">
+          @for (item of selectedOrder.items; track item.id) {
+            <li class="item-row">
+              <div class="item-main-info">
+                <strong>{{ item.quantity }}x {{ item.productName }}</strong>
+                <span>R$ {{ item.unitPrice | number: '1.2-2' }}</span>
               </div>
-            }
-          </div>
-        </main>
 
-        <footer class="modal-footer">
-          @if (
-            getStatusClass(selectedOrder) !== 'canceled' &&
-            getPaymentStatusLabel(selectedOrder) !== 'Pago'
-          ) {
-            <div class="modal-actions-left">
-              <button class="btn-cancel" (click)="cancelOrder(selectedOrder)">
-                <lucide-icon [img]="XIcon" class="icon" /> Cancelar
-              </button>
-              <button class="btn-checkout" (click)="goToCheckout(selectedOrder)">
-                <lucide-icon [img]="CreditCard" class="icon" />
-                Fazer Checkout
-              </button>
+              @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                <ul class="modifier-list">
+                  @for (mod of item.selectedModifiers; track mod.id) {
+                    <li>+ {{ mod.name }}</li>
+                  }
+                </ul>
+              }
+
+              @if (item.notes) {
+                <p class="item-notes">Obs: {{ item.notes }}</p>
+              }
+            </li>
+          } @empty {
+            <li class="empty-row">Nenhum item registrado.</li>
+          }
+        </ul>
+
+        <hr class="divider" />
+
+        <div class="summary-totals">
+          <div class="line">
+            <span>Total Cobrado:</span>
+            <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
+          </div>
+          @if (selectedOrder.changeAmount > 0) {
+            <div class="line change">
+              <span>Troco Devolvido:</span>
+              <strong>R$ {{ selectedOrder.changeAmount | number: '1.2-2' }}</strong>
             </div>
           }
-          @if (selectedOrder.orderStatus === OrderStatus.ReadyToServe) {
-            <button class="btn-action" (click)="deliverOrder(selectedOrder)">
-              Entregar pedido
+        </div>
+      </main>
+
+      <footer class="modal-footer">
+        @if (
+          selectedOrder.orderStatus !== OrderStatus.Canceled &&
+          selectedOrder.paymentStatus !== PaymentStatus.Paid
+        ) {
+          <div class="modal-actions-left">
+            <button class="btn-cancel" (click)="cancelOrder(selectedOrder)">
+              <lucide-icon [img]="XIcon" class="icon" /> Cancelar
             </button>
-          }
-          <button (click)="confirmPrint()" class="btn-print">
-            <lucide-icon [img]="Printer" class="icon" /> Imprimir comanda
-          </button>
-        </footer>
-      </div>
-      <div style="position: absolute; left: -9999px">
-        <app-print-preview [order]="selectedOrder"></app-print-preview>
-      </div>
+            <button class="btn-checkout" (click)="goToCheckout(selectedOrder)">
+              <lucide-icon [img]="CreditCard" class="icon" />
+              Fazer Checkout
+            </button>
+          </div>
+        }
+        @if (selectedOrder.orderStatus === OrderStatus.ReadyToServe) {
+          <button class="btn-action" (click)="deliverOrder(selectedOrder)">Entregar pedido</button>
+        }
+        <button (click)="confirmPrint()" class="btn-print">
+          <lucide-icon [img]="Printer" class="icon" /> Imprimir comanda
+        </button>
+      </footer>
+    </app-modal-component>
+
+    <div id="print-section" style="position: absolute; left: -9999px">
+      <app-print-preview [order]="selectedOrder"></app-print-preview>
     </div>
   }
 </div>

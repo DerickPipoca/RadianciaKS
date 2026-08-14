@@ -22,8 +22,8 @@
             <span class="customer-name">{{ order.tableNumber || 'Balcão' }}</span>
           </div>
           <div class="header-row">
-            <span class="status-badge" [ngClass]="'status-' + order.orderStatus">
-              {{ getOrderStatusLabel(order) }}
+            <span class="status-badge" [ngClass]="order.orderStatus | orderStatusClass">
+              {{ order.orderStatus | orderStatusLabel }}
             </span>
             <span class="order-number">#{{ order.id.slice(0, 6).toUpperCase() }}</span>
           </div>
@@ -60,13 +60,11 @@
     }
   </div>
 
-  <footer class="pagination-footer">
-    <div class="page-info">
-      <button [disabled]="pageNumber === 1" (click)="changePage(pageNumber - 1)">‹</button>
-      <span>Página {{ pageNumber }} de {{ getTotalPages() || 1 }}</span>
-      <button [disabled]="pageNumber >= getTotalPages()" (click)="changePage(pageNumber + 1)">
-        ›
-      </button>
-    </div>
-  </footer>
+  <app-pagination
+    [pageNumber]="pageNumber"
+    [pageSize]="pageSize"
+    [totalRecords]="totalRecords"
+    (pageChange)="changePage($event)"
+  >
+  </app-pagination>
 </main>

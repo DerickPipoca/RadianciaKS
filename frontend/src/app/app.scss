@@ -1,0 +1,30 @@
+.global-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 4px;
+  background-color: transparent;
+  z-index: 99999;
+  overflow: hidden;
+
+  .progress-indicator {
+    width: 30%;
+    height: 100%;
+    background-color: var(--primary-color, #007bff);
+    animation: indeterminate-progress 1.5s infinite linear;
+    border-radius: 4px;
+  }
+}
+
+@keyframes indeterminate-progress {
+  0% {
+    transform: translateX(-100%) scaleX(0.2);
+  }
+  50% {
+    transform: translateX(150%) scaleX(0.8);
+  }
+  100% {
+    transform: translateX(400%) scaleX(0.2);
+  }
+}

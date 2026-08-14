@@ -1,0 +1,82 @@
+@use '../../../../../../frontend/src/styles.scss' as *;
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  user-select: none;
+
+  .results-info {
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .nav-btn,
+    .page-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 6px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled):not(.active) {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: var(--bg-elevated);
+      }
+
+      &.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #111;
+        font-weight: 700;
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+    }
+
+    .nav-btn {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .pages-list {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .pagination-container {
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+    text-align: center;
+  }
+}

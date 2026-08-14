@@ -6,7 +6,7 @@
     type="text"
     [icon]="TextSearch"
     [variant]="'transparent'"
-    placeholder="Procurar categoria..."
+    placeholder="Procurar funcionário..."
     [(value)]="searchTerm"
     (valueChange)="searchSubject.next($event)"
   />
@@ -55,84 +55,82 @@
 </div>
 
 @if (showModal) {
-  <div class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2 style="margin: 0px">{{ isEditing ? 'Editar Funcionário' : 'Novo Funcionário' }}</h2>
-        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
-          &times;
-        </app-button-component>
+  <app-modal-component
+    [title]="isEditing ? 'Editar Funcionário' : 'Novo Funcionário'"
+    (onClose)="closeModal()"
+  >
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nome Completo *</label>
+        <app-input-component
+          type="text"
+          [(value)]="currentItem.name"
+          placeholder="Ex: João Silva"
+        ></app-input-component>
       </div>
 
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Nome Completo *</label>
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label>Cargo *</label>
+
+          <div
+            class="custom-select-container"
+            appClickOutside
+            (clickOutside)="dropdownOpen = false"
+          >
+            <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
+              {{ getRoleLabel(this.currentItem.role) || 'Selecione um cargo...' }}
+              <span class="arrow">▼</span>
+            </button>
+
+            @if (dropdownOpen) {
+              <ul class="options-list">
+                @for (role of roleOptions; track role.value) {
+                  <li
+                    class="option"
+                    [class.is-selected]="currentItem.role === role.value"
+                    (click)="selectRole(role.value)"
+                  >
+                    {{ role.label }}
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+        <div class="form-group flex-1">
+          <label>CPF *</label>
           <app-input-component
             type="text"
-            [(value)]="currentItem.name"
-            placeholder="Ex: João Silva"
+            [(value)]="currentItem.cpf"
+            placeholder="000.000.000-00"
           ></app-input-component>
         </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Cargo / Nível de Acesso *</label>
-
-            <div class="custom-select-container">
-              <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
-                {{ getRoleLabel(this.currentItem.role) || 'Selecione uma categoria...' }}
-                <span class="arrow">▼</span>
-              </button>
-
-              @if (dropdownOpen) {
-                <ul class="options-list">
-                  @for (role of roleOptions; track role.value) {
-                    <li
-                      class="option"
-                      [class.is-selected]="currentItem.role === role"
-                      (click)="selectRole(role.value)"
-                    >
-                      {{ role.label }}
-                    </li>
-                  }
-                </ul>
-              }
-            </div>
-          </div>
-          <div class="form-group flex-1">
-            <label>CPF *</label>
-            <app-input-component
-              type="text"
-              [(value)]="currentItem.cpf"
-              placeholder="000.000.000-00"
-            ></app-input-component>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label>Data de Nascimento</label>
-            <app-input-component type="date" [(value)]="currentItem.birthday" />
-          </div>
-          <div class="form-group flex-1">
-            <label>Senha {{ isEditing ? '(Deixe em branco para manter)' : '*' }}</label>
-            <app-input-component
-              type="password"
-              [(value)]="currentItem.password"
-              placeholder="*****"
-            />
-          </div>
-        </div>
       </div>
 
-      <div class="modal-footer">
-        <app-button-component variant="danger" size="sm" class="w-full-btn" (click)="closeModal()">
-          Cancelar
-        </app-button-component>
-        <app-button-component variant="primary" size="sm" class="w-full-btn" (click)="save()">
-          Salvar Funcionário
-        </app-button-component>
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label>Data de Nascimento</label>
+          <app-input-component type="date" [(value)]="currentItem.birthday" />
+        </div>
+        <div class="form-group flex-1">
+          <label>Senha {{ isEditing ? '(Branco para manter)' : '*' }}</label>
+          <app-input-component
+            type="password"
+            [(value)]="currentItem.password"
+            placeholder="*****"
+          />
+        </div>
       </div>
     </div>
-  </div>
+
+    <div class="modal-footer">
+      <app-button-component variant="danger" size="sm" (click)="closeModal()">
+        Cancelar
+      </app-button-component>
+      <app-button-component variant="primary" size="sm" (click)="save()">
+        Salvar Funcionário
+      </app-button-component>
+    </div>
+  </app-modal-component>
 }

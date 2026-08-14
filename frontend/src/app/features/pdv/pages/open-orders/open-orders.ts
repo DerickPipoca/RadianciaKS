@@ -1,22 +1,50 @@
 import { OrderResponseDto } from './../../../../core/models/order.model';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Search, SquarePen, Plus } from 'lucide-angular';
 import { OrderService } from '../../../../core/services/order-service';
 import { CartService } from '../../../../core/services/cart-service';
 import { OrderStatus } from '../../../../core/enums/order-status';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
 import { PaymentStatus } from '../../../../core/enums/payment-status';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import {
+  OrderStatusClassPipe,
+  OrderStatusLabelPipe,
+} from '../../../../core/pipes/order-status-pipe-pipe';
+import {
+  PaymentStatusLabelPipe,
+  PaymentStatusClassPipe,
+} from '../../../../core/pipes/payment-status-pipe-pipe';
+import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
+import { ClickOutsideDirective } from '../../../../core/directives/click-outside-directive';
 
 @Component({
   selector: 'app-open-orders',
-  imports: [CommonModule, LucideAngularModule, InputComponent],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    InputComponent,
+    OrderStatusClassPipe,
+    OrderStatusLabelPipe,
+    PaymentStatusLabelPipe,
+    PaymentStatusClassPipe,
+    ClickOutsideDirective,
+    ModalComponent,
+  ],
   templateUrl: './open-orders.html',
   styleUrl: './open-orders.scss',
 })
-export class OpenOrders {
+export class OpenOrders implements OnInit, OnDestroy {
   readonly Search = Search;
   readonly SquarePen = SquarePen;
   readonly Plus = Plus;
@@ -25,12 +53,10 @@ export class OpenOrders {
 
   searchTerm: string = '';
   searchSubject = new Subject<string>();
+  private subscription = new Subscription();
+
   currentSortColumn: string = 'createdAt';
   isDescending: boolean = true;
-
-  constructor() {
-    this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {});
-  }
 
   private orderService = inject(OrderService);
   private cartService = inject(CartService);
@@ -40,22 +66,19 @@ export class OpenOrders {
 
   dropdownOpen = false;
   filterStatus: string = '';
-  availableStatuses = ['Open', 'ReadyToServe', 'Delivered', 'Paid', 'Canceled'];
+  availableStatuses = ['Open', 'ReadyToServe', 'Delivered', 'Paid'];
 
   private allOrders: OrderResponseDto[] = [];
   selectedOrder: OrderResponseDto | null = null;
 
-  @ViewChild('selectContainer') selectContainer!: ElementRef;
+  constructor() {
+    this.subscription.add(
+      this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {}),
+    );
+  }
 
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: Event) {
-    if (
-      this.dropdownOpen &&
-      this.selectContainer &&
-      !this.selectContainer.nativeElement.contains(event.target)
-    ) {
-      this.dropdownOpen = false;
-    }
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -126,7 +149,7 @@ export class OpenOrders {
   }
 
   goToCheckout(order: OrderResponseDto): void {
-    this.router.navigate(['/pdv/checkout'], { queryParams: { orderId: order.id , abertos: true} });
+    this.router.navigate(['/pdv/checkout'], { queryParams: { orderId: order.id, abertos: true } });
   }
 
   changeSort(column: string): void {
@@ -165,80 +188,9 @@ export class OpenOrders {
     });
   }
 
-  getOrderStatusLabel(order: OrderResponseDto): string {
-    switch (order.orderStatus) {
-      case OrderStatus.Preparing:
-        return 'Preparando';
-      case OrderStatus.ReadyToServe:
-        return 'Pronto p/ servir';
-      case OrderStatus.Delivered:
-        return 'Entregue';
-      case OrderStatus.Open:
-        return 'Aberto';
-      default:
-        return 'Desconhecido';
-    }
-  }
-
-  getStatusClass(order: OrderResponseDto): string {
-    switch (order.orderStatus) {
-      case OrderStatus.Open:
-        return 'open';
-      case OrderStatus.Preparing:
-        return 'preparing';
-      case OrderStatus.ReadyToServe:
-        return 'ready-to-serve';
-      case OrderStatus.Delivered:
-        return 'delivered';
-      default:
-        return '';
-    }
-  }
-
-  getPaymentStatusLabel(order: OrderResponseDto): string {
-    switch (order.paymentStatus) {
-      case PaymentStatus.Pending:
-        return 'Pendente';
-      case PaymentStatus.Partial:
-        return 'Parcial';
-      default:
-        return 'Pendente';
-    }
-  }
-
   formattedOrderId(order: OrderResponseDto): string {
     if (!order || !order.id) return '';
     return String(order.id).slice(0, 6).toUpperCase();
-  }
-
-  getPaymentStatusClass(order: OrderResponseDto): string {
-    switch (order.paymentStatus) {
-      case PaymentStatus.Pending:
-        return 'pending';
-      case PaymentStatus.Partial:
-        return 'partial';
-      default:
-        return 'pending';
-    }
-  }
-
-  getOrderStatus(orderStatus: string): string | null {
-    if (orderStatus === 'Paid') return 'Pago';
-    let statusEnum = orderStatus ? (OrderStatus[orderStatus as any] as any) : null;
-    switch (statusEnum) {
-      case OrderStatus.Canceled:
-        return 'Cancelado';
-      case OrderStatus.Preparing:
-        return 'Preparando';
-      case OrderStatus.ReadyToServe:
-        return 'Pronto p/ servir';
-      case OrderStatus.Delivered:
-        return 'Entregue';
-      case OrderStatus.Open:
-        return 'Aberto';
-      default:
-        return null;
-    }
   }
 
   changeFilterStatus(status: string) {

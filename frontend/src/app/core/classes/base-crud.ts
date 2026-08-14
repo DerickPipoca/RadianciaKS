@@ -4,15 +4,19 @@ import { ICrudService } from '../interfaces/crud-service.interface';
 @Directive()
 export abstract class BaseCrud<TRequest, TResponse, TId = string> implements OnInit {
   dataList: TResponse[] = [];
-
   showModal = false;
   isEditing = false;
-
   currentItem: any = {};
-
   editingId: TId | null = null;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  pageNumber: number = 1;
+  pageSize: number = 12;
+  totalRecords: number = 0;
+  currentSortColumn: string = 'createdAt';
+  isDescending: boolean = true;
+  searchTerm: string = '';
+
+  constructor(protected cdr: ChangeDetectorRef) {}
 
   protected abstract get crudService(): ICrudService<TRequest, TResponse, TId>;
 
@@ -29,17 +33,62 @@ export abstract class BaseCrud<TRequest, TResponse, TId = string> implements OnI
   }
 
   loadData(): void {
-    this.crudService
-      .getAll({
-        pageNumber: 1,
-        pageSize: 60,
-      })
-      .subscribe({
-        next: (result) => {
-          this.dataList = result.data ? result.data : result;
-        },
-        error: (err) => console.error('Erro ao carregar dados:', err),
-      });
+    const params = {
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      searchTerm: this.searchTerm,
+      sortBy: this.currentSortColumn,
+      isDescending: this.isDescending,
+    };
+
+    this.crudService.getAll(params).subscribe({
+      next: (result: any) => {
+        this.dataList = result.data ? result.data : result;
+        this.totalRecords = result.totalRecords || (Array.isArray(result) ? result.length : 0);
+      },
+      error: (err) => console.error('Erro ao carregar dados:', err),
+    });
+  }
+
+  changePage(newPage: number): void {
+    if (newPage >= 1 && newPage <= this.getTotalPages()) {
+      this.pageNumber = newPage;
+      this.loadData();
+    }
+  }
+
+  changeSort(column: string): void {
+    if (this.currentSortColumn === column) {
+      this.isDescending = !this.isDescending;
+    } else {
+      this.currentSortColumn = column;
+      this.isDescending = true;
+    }
+    this.pageNumber = 1;
+    this.loadData();
+  }
+
+  onSearchChange(term: string): void {
+    this.searchTerm = term;
+    this.pageNumber = 1;
+    this.loadData();
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalRecords / this.pageSize) || 1;
+  }
+
+  get rangeStart(): number {
+    return this.totalRecords === 0 ? 0 : (this.pageNumber - 1) * this.pageSize + 1;
+  }
+
+  get rangeEnd(): number {
+    return Math.min(this.pageNumber * this.pageSize, this.totalRecords);
+  }
+
+  get pageNumbers(): number[] {
+    const total = this.getTotalPages();
+    return Array.from({ length: total }, (_, i) => i + 1);
   }
 
   openNewModal(): void {

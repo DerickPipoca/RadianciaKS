@@ -3,7 +3,11 @@
     <div class="header-info">
       <h1>Filtros da Produção</h1>
       <span class="badge">Mostrando: {{ filteredOrders.length }} comandas</span>
-      <div class="category-dropdown-container">
+      <div
+        class="category-dropdown-container"
+        appClickOutside
+        (clickOutside)="isCategoryDropdownOpen = false"
+      >
         <button class="btn-dropdown" (click)="isCategoryDropdownOpen = !isCategoryDropdownOpen">
           <lucide-icon [img]="ListFilter" class="icon"></lucide-icon>
           Filtro de Categorias
@@ -13,8 +17,6 @@
         </button>
 
         @if (isCategoryDropdownOpen) {
-          <div class="dropdown-backdrop" (click)="isCategoryDropdownOpen = false"></div>
-
           <div class="dropdown-menu">
             <div class="menu-header">
               <span class="menu-title">Selecione as praças</span>

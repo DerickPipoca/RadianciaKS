@@ -13,9 +13,20 @@
     />
     <div class="filter-group">
       <label>Status:</label>
-      <div class="custom-select-container" #selectContainer>
+      <div
+        class="custom-select-container"
+        appClickOutsideDirective
+        (clickOutside)="dropdownOpen = false"
+      >
         <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
-          {{ getOrderStatus(filterStatus) || 'Todos' }} ▼
+          {{
+            filterStatus === ''
+              ? 'Todos'
+              : filterStatus === 'Paid'
+                ? 'Pago'
+                : (filterStatus | orderStatusLabel)
+          }}
+          ▼
         </button>
 
         @if (dropdownOpen) {
@@ -33,7 +44,7 @@
                 [class.is-selected]="filterStatus === item"
                 (click)="changeFilterStatus(item)"
               >
-                {{ getOrderStatus(item) }}
+                {{ item === 'Paid' ? 'Pago' : (item | orderStatusLabel) }}
               </li>
             }
           </ul>
@@ -78,15 +89,15 @@
 
           <div class="card-footer">
             <div class="badges-container">
-              <span class="status-badge" [ngClass]="getStatusClass(order)">
-                {{ getOrderStatusLabel(order) }}
+              <span class="status-badge" [ngClass]="order.orderStatus | orderStatusClass">
+                {{ order.orderStatus | orderStatusLabel }}
               </span>
-              <span class="payment-badge" [ngClass]="getPaymentStatusClass(order)">
+              <span class="payment-badge" [ngClass]="order.paymentStatus | paymentStatusClass">
                 <b>
                   {{
                     order.paymentStatus === PaymentStatus.Paid
                       ? 'Pago'
-                      : getPaymentStatusLabel(order)
+                      : (order.paymentStatus | paymentStatusLabel)
                   }}
                 </b>
               </span>
@@ -116,49 +127,47 @@
 </div>
 
 @if (selectedOrder) {
-  <div class="modal-backdrop" (click)="closeDetails()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <header class="modal-header">
-        <div class="header-info">
-          <h2>{{ selectedOrder.tableNumber ? 'Mesa ' + selectedOrder.tableNumber : 'Balcão' }}</h2>
-          <span class="status-badge" [ngClass]="getStatusClass(selectedOrder)">
-            {{ getOrderStatusLabel(selectedOrder) }}
-          </span>
+  <app-modal-component
+    [title]="selectedOrder.tableNumber ? 'Mesa ' + selectedOrder.tableNumber : 'Balcão'"
+    (onClose)="closeDetails()"
+  >
+    <main class="modal-body">
+      <!-- Badge movida para o corpo para aproveitar o componente padrão -->
+      <div style="margin-bottom: 16px">
+        <span class="status-badge" [ngClass]="selectedOrder.orderStatus | orderStatusClass">
+          {{ selectedOrder.orderStatus | orderStatusLabel }}
+        </span>
+      </div>
+
+      <h3 class="section-label">Consumo Atual</h3>
+      <ul class="items-list">
+        @for (item of selectedOrder.items; track item.id) {
+          <li class="item-row">
+            <div class="item-main-info">
+              <strong>{{ item.quantity }}x {{ item.productName }}</strong>
+              <span>R$ {{ item.unitPrice | number: '1.2-2' }}</span>
+            </div>
+            @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+              <ul class="modifier-list">
+                @for (mod of item.selectedModifiers; track mod.id) {
+                  <li>+ {{ mod.name }}</li>
+                }
+              </ul>
+            }
+          </li>
+        } @empty {
+          <li class="empty-row">Nenhum item registrado.</li>
+        }
+      </ul>
+
+      <hr class="divider" />
+
+      <div class="summary-totals">
+        <div class="line total-highlight">
+          <span>Total Parcial:</span>
+          <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
         </div>
-        <button class="close-btn" (click)="closeDetails()">✕</button>
-      </header>
-
-      <main class="modal-body">
-        <h3 class="section-label">Consumo Atual</h3>
-        <ul class="items-list">
-          @for (item of selectedOrder.items; track item.id) {
-            <li class="item-row">
-              <div class="item-main-info">
-                <strong>{{ item.quantity }}x {{ item.productName }}</strong>
-                <span>R$ {{ item.unitPrice | number: '1.2-2' }}</span>
-              </div>
-              @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-                <ul class="modifier-list">
-                  @for (mod of item.selectedModifiers; track mod.id) {
-                    <li>+ {{ mod.name }}</li>
-                  }
-                </ul>
-              }
-            </li>
-          } @empty {
-            <li class="empty-row">Nenhum item registrado.</li>
-          }
-        </ul>
-
-        <hr class="divider" />
-
-        <div class="summary-totals">
-          <div class="line total-highlight">
-            <span>Total Parcial:</span>
-            <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
-          </div>
-        </div>
-      </main>
-    </div>
-  </div>
+      </div>
+    </main>
+  </app-modal-component>
 }

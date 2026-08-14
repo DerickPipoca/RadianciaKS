@@ -12,10 +12,22 @@ import { ButtonComponent } from '../../../../shared/components/button-component/
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 import { LucideAngularModule, TextSearch, Hamburger } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { Pagination } from '../../../../shared/components/pagination/pagination';
+import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
+import { ToastrService } from 'ngx-toastr';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-product-manager',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    InputComponent,
+    LucideAngularModule,
+    Pagination,
+    ModalComponent,
+  ],
   templateUrl: './product-manager.html',
   styleUrl: './product-manager.scss',
 })
@@ -31,6 +43,7 @@ export class ProductManager
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   private modifierService = inject(ModifierService);
+  private toastr = inject(ToastrService);
 
   categories: CategoryResponseDto[] = [];
   productModifiers: any[] = [];
@@ -38,20 +51,15 @@ export class ProductManager
   newOptions: { [groupId: string]: { name: string; price: number; description?: string } } = {};
   dropdownOpen = false;
 
-  pageNumber: number = 1;
-  pageSize: number = 12;
-  totalRecords: number = 0;
-  searchTerm: string = '';
-  sortBy: string = '';
-  descendingSort: boolean = false;
-
   constructor() {
     super(inject(ChangeDetectorRef));
-    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((term) => {
-      this.searchTerm = term;
-      this.pageNumber = 1;
-      this.loadData();
-    });
+    this.searchSubject
+      .pipe(debounceTime(500), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((term) => {
+        this.searchTerm = term;
+        this.pageNumber = 1;
+        this.loadData();
+      });
   }
 
   protected override get crudService(): ICrudService<
@@ -73,55 +81,7 @@ export class ProductManager
 
   override ngOnInit(): void {
     this.loadCategories();
-    this.loadData();
-  }
-
-  override loadData(): void {
-    this.productService
-      .getAll({
-        pageNumber: this.pageNumber,
-        pageSize: this.pageSize,
-        isDescending: this.descendingSort,
-        sortBy: this.sortBy,
-        searchTerm: this.searchTerm,
-      })
-      .subscribe({
-        next: (response) => {
-          this.dataList = response.data;
-          this.totalRecords = response.totalRecords;
-        },
-        error: (err) => console.error('Erro ao carregar produtos paginados:', err),
-      });
-  }
-
-  changePage(newPage: number): void {
-    if (newPage < 1 || newPage > this.getTotalPages()) return;
-    this.pageNumber = newPage;
-    this.loadData();
-  }
-
-  getTotalPages(): number {
-    return Math.ceil(this.totalRecords / this.pageSize) || 1;
-  }
-
-  get pageNumbers(): number[] {
-    const total = this.getTotalPages();
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-
-  onSearchChange(term: string): void {
-    this.searchTerm = term;
-    this.pageNumber = 1;
-    this.loadData();
-  }
-
-  get rangeStart(): number {
-    return this.totalRecords === 0 ? 0 : (this.pageNumber - 1) * this.pageSize + 1;
-  }
-
-  get rangeEnd(): number {
-    const end = this.pageNumber * this.pageSize;
-    return end > this.totalRecords ? this.totalRecords : end;
+    super.ngOnInit();
   }
 
   loadCategories(): void {
@@ -153,11 +113,11 @@ export class ProductManager
       this.productService.uploadImage(file).subscribe({
         next: (res) => {
           this.currentItem.imagePath = res.url;
-          console.log('Upload concluído:', res.url);
+          this.toastr.success('Imagem enviada com sucesso!');
         },
         error: (err) => {
           console.error('Erro no upload', err);
-          alert('Falha ao enviar a imagem.');
+          this.toastr.error('Falha ao enviar a imagem.');
         },
       });
     }
@@ -165,15 +125,15 @@ export class ProductManager
 
   protected override validateSave(item: ProductRequestDto): boolean {
     if (!item.name || item.name.trim() === '') {
-      alert('O nome do produto é obrigatório.');
+      this.toastr.warning('O nome do produto é obrigatório.');
       return false;
     }
     if (item.price == null || item.price < 0) {
-      alert('O preço do produto deve ser um valor válido (maior ou igual a zero).');
+      this.toastr.warning('O preço do produto deve ser maior ou igual a zero.');
       return false;
     }
     if (!item.categoryId) {
-      alert('Selecione uma categoria para este produto.');
+      this.toastr.warning('Selecione uma categoria para este produto.');
       return false;
     }
     return true;
@@ -192,32 +152,18 @@ export class ProductManager
     this.dropdownOpen = false;
   }
 
-  orderBy(sortBy: string): void {
-    if (this.sortBy !== sortBy) {
-      this.sortBy = sortBy;
-      this.descendingSort = false;
-    } else {
-      this.descendingSort = !this.descendingSort;
-    }
-    this.loadData();
-  }
-
-  isOrderBy(sortBy: string): boolean {
-    if (this.sortBy === sortBy) {
-      return true;
-    }
-    return false;
-  }
-
   descendingIcon(): string {
-    return this.descendingSort ? '↓' : '↑';
+    return this.isDescending ? '↓' : '↑';
   }
 
   addGroup(): void {
-    if (!this.newGroup.name || !this.editingId) return;
+    if (!this.newGroup.name.trim() || !this.editingId) {
+      this.toastr.warning('Informe o nome do grupo de modificadores.');
+      return;
+    }
 
     const dto = {
-      name: this.newGroup.name,
+      name: this.newGroup.name.trim(),
       minChoices: this.newGroup.minChoices,
       maxChoices: this.newGroup.maxChoices,
       productId: this.editingId,
@@ -227,9 +173,10 @@ export class ProductManager
       next: (res) => {
         this.productModifiers.push({ ...res, options: [] });
         this.newGroup = { name: '', minChoices: 0, maxChoices: 1 };
+        this.toastr.success('Grupo criado com sucesso!');
         this.loadData();
       },
-      error: () => alert('Erro ao criar grupo.'),
+      error: () => this.toastr.error('Erro ao criar grupo de modificadores.'),
     });
   }
 
@@ -238,20 +185,33 @@ export class ProductManager
       this.modifierService.deleteGroup(groupId).subscribe({
         next: () => {
           this.productModifiers = this.productModifiers.filter((g) => g.id !== groupId);
+          this.toastr.success('Grupo removido com sucesso!');
           this.loadData();
         },
+        error: () => this.toastr.error('Erro ao remover grupo.'),
       });
     }
   }
 
-  addOption(groupId: string): void {
-    if (!this.newOptions[groupId])
+  setOptionField(groupId: string, field: 'name' | 'description' | 'price', value: any): void {
+    if (!this.newOptions[groupId]) {
       this.newOptions[groupId] = { name: '', price: 0, description: '' };
+    }
+    (this.newOptions[groupId] as any)[field] = value;
+  }
 
+  addOption(groupId: string): void {
     const opt = this.newOptions[groupId];
-    if (!opt.name) return;
+    if (!opt || !opt.name.trim()) {
+      this.toastr.warning('Informe o nome da opção.');
+      return;
+    }
 
-    const dto = { name: opt.name, additionalPrice: opt.price, description: opt.description };
+    const dto = {
+      name: opt.name.trim(),
+      additionalPrice: opt.price || 0,
+      description: opt.description || '',
+    };
 
     this.modifierService.addOptionToGroup(groupId, dto as any).subscribe({
       next: (res) => {
@@ -261,9 +221,10 @@ export class ProductManager
           group.options.push(res);
         }
         this.newOptions[groupId] = { name: '', price: 0, description: '' };
+        this.toastr.success('Opção adicionada com sucesso!');
         this.loadData();
       },
-      error: () => alert('Erro ao adicionar opção.'),
+      error: () => this.toastr.error('Erro ao adicionar opção.'),
     });
   }
 
@@ -274,8 +235,10 @@ export class ProductManager
         if (group) {
           group.options = group.options.filter((o: any) => o.id !== optionId);
         }
+        this.toastr.success('Opção removida!');
         this.loadData();
       },
+      error: () => this.toastr.error('Erro ao remover opção.'),
     });
   }
 

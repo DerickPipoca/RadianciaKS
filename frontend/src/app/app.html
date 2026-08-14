@@ -1,1 +1,7 @@
-<app-header /> <router-outlet />
+<app-header />
+@if (loadingService.isLoading()) {
+  <div class="global-progress-bar">
+    <div class="progress-indicator"></div>
+  </div>
+}
+<router-outlet></router-outlet>
