@@ -5,12 +5,19 @@ import { finalize } from 'rxjs';
 
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   const loadingService = inject(LoadingService);
-  
+
+  if (req.headers.has('X-Skip-Loading')) {
+    const cleanRequest = req.clone({
+      headers: req.headers.delete('X-Skip-Loading'),
+    });
+    return next(cleanRequest);
+  }
+
   loadingService.show();
 
   return next(req).pipe(
     finalize(() => {
       loadingService.hide();
-    })
+    }),
   );
 };

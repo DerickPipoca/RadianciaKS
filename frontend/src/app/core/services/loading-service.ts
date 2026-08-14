@@ -1,23 +1,33 @@
 import { Injectable, signal } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoadingService {
-  isLoading = signal<boolean>(false);
-
   private activeRequests = 0;
+  private loadingSubject = new BehaviorSubject<boolean>(false);
 
-  show() {
+  public readonly loading$: Observable<boolean> = this.loadingSubject.asObservable();
+
+  show(): void {
     this.activeRequests++;
-    this.isLoading.set(true);
+    if (this.activeRequests === 1) {
+      this.loadingSubject.next(true);
+    }
   }
 
-  hide() {
-    this.activeRequests--;
-    if (this.activeRequests <= 0) {
-      this.activeRequests = 0;
-      this.isLoading.set(false);
+  hide(): void {
+    if (this.activeRequests > 0) {
+      this.activeRequests--;
     }
+    if (this.activeRequests === 0) {
+      this.loadingSubject.next(false);
+    }
+  }
+
+  forceReset(): void {
+    this.activeRequests = 0;
+    this.loadingSubject.next(false);
   }
 }

@@ -1,7 +1,16 @@
 <app-header />
-@if (loadingService.isLoading()) {
-  <div class="global-progress-bar">
-    <div class="progress-indicator"></div>
+@if (isLoading$ | async) {
+  <div class="global-loading-overlay">
+    <div class="spinner-container">
+      <div class="loadingspinner">
+        <div id="square1"></div>
+        <div id="square2"></div>
+        <div id="square3"></div>
+        <div id="square4"></div>
+        <div id="square5"></div>
+      </div>
+      <span class="loading-text">Carregando...</span>
+    </div>
   </div>
 }
 <router-outlet></router-outlet>

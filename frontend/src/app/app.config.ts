@@ -22,7 +22,13 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([tenantInterceptor, loadingInterceptor, errorInterceptor, authInterceptor]),
+      withInterceptors([
+        tenantInterceptor,
+        loadingInterceptor,
+        loadingInterceptor,
+        errorInterceptor,
+        authInterceptor,
+      ]),
     ),
     provideCharts(withDefaultRegisterables()),
   ],
