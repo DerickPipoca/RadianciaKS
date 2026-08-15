@@ -100,7 +100,7 @@ export class Orders implements OnInit, OnDestroy {
       merge(
         this.signalrService.orderUpdated$,
         this.signalrService.orderDelivered$,
-        this.signalrService.orderDelivered$,
+        this.signalrService.orderCanceled$,
       )
         .pipe(debounceTime(300))
         .subscribe(() => {
