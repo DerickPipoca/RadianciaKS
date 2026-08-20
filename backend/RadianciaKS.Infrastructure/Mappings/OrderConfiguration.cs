@@ -26,6 +26,12 @@ namespace RadianciaKS.Infrastructure.Mappings
             builder.Property(o => o.TotalAmount)
                 .HasColumnType("numeric(10,2)");
 
+            builder.HasOne(o => o.CashShift)
+                   .WithMany(c => c.Orders)
+                   .HasForeignKey(o => o.CashShiftId)
+                   .IsRequired()
+                   .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasOne(o => o.Employee)
                    .WithMany()
                    .HasForeignKey(o => o.EmployeeId)

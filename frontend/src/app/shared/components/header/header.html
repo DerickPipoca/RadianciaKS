@@ -6,6 +6,17 @@
     </button>
   </div>
   <div class="topbar-right">
+    <div class="cash-shift-widget" [class.is-open]="hasOpenShift">
+      <div class="indicator-dot"></div>
+      <div class="indicator-text">
+        <span class="title">Sistema</span>
+        @if (hasOpenShift) {
+          <span class="status-open">Aberto</span>
+        } @else {
+          <span class="status-closed">Fechado</span>
+        }
+      </div>
+    </div>
     <div class="theme-toggle">
       <button class="theme-toggle-btn" (click)="themeService.toggleTheme()">
         @if (themeService.isDarkMode()) {

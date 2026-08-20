@@ -10,7 +10,7 @@ namespace RadianciaKS.Api.Controllers
     [Authorize(Roles = "Admin,Manager")]
     public class EmployeeController : ControllerBase
     {
-        private readonly IEmployeeService _employeeService;
+        private readonly IEmployeeService _employeeService; 
 
         public EmployeeController(IEmployeeService employeeService)
         {

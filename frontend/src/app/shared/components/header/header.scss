@@ -84,3 +84,50 @@ header {
     }
   }
 }
+.cash-shift-widget {
+  width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 22px;
+  padding: 2px;
+  transition: all 0.2s ease-in-out;
+
+  .indicator-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #f44336;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+  }
+
+  .indicator-text {
+    display: flex;
+    flex-direction: column;
+
+    .title {
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-closed {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--red-status);
+    }
+    .status-open {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--green-status);
+    }
+  }
+
+  &.is-open {
+    .indicator-dot {
+      background-color: #4caf50;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+    }
+  }
+}

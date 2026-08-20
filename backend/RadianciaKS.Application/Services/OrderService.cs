@@ -183,6 +183,12 @@ namespace RadianciaKS.Application.Services
         {
             var employeeId = _userProvider.GetUserId() ?? throw new UnauthorizedAccessException("Usuário não autenticado.");
 
+            var currentShift = await _context.CashShifts
+                .FirstOrDefaultAsync(c => c.Status == CashShiftStatus.Open);
+
+            if (currentShift == null)
+                throw new Exception("O caixa está fechado. Não é possível realizar vendas.");
+
             var employee = await _context.Employees.FindAsync(employeeId);
             if (employee == null)
                 throw new Exception("Funcionário não encontrado no banco de dados.");
@@ -192,6 +198,8 @@ namespace RadianciaKS.Application.Services
             await _validator.ValidateAndThrowAsync(dto);
 
             var orderToAdd = _mapper.ToEntity(dto);
+            orderToAdd.EmployeeId = employeeId;
+            orderToAdd.CashShiftId = currentShift.Id;
 
             orderToAdd.EmployeeId = employeeId;
             orderToAdd.Items.Clear();

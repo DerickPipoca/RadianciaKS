@@ -16,6 +16,8 @@ namespace RadianciaKS.Application.DTOs.Order
 
         public Guid EmployeeId { get; set; }
 
+        public Guid CashShiftId { get; set; }
+
         public string CreatedByName { get; set; } = string.Empty;
         public string? PaidByName { get; set; }
 

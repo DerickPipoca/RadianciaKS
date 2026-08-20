@@ -9,6 +9,7 @@ namespace RadianciaKS.Application.Interfaces
         DbSet<Category> Categories { get; }
         DbSet<Product> Products { get; }
         DbSet<Order> Orders { get; }
+        DbSet<CashShift> CashShifts { get; set; }
         DbSet<OrderItem> OrderItems { get; }
         DbSet<Payment> Payments { get; }
         DbSet<Employee> Employees { get; }

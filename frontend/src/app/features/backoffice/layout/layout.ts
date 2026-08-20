@@ -11,10 +11,11 @@ import {
   Settings,
   ShoppingCart,
 } from 'lucide-angular';
+import { CashShiftControlComponent } from '../components/cash-shift-control/cash-shift-control';
 
 @Component({
   selector: 'app-layout',
-  imports: [CommonModule, RouterModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterModule, RouterLink, LucideAngularModule, CashShiftControlComponent],
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })

@@ -16,3 +16,58 @@
     flex-direction: column;
   }
 }
+
+.closed-shift-warning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 92vh;
+
+  .warning-card {
+    background: var(--bg-surface);
+    padding: 40px;
+    border-radius: $radius-md;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
+
+    h2 {
+      color: var(--red-status);
+      margin: 0 0 12px 0;
+      font-size: 1.5rem;
+    }
+
+    p {
+      color: var(--text-primary);
+      margin: 0 0 16px 0;
+      font-size: 1rem;
+    }
+
+    .sub-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--text-secondary);
+}
+.icon {
+  color: var(--red-status);
+  width: 24px;
+  height: 24px;
+  ::ng-deep svg {
+    width: 128px;
+    height: 128px;
+  }
+}
+b {
+  text-transform: uppercase;
+}

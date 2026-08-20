@@ -1,4 +1,22 @@
-<div class="order-layout">
-  <app-catalog />
-  <app-cart />
-</div>
+@if (isLoading) {
+  <div class="loading-state">
+    <p>Verificando status do caixa...</p>
+  </div>
+} @else if (hasOpenShift) {
+  <div class="order-layout">
+    <app-catalog />
+    <app-cart />
+  </div>
+} @else {
+  <div class="closed-shift-warning">
+    <div class="warning-card">
+      <lucide-icon class="icon" [img]="LockKeyholeIcon" class="icon" />
+      <h2>Caixa Fechado</h2>
+      <p>O PDV está bloqueado para novas vendas no momento.</p>
+      <p class="sub-text">
+        Peça ao gerente ou responsável acessar a <b>área administrativa</b> e realizar a abertura de
+        caixa para a retomada dos trabalhos.
+      </p>
+    </div>
+  </div>
+}

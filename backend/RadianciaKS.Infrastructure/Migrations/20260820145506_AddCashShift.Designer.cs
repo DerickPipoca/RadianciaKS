@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RadianciaKS.Infrastructure.Context;
@@ -11,9 +12,11 @@ using RadianciaKS.Infrastructure.Context;
 namespace RadianciaKS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260820145506_AddCashShift")]
+    partial class AddCashShift
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,7 +238,7 @@ namespace RadianciaKS.Infrastructure.Migrations
                     b.Property<bool>("Active")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("CashShiftId")
+                    b.Property<Guid?>("CashShiftId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -532,8 +535,7 @@ namespace RadianciaKS.Infrastructure.Migrations
                     b.HasOne("RadianciaKS.Domain.Models.CashShift", "CashShift")
                         .WithMany("Orders")
                         .HasForeignKey("CashShiftId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("RadianciaKS.Domain.Models.Employee", "Employee")
                         .WithMany()

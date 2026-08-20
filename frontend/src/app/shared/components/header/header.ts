@@ -4,6 +4,7 @@ import { LucideAngularModule, Sparkle, Moon, Sun } from 'lucide-angular';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../button-component/button-component';
 import { ThemeService } from '../../../core/services/theme-service';
+import { CashShiftService } from '../../../core/services/cash-shift-service';
 
 @Component({
   selector: 'app-header',
@@ -17,6 +18,9 @@ export class HeaderComponent implements OnInit {
   public readonly Moon = Moon;
 
   public themeService = inject(ThemeService);
+  private cashShiftService = inject(CashShiftService);
+
+  hasOpenShift = false;
 
   userName = '';
   userRole = '';
@@ -32,6 +36,12 @@ export class HeaderComponent implements OnInit {
     const user = this.authService.getUser();
     this.userName = user.name;
     this.userRole = user.role;
+
+    this.cashShiftService.currentShift$.subscribe((shift) => {
+      this.hasOpenShift = !!shift;
+    });
+
+    this.cashShiftService.getCurrentOpenShift().subscribe();
   }
 
   toggleDropdown(): void {

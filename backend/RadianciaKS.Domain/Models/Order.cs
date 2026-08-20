@@ -13,6 +13,9 @@ namespace RadianciaKS.Domain.Models
         public virtual ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
+        public Guid CashShiftId { get; set; }
+        public CashShift CashShift { get; set; } = null!;
+
         public Guid? PaidById { get; set; }
         public Employee? PaidBy { get; set; }
 
