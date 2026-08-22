@@ -65,11 +65,9 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpGet("metrics")]
-        public async Task<IActionResult> GetDashboardMetrics([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetDashboardMetrics([FromQuery] Guid? cashShiftId)
         {
-            var startUtc = DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
-            var endUtc = DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
-            var metrics = await _orderService.GetDashboardMetricsAsync(startUtc, endUtc);
+            var metrics = await _orderService.GetDashboardMetricsAsync(cashShiftId);
             return Ok(metrics);
         }
 

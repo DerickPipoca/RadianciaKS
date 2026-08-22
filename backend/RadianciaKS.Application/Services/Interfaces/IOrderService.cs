@@ -10,7 +10,7 @@ namespace RadianciaKS.Application.Services.Interfaces
         Task<OrderResponseDto> CreateOrder(OrderRequestDto dto);
         Task<PagedResponse<OrderResponseDto>> GetAllOrders(OrderQueryParameters queryParameters);
         Task<IEnumerable<OrderResponseDto>> GetPendingKdsOrdersAsync();
-        Task<DashboardMetricsDto> GetDashboardMetricsAsync(DateTime startDate, DateTime endDate);
+        Task<DashboardMetricsDto> GetDashboardMetricsAsync(Guid? cashShiftId);
         Task<OrderResponseDto> GetOrderById(Guid orderId);
         Task<OrderResponseDto> AddItemToOrder(Guid orderId, OrderItemRequestDto itemDto);
         Task<OrderResponseDto> AddItemsToOrder(Guid orderId, List<OrderItemRequestDto> itemsDto);

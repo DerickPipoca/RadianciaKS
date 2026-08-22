@@ -6,21 +6,23 @@ import { OrderService } from '../../../../core/services/order-service';
 import { DashboardMetrics } from '../../../../core/models/dashboard-metrics.model';
 import { ChartConfiguration, ChartType } from 'chart.js';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
-import { LucideAngularModule, TriangleAlert, Landmark, Ticket, ShoppingCart } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  TriangleAlert,
+  Landmark,
+  Ticket,
+  ShoppingCart,
+  RefreshCcw,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    BaseChartDirective,
-    ButtonComponent,
-    LucideAngularModule,
-  ],
+  imports: [CommonModule, BaseChartDirective, ButtonComponent, LucideAngularModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
+  readonly RefreshCcw = RefreshCcw;
   readonly TriangleAlert = TriangleAlert;
   readonly Ticket = Ticket;
   readonly ShoppingCart = ShoppingCart;
@@ -85,25 +87,24 @@ export class Dashboard implements OnInit {
     this.loadDashboardData();
   }
 
-  loadDashboardData(): void {
-    if (this.filterForm.invalid) return;
-
+  loadDashboardData() {
     this.loading = true;
     this.errorMessage = '';
 
-    const { startDate, endDate } = this.filterForm.value;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    this.orderService.getDashboardMetrics(start, end).subscribe({
+    this.orderService.getDashboardMetrics().subscribe({
       next: (data) => {
-        this.metrics = data;
-        this.updateChart(data);
+        // Se TotalOrders for 0 e não houver status, significa que o Shift veio nulo
+        if (!data.shiftStatus && data.totalOrders === 0) {
+          this.errorMessage = 'Nenhum caixa está aberto no momento.';
+          this.metrics = null;
+        } else {
+          this.metrics = data;
+          this.updateChart(data);
+        }
         this.loading = false;
       },
       error: (err) => {
-        console.error(err);
-        this.errorMessage = 'Erro ao carregar os dados do painel gerencial.';
+        this.errorMessage = 'Erro ao carregar as métricas do painel.';
         this.loading = false;
       },
     });

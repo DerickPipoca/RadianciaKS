@@ -45,12 +45,13 @@ export class OrderService {
     return this.http.get<OrderResponseDto>(urlEndPoint);
   }
 
-  getDashboardMetrics(startDate: Date, endDate: Date): Observable<DashboardMetrics> {
-    const params = new HttpParams()
-      .set('startDate', startDate.toISOString())
-      .set('endDate', endDate.toISOString());
-
-    return this.http.get<DashboardMetrics>(`${this.endPoint}/metrics`, { params });
+  getDashboardMetrics(cashShiftId?: string): Observable<DashboardMetrics> {
+    let params = new HttpParams();
+    if (cashShiftId) {
+      params = params.set('cashShiftId', cashShiftId);
+    }
+    const urlEndPoint = `${this.endPoint}/metrics`;
+    return this.http.get<DashboardMetrics>(urlEndPoint, { params });
   }
 
   create(order: OrderRequestDto): Observable<OrderResponseDto> {
@@ -62,7 +63,10 @@ export class OrderService {
     return this.http.post<OrderResponseDto>(urlEndPoint, orderItem);
   }
 
-  addItemsToOrder(orderId: string, orderItems: OrderItemRequestDto[]): Observable<OrderResponseDto> {
+  addItemsToOrder(
+    orderId: string,
+    orderItems: OrderItemRequestDto[],
+  ): Observable<OrderResponseDto> {
     const urlEndPoint = `${this.endPoint}/${orderId}/items`;
     return this.http.post<OrderResponseDto>(urlEndPoint, orderItems);
   }

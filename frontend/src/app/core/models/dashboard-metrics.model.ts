@@ -1,3 +1,5 @@
+import { CashShiftStatus } from "../enums/cash-shift-status";
+
 export interface TopSellingItem {
   productName: string;
   quantitySold: number;
@@ -20,4 +22,8 @@ export interface DashboardMetrics {
   topSellingItems: TopSellingItem[];
   cashFlow: CashFlow[];
   salesChart: SalesChart[];
+  initialBalance: number;
+  finalCalculatedBalance?: number;
+  finalReportedBalance?: number;
+  shiftStatus: CashShiftStatus;
 }

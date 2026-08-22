@@ -124,22 +124,26 @@ namespace RadianciaKS.Application.Services
             return orderResponse;
         }
 
-        public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(DateTime startDate, DateTime endDate)
+        public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(Guid? cashShiftId)
         {
-            var baseQuery = _context.Orders
-                .Include(o => o.Items).ThenInclude(i => i.Product)
-                .Include(o => o.Payments)
-                .Where(o => o.PaymentStatus == PaymentStatus.Paid &&
-                            o.CreatedAt >= startDate &&
-                            o.CreatedAt <= endDate);
+            var query = _context.CashShifts
+                .Include(c => c.Orders).ThenInclude(o => o.Items).ThenInclude(i => i.Product)
+                .Include(c => c.Orders).ThenInclude(o => o.Payments)
+                .AsQueryable();
 
-            var orders = await baseQuery.ToListAsync();
+            var shift = cashShiftId.HasValue
+                ? await query.FirstOrDefaultAsync(c => c.Id == cashShiftId.Value)
+                : await query.FirstOrDefaultAsync(c => c.Status == CashShiftStatus.Open && c.Active);
 
-            var totalOrders = orders.Count;
-            var totalRevenue = orders.Sum(o => o.TotalAmount);
+            if (shift == null) return new DashboardMetricsDto();
+
+            var paidOrders = shift.Orders.Where(o => o.PaymentStatus == PaymentStatus.Paid).ToList();
+
+            var totalOrders = paidOrders.Count;
+            var totalRevenue = paidOrders.Sum(o => o.TotalAmount);
             var averageTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-            var topItems = orders.SelectMany(o => o.Items)
+            var topItems = paidOrders.SelectMany(o => o.Items)
                 .GroupBy(i => i.Product.Name)
                 .Select(g => new TopSellingItemDto
                 {
@@ -149,7 +153,7 @@ namespace RadianciaKS.Application.Services
                 .OrderByDescending(x => x.QuantitySold)
                 .ToList();
 
-            var cashFlow = orders.SelectMany(o => o.Payments)
+            var cashFlow = paidOrders.SelectMany(o => o.Payments)
                 .GroupBy(p => p.Method)
                 .Select(g => new CashFlowDto
                 {
@@ -158,7 +162,7 @@ namespace RadianciaKS.Application.Services
                 })
                 .ToList();
 
-            var salesChart = orders
+            var salesChart = paidOrders
                 .GroupBy(o => o.CreatedAt.Hour)
                 .Select(g => new SalesChartDto
                 {
@@ -175,7 +179,11 @@ namespace RadianciaKS.Application.Services
                 AverageTicket = averageTicket,
                 TopSellingItems = topItems,
                 CashFlow = cashFlow,
-                SalesChart = salesChart
+                SalesChart = salesChart,
+                InitialBalance = shift.InitialBalance,
+                FinalCalculatedBalance = shift.FinalCalculatedBalance,
+                FinalReportedBalance = shift.FinalReportedBalance,
+                ShiftStatus = shift.Status
             };
         }
 

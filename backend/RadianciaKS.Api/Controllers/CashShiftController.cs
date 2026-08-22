@@ -7,7 +7,6 @@ namespace RadianciaKS.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class CashShiftController : ControllerBase
     {
         private readonly ICashShiftService _cashShiftService;
@@ -26,6 +25,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost("open")]
+        [Authorize]
         public async Task<IActionResult> OpenShift([FromBody] OpenCashShiftDto dto)
         {
             var shift = await _cashShiftService.OpenShift(dto);
@@ -33,6 +33,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost("close")]
+        [Authorize]
         public async Task<IActionResult> CloseShift([FromBody] CloseCashShiftDto dto)
         {
             var shift = await _cashShiftService.CloseShift(dto);
