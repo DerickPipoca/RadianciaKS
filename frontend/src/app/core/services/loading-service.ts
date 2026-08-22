@@ -13,7 +13,7 @@ export class LoadingService {
   show(): void {
     this.activeRequests++;
     if (this.activeRequests === 1) {
-      this.loadingSubject.next(true);
+      setTimeout(() => this.loadingSubject.next(true), 0);
     }
   }
 
@@ -22,12 +22,12 @@ export class LoadingService {
       this.activeRequests--;
     }
     if (this.activeRequests === 0) {
-      this.loadingSubject.next(false);
+      setTimeout(() => this.loadingSubject.next(false), 0);
     }
   }
 
   forceReset(): void {
     this.activeRequests = 0;
-    this.loadingSubject.next(false);
+    setTimeout(() => this.loadingSubject.next(false), 0);
   }
 }
