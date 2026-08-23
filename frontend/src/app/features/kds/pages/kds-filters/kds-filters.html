@@ -44,10 +44,7 @@
   <div class="kds-grid">
     @for (order of filteredOrders; track order.id) {
       <div class="kds-card" [class.canceled-card]="order.orderStatus === OrderStatus.Canceled">
-        <div
-          class="card-header"
-          [ngClass]="order.orderStatus === OrderStatus.Preparing ? 'bg-green' : 'bg-orange'"
-        >
+        <div class="card-header" [ngClass]="getHeaderColorClass(order.createdAt)">
           <div class="header-row">
             <span class="time">{{ order.createdAt | date: 'HH:mm' }}</span>
             <span class="customer-name">{{ order.tableNumber || 'Balcão' }}</span>

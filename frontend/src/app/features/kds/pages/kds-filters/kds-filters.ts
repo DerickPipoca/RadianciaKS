@@ -35,6 +35,8 @@ export class KdsFilters implements OnInit, OnDestroy {
   activeOrders: OrderResponseDto[] = [];
   categories: CategoryResponseDto[] = [];
 
+  private timerInterval: any;
+
   selectedCategoryIds = new Set<string>();
   isCategoryDropdownOpen = false;
 
@@ -44,6 +46,8 @@ export class KdsFilters implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   ngOnInit(): void {
+    this.timerInterval = setInterval(() => {}, 60000);
+
     this.loadCategories();
     this.loadPendingOrders();
     this.signalrService.startConnection();
@@ -80,6 +84,10 @@ export class KdsFilters implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+
     this.subscriptions.unsubscribe();
   }
 
@@ -239,5 +247,21 @@ export class KdsFilters implements OnInit, OnDestroy {
       groupName: key,
       options: groups[key],
     }));
+  }
+
+  getHeaderColorClass(createdAt: string | Date): string {
+    const orderDate = new Date(createdAt);
+    const now = new Date();
+
+    const diffInMs = now.getTime() - orderDate.getTime();
+    const diffInMinutes = Math.floor(diffInMs / 60000);
+
+    if (diffInMinutes >= 30) {
+      return 'bg-red';
+    } else if (diffInMinutes >= 15) {
+      return 'bg-orange';
+    } else {
+      return 'bg-green';
+    }
   }
 }

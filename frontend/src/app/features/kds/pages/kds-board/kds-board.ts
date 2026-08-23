@@ -17,7 +17,7 @@ import { OrderItemModifierResponseDto } from '../../../../core/models/modifier.m
   templateUrl: './kds-board.html',
   styleUrl: './kds-board.scss',
 })
-export class KdsBoard implements OnInit {
+export class KdsBoard implements OnInit, OnDestroy {
   readonly Rows3 = Rows3;
   readonly Funnel = Funnel;
   readonly History = History;
@@ -25,6 +25,8 @@ export class KdsBoard implements OnInit {
   private kdsService = inject(KdsService);
   private signalrService = inject(SignalrService);
   private destroyRef = inject(DestroyRef);
+
+  private timerInterval: any;
 
   private notificationSound = new Audio('/notificationSound.mp3');
   private cancelSound = new Audio('/cancelSound.wav');
@@ -39,6 +41,8 @@ export class KdsBoard implements OnInit {
   ngOnInit(): void {
     this.loadPendingItems();
     this.signalrService.startConnection();
+
+    this.timerInterval = setInterval(() => {}, 60000);
 
     this.destroyRef.onDestroy(() => {
       this.signalrService.stopConnection();
@@ -69,6 +73,12 @@ export class KdsBoard implements OnInit {
           this.removeOrderFromScreen(deliveredOrder.id);
         }),
     );
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
   }
 
   loadPendingItems(): void {
@@ -193,5 +203,21 @@ export class KdsBoard implements OnInit {
       groupName: key,
       options: groups[key],
     }));
+  }
+
+  getHeaderColorClass(createdAt: string | Date): string {
+    const orderDate = new Date(createdAt);
+    const now = new Date();
+
+    const diffInMs = now.getTime() - orderDate.getTime();
+    const diffInMinutes = Math.floor(diffInMs / 60000);
+
+    if (diffInMinutes >= 30) {
+      return 'bg-red'; 
+    } else if (diffInMinutes >= 15) {
+      return 'bg-orange'; 
+    } else {
+      return 'bg-green';
+    }
   }
 }

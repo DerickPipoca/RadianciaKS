@@ -8,6 +8,7 @@ using RadianciaKS.Application.Extensions;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Mappers;
 using RadianciaKS.Application.Services.Interfaces;
+using RadianciaKS.Domain.Models;
 
 namespace RadianciaKS.Application.Services
 {
@@ -24,6 +25,48 @@ namespace RadianciaKS.Application.Services
             _validator = validator;
             _imageStorageService = imageStorageService;
             _mapper = new ProductMapper();
+        }
+
+        public async Task<ProductResponseDto> DuplicateProduct(Guid id)
+        {
+            var originalProduct = await _context.Products
+                            .Include(p => p.Category)
+                            .Include(p => p.ModifierGroups).ThenInclude(m => m.Options)
+                            .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (originalProduct == null)
+                throw new ArgumentException("Produto não encontrado.");
+
+            var newProduct = new Product
+            {
+                Name = $"{originalProduct.Name} - Cópia",
+                Description = originalProduct.Description,
+                Price = originalProduct.Price,
+                ImagePath = originalProduct.ImagePath,
+                CategoryId = originalProduct.CategoryId,
+
+                ModifierGroups = originalProduct.ModifierGroups.Select(g => new ModifierGroup
+                {
+                    Name = g.Name,
+                    MinChoices = g.MinChoices,
+                    MaxChoices = g.MaxChoices,
+                    TenantId = g.TenantId,
+                    Active = true,
+                    Options = g.Options.Select(o => new ModifierOption
+                    {
+                        Name = o.Name,
+                        Description = o.Description,
+                        AdditionalPrice = o.AdditionalPrice,
+                        TenantId = o.TenantId,
+                        Active = o.Active
+                    }).ToList()
+                }).ToList()
+            };
+
+            _context.Products.Add(newProduct);
+            await _context.SaveChangesAsync();
+
+            return _mapper.ToDto(newProduct);
         }
 
         public async Task<ProductResponseDto> CreateProduct(ProductRequestDto dto)

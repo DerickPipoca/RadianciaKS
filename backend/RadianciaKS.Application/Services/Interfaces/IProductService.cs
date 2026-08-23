@@ -8,6 +8,7 @@ namespace RadianciaKS.Application.Services.Interfaces
     public interface IProductService
     {
         Task<ProductResponseDto> CreateProduct(ProductRequestDto dto);
+        Task<ProductResponseDto> DuplicateProduct(Guid id);
         Task<string> UploadImage(IFormFile file);
         Task<PagedResponse<ProductResponseDto>> GetAllProducts(ProductQueryParameters queryParameters);
         Task<ProductResponseDto> GetProductById(Guid id);

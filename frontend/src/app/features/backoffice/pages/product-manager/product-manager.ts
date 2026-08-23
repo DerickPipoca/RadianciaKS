@@ -10,7 +10,7 @@ import { CategoryResponseDto } from '../../../../core/models/category.model';
 import { ModifierService } from '../../../../core/services/modifier-service';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
-import { LucideAngularModule, TextSearch, Hamburger } from 'lucide-angular';
+import { LucideAngularModule, TextSearch, Hamburger, Copy } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
@@ -35,8 +35,9 @@ export class ProductManager
   extends BaseCrud<ProductRequestDto, ProductResponseDto, string>
   implements OnInit
 {
-  TextSearch = TextSearch;
-  Hamburger = Hamburger;
+  readonly TextSearch = TextSearch;
+  readonly Hamburger = Hamburger;
+  readonly Copy = Copy;
 
   searchSubject = new Subject<string>();
 
@@ -254,5 +255,22 @@ export class ProductManager
   getSelectedCategoryName(): string {
     const selected = this.categories?.find((cat) => cat.id === this.currentItem.categoryId);
     return selected ? selected.name : '';
+  }
+
+  duplicateProduct(product: ProductResponseDto): void {
+    if (confirm(`Deseja duplicar o produto "${product.name}" e todos os seus modificadores?`)) {
+      this.productService.duplicate(product.id).subscribe({
+        next: (newProduct: ProductResponseDto) => {
+          this.toastr.success('Produto e modificadores duplicados com sucesso!');
+          this.loadData();
+
+          this.openEditModal(newProduct);
+        },
+        error: (err) => {
+          console.error('Erro ao duplicar', err);
+          this.toastr.error('Erro ao duplicar o produto.');
+        },
+      });
+    }
   }
 }

@@ -25,6 +25,14 @@ namespace RadianciaKS.Api.Controllers
             return CreatedAtAction(nameof(CreateProduct), new { id = product.Id }, product);
         }
 
+        [HttpPost("{id}/duplicate")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> DuplicateProduct(Guid id)
+        {
+            var duplicatedProduct = await _productService.DuplicateProduct(id);
+            return Ok(duplicatedProduct);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllProducts([FromQuery] ProductQueryParameters queryParameters)
         {

@@ -136,6 +136,9 @@
       &.btn-delete {
         color: var(--red-status);
       }
+      &.btn-duplicate {
+        color: var(--blue-status);
+      }
     }
   }
 }

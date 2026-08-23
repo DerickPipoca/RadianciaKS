@@ -82,6 +82,9 @@
             <strong>{{ product.createdAt | date: 'dd/MM/yyyy' }}</strong>
           </td>
           <td class="actions-cell">
+            <button class="btn-action btn-duplicate" (click)="duplicateProduct(product)">
+              Duplicar
+            </button>
             <button class="btn-action btn-edit" (click)="openEditModal(product)">Editar</button>
             <button class="btn-action btn-delete" (click)="delete(product.id)">Apagar</button>
           </td>

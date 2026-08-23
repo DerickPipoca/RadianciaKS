@@ -40,6 +40,11 @@ export class ProductService implements IProductService {
     return this.http.get<ProductResponseDto>(urlEndPoint);
   }
 
+  duplicate(id: string): Observable<ProductResponseDto> {
+    const urlEndPoint = `${this.endPoint}/${id}/duplicate`;
+    return this.http.post<ProductResponseDto>(urlEndPoint, {});
+  }
+
   create(product: ProductRequestDto): Observable<ProductResponseDto> {
     return this.http.post<ProductResponseDto>(this.endPoint, product);
   }

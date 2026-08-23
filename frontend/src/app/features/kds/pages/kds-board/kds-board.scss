@@ -96,15 +96,16 @@
 
   .card-header {
     padding: 12px 16px;
-    color: white;
+    color: $light-base;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    background-color: var(--green-status);
     &.bg-orange {
-      background-color: #ef8b54;
+      background-color: var(--orange-status);
     }
-    &.bg-green {
-      background-color: #82b982;
+    &.bg-red {
+      background-color: var(--red-status);
     }
 
     .header-row {
