@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: 100vh;
+  height: calc(92vh);
 }
 
 .icon {
@@ -89,6 +89,8 @@
   gap: 16px;
   flex-wrap: nowrap;
 
+  min-height: 0;
+
   &::-webkit-scrollbar {
     height: 12px;
   }
@@ -107,7 +109,7 @@
 .kds-card {
   width: 280px;
   flex-shrink: 0;
-  max-height: calc(92vh - 120px);
+  max-height: calc(67vh);
   display: flex;
   flex-direction: column;
   background: var(--bg-surface);

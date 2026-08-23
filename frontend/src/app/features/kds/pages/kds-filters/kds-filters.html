@@ -53,7 +53,7 @@
             <span class="customer-name">{{ order.tableNumber || 'Balcão' }}</span>
           </div>
           <div class="header-row">
-            <span class="table-info">Mesa: {{ order.tableNumber || '-' }}</span>
+            <span class="table-info">Pedido: {{ order.createdByName || '-' }}</span>
             <span class="order-number">#{{ order.id.slice(0, 6).toUpperCase() }}</span>
           </div>
           @if (order.orderStatus === OrderStatus.Canceled) {
