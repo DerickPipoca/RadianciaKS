@@ -34,16 +34,27 @@
                   <strong class="qty">{{ item.quantity || 1 }}x</strong>
                   <span class="product-name">{{ item.productName }}</span>
                 </div>
-
-                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-                  <ul class="modifier-list">
-                    @for (mod of item.selectedModifiers; track mod.id) {
-                      <li>{{ mod.name }}</li>
-                    }
-                  </ul>
-                }
                 @if (item.notes) {
-                  <p class="modifier-list">Obs: {{ item.notes }}</p>
+                  <p class="product-observation">Obs: {{ item.notes }}</p>
+                }
+                @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                  @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+                    <div class="modifiers-container">
+                      @for (
+                        group of getGroupedModifiers(item.selectedModifiers);
+                        track group.groupName
+                      ) {
+                        <div class="modifier-group-block">
+                          <span class="modifier-group-title">{{ group.groupName }}:</span>
+                          <ul class="modifiers-list">
+                            @for (modifier of group.options; track modifier.id) {
+                              <li>{{ modifier.name }}</li>
+                            }
+                          </ul>
+                        </div>
+                      }
+                    </div>
+                  }
                 }
               </div>
 

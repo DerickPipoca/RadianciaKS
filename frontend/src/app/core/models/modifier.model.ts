@@ -29,5 +29,6 @@ export interface ModifierOptionResponseDto {
 export interface OrderItemModifierResponseDto {
   id: string;
   name: string;
+  groupName: string;
   additionalPrice: number;
 }

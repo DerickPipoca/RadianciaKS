@@ -29,6 +29,8 @@
 
 .catalog-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   padding: 0 24px 24px;
 }
@@ -209,4 +211,14 @@
   color: var(--text-secondary);
   font-style: italic;
   grid-column: 1 / -1; // Ocupa a linha inteira do grid
+}
+
+.pagination-container {
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  justify-content: center;
+  app-pagination {
+    width: 100%;
+  }
 }

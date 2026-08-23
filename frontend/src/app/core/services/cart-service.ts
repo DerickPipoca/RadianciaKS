@@ -3,6 +3,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { CartItemDto } from '../models/cart-item.model';
 import { ProductResponseDto } from '../models/product.model';
 import { OrderResponseDto } from '../models/order.model';
+import Decimal from 'decimal.js';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,22 @@ export class CartService {
   });
 
   public subTotal = computed(() => {
-    return this.cartItemsSignal().reduce((acc, item) => acc + item.totalPrice, 0);
+    return this.cartItemsSignal()
+      .reduce((acc, item) => {
+        let itemTotal = new Decimal(item.product.price);
+
+        if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+          const modifiersTotal = item.selectedModifiers.reduce(
+            (mAcc, mod) => mAcc.plus(mod.additionalPrice),
+            new Decimal(0),
+          );
+          itemTotal = itemTotal.plus(modifiersTotal);
+        }
+
+        const totalDaLinha = itemTotal.times(item.quantity);
+        return acc.plus(totalDaLinha);
+      }, new Decimal(0))
+      .toNumber();
   });
 
   public addProduct(
@@ -29,24 +45,98 @@ export class CartService {
     selectedModifiers: OrderItemModifierResponseDto[] = [],
     notes?: string,
   ): void {
-    const randomId = Math.random().toString(36).substring(2, 9);
+    const existingItemIndex = this.cartItemsSignal().findIndex((item) => {
+      if (item.product.id !== product.id || item.isExistingItem) return false;
+      if (item.notes !== notes) return false;
 
-    const modifiersTotal = selectedModifiers.reduce((sum, mod) => sum + mod.additionalPrice, 0);
-    const unitPriceWithModifiers = product.price + modifiersTotal;
-    const totalPrice = unitPriceWithModifiers * quantity;
+      const mods1 = item.selectedModifiers || [];
+      const mods2 = selectedModifiers || [];
+      if (mods1.length !== mods2.length) return false;
 
-    const newItem: CartItemDto = {
-      id: randomId,
-      product: product,
-      quantity: quantity,
-      selectedModifiers: selectedModifiers,
-      notes: notes,
-      unitPrice: unitPriceWithModifiers,
-      totalPrice: totalPrice,
-      isExistingItem: false,
-    };
+      return mods1.every((m1) => mods2.some((m2) => m1.id === m2.id));
+    });
 
-    this.cartItemsSignal.update((items) => [...items, newItem]);
+    const modifiersTotal = selectedModifiers.reduce(
+      (sum, mod) => sum.plus(mod.additionalPrice),
+      new Decimal(0),
+    );
+    const unitPriceWithModifiers = new Decimal(product.price).plus(modifiersTotal);
+
+    if (existingItemIndex > -1) {
+      this.cartItemsSignal.update((items) => {
+        const newItems = [...items];
+        const item = newItems[existingItemIndex];
+
+        item.quantity += quantity;
+        item.totalPrice = unitPriceWithModifiers.times(item.quantity).toNumber();
+
+        return newItems;
+      });
+    } else {
+      const randomId = Math.random().toString(36).substring(2, 9);
+      const totalPrice = unitPriceWithModifiers.times(quantity);
+
+      const newItem: CartItemDto = {
+        id: randomId,
+        product: product,
+        quantity: quantity,
+        selectedModifiers: selectedModifiers,
+        notes: notes,
+        unitPrice: unitPriceWithModifiers.toNumber(),
+        totalPrice: totalPrice.toNumber(),
+        isExistingItem: false,
+      };
+
+      this.cartItemsSignal.update((items) => [...items, newItem]);
+    }
+  }
+
+  public decrementQuantity(id?: string): void {
+    if (!id) return;
+    this.cartItemsSignal.update((items) => {
+      const index = items.findIndex((item) => item.id === id);
+      if (index === -1) return items;
+
+      const newItems = [...items];
+      const item = newItems[index];
+
+      if (item.quantity > 1) {
+        item.quantity -= 1;
+
+        const modsTotal = (item.selectedModifiers || []).reduce(
+          (acc, mod) => acc.plus(mod.additionalPrice),
+          new Decimal(0),
+        );
+        const unitPrice = new Decimal(item.product.price).plus(modsTotal);
+        item.totalPrice = unitPrice.times(item.quantity).toNumber();
+      } else {
+        newItems.splice(index, 1);
+      }
+
+      return newItems;
+    });
+  }
+
+  public incrementQuantity(id?: string): void {
+    if (!id) return;
+    this.cartItemsSignal.update((items) => {
+      const index = items.findIndex((item) => item.id === id);
+      if (index === -1) return items;
+
+      const newItems = [...items];
+      const item = newItems[index];
+
+      item.quantity += 1;
+
+      const modsTotal = (item.selectedModifiers || []).reduce(
+        (acc, mod) => acc.plus(mod.additionalPrice),
+        new Decimal(0),
+      );
+      const unitPrice = new Decimal(item.product.price).plus(modsTotal);
+      item.totalPrice = unitPrice.times(item.quantity).toNumber();
+
+      return newItems;
+    });
   }
 
   public removeItem(id: string): void {
@@ -77,7 +167,7 @@ export class CartService {
 
     this.cartItemsSignal.set(pastItems);
   }
-  
+
   getNewItemsOnly(): CartItemDto[] {
     return this.cartItemsSignal().filter((item) => !item.isExistingItem);
   }

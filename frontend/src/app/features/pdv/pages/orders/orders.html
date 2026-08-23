@@ -110,13 +110,15 @@
       </div>
     }
   </main>
-  <app-pagination
-    [pageNumber]="pageNumber"
-    [pageSize]="pageSize"
-    [totalRecords]="totalRecords"
-    (pageChange)="changePage($event)"
-  >
-  </app-pagination>
+  <div class="pagination-container">
+    <app-pagination
+      [pageNumber]="pageNumber"
+      [pageSize]="pageSize"
+      [totalRecords]="totalRecords"
+      (pageChange)="changePage($event)"
+    >
+    </app-pagination>
+  </div>
 
   @if (selectedOrder) {
     <!-- NOVO MODAL APLICADO -->

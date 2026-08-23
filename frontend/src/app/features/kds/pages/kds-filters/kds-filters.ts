@@ -11,6 +11,7 @@ import { KdsStatus } from '../../../../core/enums/kds-status';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { LucideAngularModule, Search, ListFilter } from 'lucide-angular';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { OrderItemModifierResponseDto } from '../../../../core/models/modifier.model';
 
 @Component({
   selector: 'app-kds-filters',
@@ -219,5 +220,24 @@ export class KdsFilters implements OnInit, OnDestroy {
         error,
       );
     });
+  }
+
+  getGroupedModifiers(modifiers: OrderItemModifierResponseDto[]) {
+    if (!modifiers || modifiers.length === 0) return [];
+
+    const groups: { [key: string]: OrderItemModifierResponseDto[] } = {};
+
+    modifiers.forEach((mod) => {
+      const groupName = mod.groupName || 'Adicionais';
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(mod);
+    });
+
+    return Object.keys(groups).map((key) => ({
+      groupName: key,
+      options: groups[key],
+    }));
   }
 }

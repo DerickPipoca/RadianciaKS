@@ -5,12 +5,11 @@
       <h2>
         @if (cartService.editingOrderId()) {
           Mesa Aberta
-          {{
-            cartService.existingOrderData()?.tableNumber ||
-              '#' + cartService.existingOrderData()?.id
-              | slice: 0 : 6
-              | uppercase
-          }}
+          @if (cartService.existingOrderData()?.tableNumber) {
+            {{ cartService.existingOrderData()?.tableNumber }}
+          } @else {
+            {{ '#' + cartService.existingOrderData()?.id | slice: 0 : 6 | uppercase }}
+          }
         } @else {
           Novo Pedido
         }
@@ -28,27 +27,67 @@
       <div class="cart-item" [class.existing-item]="item.isExistingItem">
         <div class="item-main">
           <div class="item-details">
-            <span class="item-name">
-              {{ item.quantity }}x {{ item.product.name }}
+            <div class="item-header-row">
               @if (item.isExistingItem) {
+                <span class="item-qty-static">{{ item.quantity }}x</span>
+                <span class="item-name">{{ item.product.name }}</span>
                 <span class="sent-badge">Já lançado</span>
+              } @else {
+                <div class="quantity-controls">
+                  <button class="btn-qty" (click)="cartService.decrementQuantity(item.id)">
+                    -
+                  </button>
+                  <span class="qty-number">{{ item.quantity }}</span>
+                  <button class="btn-qty" (click)="cartService.incrementQuantity(item.id)">
+                    +
+                  </button>
+                </div>
+                <span class="item-name">{{ item.product.name }}</span>
               }
-            </span>
+            </div>
 
             @if (item.selectedModifiers.length > 0) {
-              <ul class="modifiers-list">
-                @for (modifier of item.selectedModifiers; track modifier.id) {
-                  <li>{{ modifier.name }}</li>
+              <div class="modifiers-container">
+                @for (group of getGroupedModifiers(item.selectedModifiers); track group.groupName) {
+                  <div class="modifier-group-block">
+                    <span class="modifier-group-title">{{ group.groupName }}:</span>
+
+                    <ul class="modifiers-list">
+                      @for (modifier of group.options; track modifier.id) {
+                        <li>
+                          • <b>{{ modifier.name }}</b>
+                          @if (modifier.additionalPrice > 0) {
+                            <span class="modifier-price">
+                              (+ R$ {{ modifier.additionalPrice.toFixed(2) }})
+                            </span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
                 }
-              </ul>
+              </div>
+            }
+            <span class="item-notes">{{ item.notes }}</span>
+          </div>
+
+          <div class="item-actions-prices">
+            <div class="prices">
+              <span class="item-total-price">R$ {{ item.totalPrice.toFixed(2) }}</span>
+              @if (item.quantity > 1) {
+                <span class="item-unit-price"
+                  >{{ item.quantity }}x R$ {{ item.unitPrice.toFixed(2) }}</span
+                >
+              }
+            </div>
+
+            @if (!item.isExistingItem) {
+              <button class="btn-remove-item" (click)="removeItem(item.id)" title="Remover item">
+                <b>X</b>
+              </button>
             }
           </div>
-          <div>
-            <div class="item-unit-price">R$ {{ item.unitPrice.toFixed(2) }}</div>
-            <div class="item-price">R$ {{ item.totalPrice.toFixed(2) }}</div>
-          </div>
         </div>
-        <span class="item-notes">{{ item.notes }}</span>
       </div>
     } @empty {
       <div class="empty-cart">

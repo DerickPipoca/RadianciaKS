@@ -13,6 +13,7 @@ import {
 } from '../../../../core/pipes/order-status-pipe-pipe';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { OrderItemModifierResponseDto } from '../../../../core/models/modifier.model';
 
 @Component({
   selector: 'app-kds-history',
@@ -99,5 +100,24 @@ export class KdsHistory implements OnInit {
       default:
         return 'Desconhecido';
     }
+  }
+
+  getGroupedModifiers(modifiers: OrderItemModifierResponseDto[]) {
+    if (!modifiers || modifiers.length === 0) return [];
+
+    const groups: { [key: string]: OrderItemModifierResponseDto[] } = {};
+
+    modifiers.forEach((mod) => {
+      const groupName = mod.groupName || 'Adicionais';
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(mod);
+    });
+
+    return Object.keys(groups).map((key) => ({
+      groupName: key,
+      options: groups[key],
+    }));
   }
 }

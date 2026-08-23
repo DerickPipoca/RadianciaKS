@@ -423,6 +423,7 @@ namespace RadianciaKS.Application.Services
             if (itemDto.SelectedModifierIds != null && itemDto.SelectedModifierIds.Any())
             {
                 var modifiers = await _context.ModifierOptions
+                    .Include(m => m.ModifierGroup)
                     .Where(m => itemDto.SelectedModifierIds.Contains(m.Id))
                     .ToListAsync();
 
@@ -436,6 +437,7 @@ namespace RadianciaKS.Application.Services
                     {
                         Id = Guid.NewGuid(),
                         Name = modifierOption.Name,
+                        GroupName = modifierOption.ModifierGroup.Name,
                         AdditionalPrice = modifierOption.AdditionalPrice
                     });
 

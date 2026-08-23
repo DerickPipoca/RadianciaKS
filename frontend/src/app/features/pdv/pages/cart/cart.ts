@@ -9,6 +9,7 @@ import { OrderItemRequestDto, OrderRequestDto } from '../../../../core/models/or
 import { LucideAngularModule, ShoppingBagIcon, Trash2 } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
+import { OrderItemModifierResponseDto } from '../../../../core/models/modifier.model';
 
 @Component({
   selector: 'app-cart',
@@ -36,8 +37,8 @@ export class Cart implements OnDestroy {
     }
   }
 
-  removeItem(id: string) {
-    this.cartService.removeItem(id);
+  removeItem(id?: string) {
+    if (id) this.cartService.removeItem(id);
   }
 
   clearCart(): void {
@@ -122,5 +123,21 @@ export class Cart implements OnDestroy {
         this.isProcessing = false;
       },
     });
+  }
+  getGroupedModifiers(modifiers: OrderItemModifierResponseDto[]) {
+    const groups: { [key: string]: OrderItemModifierResponseDto[] } = {};
+
+    modifiers.forEach((mod) => {
+      const groupName = mod.groupName || 'Adicionais';
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(mod);
+    });
+
+    return Object.keys(groups).map((key) => ({
+      groupName: key,
+      options: groups[key],
+    }));
   }
 }

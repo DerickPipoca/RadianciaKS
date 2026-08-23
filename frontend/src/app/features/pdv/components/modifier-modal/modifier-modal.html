@@ -46,7 +46,7 @@
                         (click)="toggleOption(group, option)"
                         [disabled]="
                           group.maxChoices > 1 &&
-                          (selections.get(group.id)?.length || 0) >= group.maxChoices
+                          (selections.get(group.id)?.options?.length || 0) >= group.maxChoices
                         "
                       >
                         +

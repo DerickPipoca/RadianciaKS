@@ -9,7 +9,7 @@ import { ModifierModal } from '../../components/modifier-modal/modifier-modal';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
-import { LucideAngularModule, TextSearch } from 'lucide-angular';
+import { LucideAngularModule, TextSearch, Utensils } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 
@@ -28,7 +28,8 @@ import { Pagination } from '../../../../shared/components/pagination/pagination'
   styleUrl: './catalog.scss',
 })
 export class Catalog implements OnInit, OnDestroy {
-  TextSearch = TextSearch;
+  readonly TextSearch = TextSearch;
+  readonly Utensils = Utensils;
 
   private categoryService = inject(CategoryService);
   private productService = inject(ProductService);

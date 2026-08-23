@@ -14,6 +14,7 @@ import {
 } from '../../../../core/models/order.model';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { ToastrService } from 'ngx-toastr';
+import Decimal from 'decimal.js';
 
 @Component({
   selector: 'app-checkout',
@@ -87,17 +88,25 @@ export class Checkout implements OnInit {
   }
 
   get totalPaid(): number {
-    return this.addedPayments.reduce((sum, p) => sum + p.amount, 0);
+    const sum = this.addedPayments.reduce((acc, p) => acc.plus(p.amount), new Decimal(0));
+    return sum.toNumber();
   }
 
   get remainingAmount(): number {
-    const rem = this.total - this.totalPaid;
-    return rem > 0 ? rem : 0;
+    const totalDec = new Decimal(this.total);
+    const paidDec = new Decimal(this.totalPaid);
+
+    const rem = totalDec.minus(paidDec);
+
+    return rem.toNumber() > 0 ? rem.toNumber() : 0;
   }
 
   get changeAmount(): number {
-    const diff = this.totalPaid - this.total;
-    return diff > 0 ? diff : 0;
+    if (!this.totalPaid || !this.total) return 0;
+
+    const change = new Decimal(this.totalPaid).minus(this.total);
+
+    return change.toNumber();
   }
 
   get isFormValid(): boolean {
