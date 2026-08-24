@@ -20,22 +20,19 @@ export class HeaderComponent implements OnInit {
   public themeService = inject(ThemeService);
   private cashShiftService = inject(CashShiftService);
 
-  hasOpenShift = false;
+  public isLoggedIn = false;
 
-  userName = '';
-  userRole = '';
+  hasOpenShift = false;
 
   private router = inject(Router);
   authService = inject(AuthService);
 
-  user = this.authService.currentUser;
-
   isDropdownOpen = false;
 
   ngOnInit(): void {
-    const user = this.authService.getUser();
-    this.userName = user.name;
-    this.userRole = user.role;
+    this.authService.isLoggedIn$.subscribe((status) => {
+      this.isLoggedIn = status;
+    });
 
     this.cashShiftService.currentShift$.subscribe((shift) => {
       this.hasOpenShift = !!shift;
@@ -49,10 +46,8 @@ export class HeaderComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('rk_user');
-    localStorage.removeItem('rk_token');
-
+    this.authService.logout();
+    this.isDropdownOpen = false;
     this.router.navigate(['login']);
-    window.location.reload();
   }
 }

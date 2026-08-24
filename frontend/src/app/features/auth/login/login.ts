@@ -33,11 +33,7 @@ export class Login {
       next: (res) => {
         this.isLoading.set(false);
 
-        if (res.role === 'Admin' || res.role === 'Manager') {
-          this.router.navigate(['/admin/categorias']);
-        } else {
-          this.router.navigate(['/pdv']);
-        }
+        this.router.navigate(['/home']);
       },
       error: (err) => {
         this.isLoading.set(false);

@@ -12,6 +12,7 @@ export const routes: Routes = [
   {
     path: 'home',
     component: LandingPage,
+    canActivate: [authGuard],
   },
   {
     path: 'pdv',

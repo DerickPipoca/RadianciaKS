@@ -2,7 +2,7 @@ import { UserDto } from './../models/auth.model';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { LoginRequestDto, LoginResponseDto } from '../models/auth.model';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +10,10 @@ import { Observable, tap } from 'rxjs';
 export class AuthService {
   private http = inject(HttpClient);
   private readonly apiUrl = 'auth';
+
+  private loggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
+
+  public isLoggedIn$ = this.loggedInSubject.asObservable();
 
   currentUser = signal<Omit<LoginResponseDto, 'token'> | null>(this.getUserFromStorage());
 
@@ -23,6 +27,8 @@ export class AuthService {
         );
 
         this.currentUser.set({ name: response.name, role: response.role });
+
+        this.loggedInSubject.next(true);
       }),
     );
   }
@@ -31,6 +37,7 @@ export class AuthService {
     localStorage.removeItem('rk_token');
     localStorage.removeItem('rk_user');
     this.currentUser.set(null);
+    this.loggedInSubject.next(false);
   }
 
   getToken(): string | null {
@@ -38,7 +45,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return this.hasToken();
   }
 
   getUser(): UserDto {
@@ -56,5 +63,9 @@ export class AuthService {
   private getUserFromStorage(): Omit<LoginResponseDto, 'token'> | null {
     const userJson = localStorage.getItem('rk_user');
     return userJson ? JSON.parse(userJson) : null;
+  }
+
+  private hasToken(): boolean {
+    return !!localStorage.getItem('rk_token');
   }
 }

@@ -26,22 +26,24 @@
         }
       </button>
     </div>
-    <div class="user-profile" (click)="toggleDropdown()">
-      <div class="info">
-        <span class="name">{{ userName }}</span>
-        <span class="role">{{ userRole }}</span>
-        @if (isDropdownOpen) {
-          <div class="dropdown-menu" (click)="$event.stopPropagation()">
-            <app-button-component
-              variant="danger"
-              size="lg"
-              (click)="logout(); $event.stopPropagation()"
-            >
-              Deslogar
-            </app-button-component>
-          </div>
-        }
+    @if (isLoggedIn) {
+      <div class="user-profile" (click)="toggleDropdown()">
+        <div class="info">
+          <span class="name">{{ authService.currentUser()?.name }}</span>
+          <span class="role">{{ authService.currentUser()?.role }}</span>
+          @if (isDropdownOpen) {
+            <div class="dropdown-menu" (click)="$event.stopPropagation()">
+              <app-button-component
+                variant="danger"
+                size="lg"
+                (click)="logout(); $event.stopPropagation()"
+              >
+                Deslogar
+              </app-button-component>
+            </div>
+          }
+        </div>
       </div>
-    </div>
+    }
   </div>
 </header>

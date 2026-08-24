@@ -7,7 +7,6 @@ namespace RadianciaKS.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Manager")]
     public class StoreSettingsController : ControllerBase
     {
         private readonly IStoreSettingsService _storeSettingsService;
@@ -25,6 +24,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPut()]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdateProduct([FromBody] StoreSettingsRequestDto dto)
         {
             var storeSettings = await _storeSettingsService.UpdateSettings(dto);
@@ -33,6 +33,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost("upload-image")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UploadImage(IFormFile file, [FromQuery] bool isBig)
         {
             try

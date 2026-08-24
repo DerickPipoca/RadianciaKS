@@ -3,20 +3,26 @@
     <h2 class="restaurant-name">{{ restaurantName }}</h2>
 
     <div class="modules-grid">
-      <button class="module-btn" routerLink="/pdv">
-        <lucide-icon [img]="Banknote" class="large-icon"></lucide-icon>
-        <span>Ponto de venda</span>
-      </button>
+      @if (hasPdvAccess()) {
+        <button class="module-btn" routerLink="/pdv">
+          <lucide-icon [img]="Banknote" class="large-icon"></lucide-icon>
+          <span>Ponto de venda</span>
+        </button>
+      }
 
-      <button class="module-btn" routerLink="/kds">
-        <lucide-icon [img]="Soup" class="large-icon"></lucide-icon>
-        <span>KDS</span>
-      </button>
+      @if (hasKdsAccess()) {
+        <button class="module-btn" routerLink="/kds">
+          <lucide-icon [img]="Soup" class="large-icon"></lucide-icon>
+          <span>KDS</span>
+        </button>
+      }
 
-      <button class="module-btn" routerLink="/admin">
-        <lucide-icon [img]="Settings" class="large-icon"></lucide-icon>
-        <span>Administrativo</span>
-      </button>
+      @if (hasAdminAccess()) {
+        <button class="module-btn" routerLink="/admin">
+          <lucide-icon [img]="Settings" class="large-icon"></lucide-icon>
+          <span>Administrativo</span>
+        </button>
+      }
     </div>
   </div>
 </main>
