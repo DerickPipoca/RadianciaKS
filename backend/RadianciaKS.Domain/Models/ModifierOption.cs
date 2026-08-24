@@ -5,6 +5,8 @@ namespace RadianciaKS.Domain.Models
         public string Name { get; set; } = string.Empty;
         public decimal AdditionalPrice { get; set; } = 0m;
 
+        public string ImagePath { get; set; } = string.Empty;
+
         public string? Description { get; set; }
 
         public Guid ModifierGroupId { get; set; }

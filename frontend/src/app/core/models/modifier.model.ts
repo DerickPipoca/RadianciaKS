@@ -23,6 +23,7 @@ export interface ModifierOptionResponseDto {
   id: string;
   name: string;
   additionalPrice: number;
+  imagePath?: string;
   description?: string;
 }
 

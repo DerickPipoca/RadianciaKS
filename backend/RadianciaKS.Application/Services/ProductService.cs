@@ -57,6 +57,7 @@ namespace RadianciaKS.Application.Services
                         Name = o.Name,
                         Description = o.Description,
                         AdditionalPrice = o.AdditionalPrice,
+                        ImagePath = o.ImagePath,
                         TenantId = o.TenantId,
                         Active = o.Active
                     }).ToList()

@@ -10,7 +10,7 @@ import { CategoryResponseDto } from '../../../../core/models/category.model';
 import { ModifierService } from '../../../../core/services/modifier-service';
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
-import { LucideAngularModule, TextSearch, Hamburger, Copy } from 'lucide-angular';
+import { LucideAngularModule, TextSearch, Hamburger, Copy, ImagePlus } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
@@ -37,6 +37,7 @@ export class ProductManager
 {
   readonly TextSearch = TextSearch;
   readonly Hamburger = Hamburger;
+  readonly ImagePlus = ImagePlus;
   readonly Copy = Copy;
 
   searchSubject = new Subject<string>();
@@ -49,7 +50,9 @@ export class ProductManager
   categories: CategoryResponseDto[] = [];
   productModifiers: any[] = [];
   newGroup = { name: '', minChoices: 0, maxChoices: 1 };
-  newOptions: { [groupId: string]: { name: string; price: number; description?: string } } = {};
+  newOptions: {
+    [groupId: string]: { name: string; price: number; description?: string; imagePath?: string };
+  } = {};
   dropdownOpen = false;
 
   constructor() {
@@ -194,11 +197,31 @@ export class ProductManager
     }
   }
 
-  setOptionField(groupId: string, field: 'name' | 'description' | 'price', value: any): void {
+  setOptionField(
+    groupId: string,
+    field: 'name' | 'description' | 'price' | 'imagePath',
+    value: any,
+  ): void {
     if (!this.newOptions[groupId]) {
-      this.newOptions[groupId] = { name: '', price: 0, description: '' };
+      this.newOptions[groupId] = { name: '', price: 0, description: '', imagePath: '' };
     }
     (this.newOptions[groupId] as any)[field] = value;
+  }
+
+  onOptionImageSelected(event: any, groupId: string): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.productService.uploadImage(file).subscribe({
+        next: (res) => {
+          this.setOptionField(groupId, 'imagePath', res.url);
+          this.toastr.success('Imagem do modificador enviada!');
+        },
+        error: (err) => {
+          console.error('Erro no upload', err);
+          this.toastr.error('Falha ao enviar a imagem do modificador.');
+        },
+      });
+    }
   }
 
   addOption(groupId: string): void {
@@ -212,6 +235,7 @@ export class ProductManager
       name: opt.name.trim(),
       additionalPrice: opt.price || 0,
       description: opt.description || '',
+      imagePath: opt.imagePath || '',
     };
 
     this.modifierService.addOptionToGroup(groupId, dto as any).subscribe({

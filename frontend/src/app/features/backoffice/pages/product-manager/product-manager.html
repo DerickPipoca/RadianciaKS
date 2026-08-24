@@ -282,13 +282,20 @@
             <ul class="options-list">
               @for (opt of group.options; track opt.id) {
                 <li class="option-item">
-                  <div class="opt-left" style="display: flex; flex-direction: column; gap: 2px">
-                    <span class="opt-name">{{ opt.name }}</span>
-                    @if (opt.description) {
-                      <span class="opt-desc" style="font-size: 0.8rem; color: #888">
-                        {{ opt.description }}
-                      </span>
+                  <div class="opt-left">
+                    @if (opt.imagePath) {
+                      <img [src]="'https://localhost:7047' + opt.imagePath" class="opt-img" />
+                    } @else {
+                      <div class="opt-no-img"><lucide-icon [img]="Hamburger" class="icon" /></div>
                     }
+                    <div style="display: flex; flex-direction: column; gap: 2px">
+                      <span class="opt-name">{{ opt.name }}</span>
+                      @if (opt.description) {
+                        <span class="opt-desc" style="font-size: 0.8rem; color: #888">
+                          {{ opt.description }}
+                        </span>
+                      }
+                    </div>
                   </div>
 
                   <div class="opt-right">
@@ -306,6 +313,41 @@
             </ul>
 
             <div class="add-option-inline">
+              <div
+                class="option-img-preview"
+                (click)="optFileInput.click()"
+                style="
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 6px;
+                  border: 1px dashed var(--border-color);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  cursor: pointer;
+                  overflow: hidden;
+                  flex-shrink: 0;
+                "
+                title="Adicionar Foto"
+              >
+                @if (newOptions[group.id]?.imagePath) {
+                  <img
+                    [src]="'https://localhost:7047' + newOptions[group.id]?.imagePath"
+                    style="width: 100%; height: 100%; object-fit: cover"
+                  />
+                } @else {
+                  <span style="font-size: 1.2rem; color: var(--text-secondary)"
+                    ><lucide-icon [img]="ImagePlus" size="24px" class="icon"
+                  /></span>
+                }
+              </div>
+              <input
+                type="file"
+                #optFileInput
+                style="display: none"
+                accept="image/*"
+                (change)="onOptionImageSelected($event, group.id)"
+              />
               <app-input-component
                 placeholder="(ex: Cheddar)"
                 [value]="newOptions[group.id]?.name"

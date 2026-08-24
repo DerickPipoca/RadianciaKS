@@ -25,7 +25,8 @@ namespace RadianciaKS.Application.Services
                 ModifierGroupId = groupId,
                 Name = dto.Name,
                 AdditionalPrice = dto.AdditionalPrice,
-                Description = dto.Description
+                Description = dto.Description,
+                ImagePath = dto.ImagePath
             };
 
             _context.ModifierOptions.Add(option);
