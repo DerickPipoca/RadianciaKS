@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.CashShift;
+using RadianciaKS.Application.DTOs.DashboardMetrics;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Mappers;
 using RadianciaKS.Application.Services.Interfaces;
@@ -53,6 +55,39 @@ namespace RadianciaKS.Application.Services
                         .FirstOrDefaultAsync(c => c.Status == CashShiftStatus.Open);
 
             return shift == null ? null : _mapper.ToDto(shift);
+        }
+
+
+        public async Task<PagedResponse<CashShiftHistoryDto>> GetCashShiftHistoryAsync(BaseQueryParameters queryParameters)
+        {
+            var query = _context.CashShifts
+                .Include(c => c.Orders)
+                .OrderByDescending(c => c.CreatedAt)
+                .AsQueryable();
+
+            var totalRecords = await query.CountAsync();
+
+            var shifts = await query
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
+                .ToListAsync();
+
+            var data = shifts.Select(s => new CashShiftHistoryDto
+            {
+                CashShiftId = s.Id,
+                OpenedAt = s.CreatedAt,
+                ClosedAt = s.ClosedAt,
+                Status = s.Status,
+                TotalRevenue = s.Orders.Where(o => o.PaymentStatus == PaymentStatus.Paid).Sum(o => o.TotalAmount)
+            }).ToList();
+
+            return new PagedResponse<CashShiftHistoryDto>
+            {
+                Data = data,
+                PageNumber = queryParameters.PageNumber,
+                PageSize = queryParameters.PageSize,
+                TotalRecords = totalRecords
+            };
         }
 
         public async Task<CashShiftResponseDto> OpenShift(OpenCashShiftDto dto)

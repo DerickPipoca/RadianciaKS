@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.CashShift;
 using RadianciaKS.Application.Services.Interfaces;
 
@@ -38,6 +39,18 @@ namespace RadianciaKS.Api.Controllers
         {
             var shift = await _cashShiftService.CloseShift(dto);
             return Ok(shift);
+        }
+
+        [HttpGet("history")]
+        [Authorize]
+        public async Task<IActionResult> GetHistory([FromQuery] BaseQueryParameters queryParameters)
+        {
+            queryParameters ??= new BaseQueryParameters();
+            if (queryParameters.PageNumber <= 0) queryParameters.PageNumber = 1;
+            if (queryParameters.PageSize <= 0) queryParameters.PageSize = 30;
+
+            var history = await _cashShiftService.GetCashShiftHistoryAsync(queryParameters);
+            return Ok(history);
         }
     }
 }

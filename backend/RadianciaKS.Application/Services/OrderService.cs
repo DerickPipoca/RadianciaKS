@@ -127,8 +127,12 @@ namespace RadianciaKS.Application.Services
         public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(Guid? cashShiftId)
         {
             var query = _context.CashShifts
+                .Include(c => c.EmployeeOpener)
+                .Include(c => c.EmployeeCloser)
                 .Include(c => c.Orders).ThenInclude(o => o.Items).ThenInclude(i => i.Product)
+                .Include(c => c.Orders).ThenInclude(o => o.Items).ThenInclude(i => i.SelectedModifiers)
                 .Include(c => c.Orders).ThenInclude(o => o.Payments)
+                .Include(c => c.Orders).ThenInclude(o => o.Employee)
                 .AsQueryable();
 
             var shift = cashShiftId.HasValue
@@ -138,18 +142,33 @@ namespace RadianciaKS.Application.Services
             if (shift == null) return new DashboardMetricsDto();
 
             var paidOrders = shift.Orders.Where(o => o.PaymentStatus == PaymentStatus.Paid).ToList();
+            var canceledOrders = shift.Orders.Where(o => o.OrderStatus == OrderStatus.Canceled).ToList();
 
             var totalOrders = paidOrders.Count;
             var totalRevenue = paidOrders.Sum(o => o.TotalAmount);
             var averageTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-            var topItems = paidOrders.SelectMany(o => o.Items)
+            var canceledCount = canceledOrders.Count;
+            var canceledAmount = canceledOrders.Sum(o => o.TotalAmount);
+
+            var topProducts = paidOrders.SelectMany(o => o.Items)
                 .GroupBy(i => i.Product.Name)
                 .Select(g => new TopSellingItemDto
                 {
                     ProductName = g.Key,
                     QuantitySold = g.Sum(i => i.Quantity)
-                })
+                });
+
+            var topModifiers = paidOrders.SelectMany(o => o.Items)
+                .SelectMany(i => i.SelectedModifiers)
+                .GroupBy(m => m.Name)
+                .Select(g => new TopSellingItemDto
+                {
+                    ProductName = $"+ {g.Key}",
+                    QuantitySold = g.Count()
+                });
+
+            var topItems = topProducts.Concat(topModifiers)
                 .OrderByDescending(x => x.QuantitySold)
                 .ToList();
 
@@ -158,19 +177,66 @@ namespace RadianciaKS.Application.Services
                 .Select(g => new CashFlowDto
                 {
                     PaymentMethod = g.Key.ToString(),
-                    TotalAmount = g.Sum(p => p.Amount)
+                    TotalAmount = g.Sum(p => p.Amount),
+                    TransactionsCount = g.Count()
                 })
                 .ToList();
 
             var salesChart = paidOrders
-                .GroupBy(o => o.CreatedAt.Hour)
+                .GroupBy(o => new
+                {
+                    o.CreatedAt.Hour,
+                    MinuteBlock = o.CreatedAt.Minute < 30 ? "00" : "30"
+                })
                 .Select(g => new SalesChartDto
                 {
-                    Label = $"{g.Key:00}:00",
+                    Label = $"{g.Key.Hour:00}:{g.Key.MinuteBlock}",
                     Value = g.Sum(o => o.TotalAmount)
                 })
                 .OrderBy(x => x.Label)
                 .ToList();
+
+            var waiterProductivity = paidOrders
+                .Where(o => o.Employee != null)
+                .GroupBy(o => o.Employee)
+                .Select(g => new TeamProductivityDto
+                {
+                    EmployeeName = g.Key.Name,
+                    EmployeeRole = g.Key.Role,
+                    CompletedTasks = g.Count()
+                })
+                .OrderByDescending(x => x.CompletedTasks)
+                .ToList();
+
+            var previousShiftComparison = new HistoryComparisonDto { HasPreviousShift = false };
+
+            var prevShift = await _context.CashShifts
+                .Include(c => c.Orders)
+                .Where(c => c.CreatedAt < shift.CreatedAt && c.Status == CashShiftStatus.Closed)
+                .OrderByDescending(c => c.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (prevShift != null)
+            {
+                var prevPaidOrders = prevShift.Orders.Where(o => o.PaymentStatus == PaymentStatus.Paid).ToList();
+                var prevRevenue = prevPaidOrders.Sum(o => o.TotalAmount);
+                var prevOrders = prevPaidOrders.Count;
+
+                decimal revenuePct = prevRevenue > 0
+                    ? ((totalRevenue - prevRevenue) / prevRevenue) * 100
+                    : 100;
+
+                decimal ordersPct = prevOrders > 0
+                    ? ((totalOrders - (decimal)prevOrders) / prevOrders) * 100
+                    : 100;
+
+                previousShiftComparison = new HistoryComparisonDto
+                {
+                    HasPreviousShift = true,
+                    RevenuePercentage = Math.Round(revenuePct, 2),
+                    OrdersPercentage = Math.Round(ordersPct, 2)
+                };
+            }
 
             return new DashboardMetricsDto
             {
@@ -180,10 +246,19 @@ namespace RadianciaKS.Application.Services
                 TopSellingItems = topItems,
                 CashFlow = cashFlow,
                 SalesChart = salesChart,
+
+                OpenedByName = shift.EmployeeOpener?.Name ?? "Sistema", 
+                ClosedByName = shift.EmployeeCloser?.Name,
+
                 InitialBalance = shift.InitialBalance,
                 FinalCalculatedBalance = shift.FinalCalculatedBalance,
                 FinalReportedBalance = shift.FinalReportedBalance,
-                ShiftStatus = shift.Status
+                ShiftStatus = shift.Status,
+
+                CanceledOrdersCount = canceledCount,
+                CanceledOrdersAmount = canceledAmount,
+                PreviousShiftComparison = previousShiftComparison,
+                WaiterProductivity = waiterProductivity,
             };
         }
 

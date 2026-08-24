@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import {
+  CashShiftHistory,
   CashShiftResponse,
   CloseCashShiftRequest,
   OpenCashShiftRequest,
@@ -40,5 +41,10 @@ export class CashShiftService {
 
   get currentShiftValue(): CashShiftResponse | null {
     return this.currentShiftSubject.value;
+  }
+
+  getHistory(): Observable<CashShiftHistory[]> {
+    const urlEndPoint = `${this.endPoint}/history`;
+    return this.http.get<CashShiftHistory[]>(urlEndPoint);
   }
 }

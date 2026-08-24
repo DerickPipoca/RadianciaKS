@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OrderService } from '../../../../core/services/order-service';
 import { DashboardMetrics } from '../../../../core/models/dashboard-metrics.model';
 import { ChartConfiguration, ChartType } from 'chart.js';
@@ -13,7 +12,15 @@ import {
   Ticket,
   ShoppingCart,
   RefreshCcw,
+  ArrowLeft,
+  Calendar,
+  Ban,
+  TrendingUp,
+  TrendingDown,
+  Users,
 } from 'lucide-angular';
+import { CashShiftHistory } from '../../../../core/models/cash-shift.model';
+import { CashShiftService } from '../../../../core/services/cash-shift-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,24 +34,38 @@ export class Dashboard implements OnInit {
   readonly Ticket = Ticket;
   readonly ShoppingCart = ShoppingCart;
   readonly Landmark = Landmark;
+  readonly ArrowLeft = ArrowLeft;
+  readonly Calendar = Calendar;
+  readonly Ban = Ban;
+  readonly TrendingUp = TrendingUp;
+  readonly TrendingDown = TrendingDown;
+  readonly Users = Users;
 
-  private fb = inject(FormBuilder);
-  private orderService = inject(OrderService);
-
-  filterForm!: FormGroup;
-  metrics: DashboardMetrics | null = null;
   loading = false;
   errorMessage = '';
 
-  public chartType: ChartType = 'bar';
+  private orderService = inject(OrderService);
+  private cashShiftService = inject(CashShiftService);
+
+  selectedShiftId: string | null = null;
+
+  shiftHistory: CashShiftHistory[] = [];
+  metrics: DashboardMetrics | null = null;
+
+  public chartType: ChartType = 'line';
+
   public chartData: ChartConfiguration['data'] = {
     labels: [],
     datasets: [
       {
-        label: 'Faturação por Hora (R$)',
+        label: 'Faturação (R$)',
         data: [],
-        backgroundColor: '#3b82f6',
-        borderRadius: 6,
+        borderColor: '#7c5cdb',
+        backgroundColor: 'transparent',
+        pointBackgroundColor: '#7c5cdb',
+        pointRadius: 4,
+        borderWidth: 2,
+        tension: 0,
       },
     ],
   };
@@ -53,49 +74,62 @@ export class Dashboard implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: true, position: 'top' },
+      legend: { display: false },
     },
     scales: {
-      y: { beginAtZero: true },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: '#f0f0f0',
+        },
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
     },
   };
 
   ngOnInit(): void {
-    this.initForm();
-    this.applyTodayFilter();
+    this.loadShiftHistory();
   }
 
-  private initForm(): void {
-    this.filterForm = this.fb.group({
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
+  loadShiftHistory() {
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.cashShiftService.getHistory().subscribe({
+      next: (response: any) => {
+        this.shiftHistory = response.data || response;
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMessage = 'Erro ao carregar o histórico de caixas.';
+        this.loading = false;
+      },
     });
   }
 
-  private applyTodayFilter(): void {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    this.filterForm.setValue({
-      startDate: this.formatDateForInput(todayStart),
-      endDate: this.formatDateForInput(todayEnd),
-    });
-
+  openDashboardDetailed(shiftId: string) {
+    this.selectedShiftId = shiftId;
     this.loadDashboardData();
+  }
+
+  goBackToHistory() {
+    this.selectedShiftId = null;
+    this.metrics = null;
+    this.loadShiftHistory();
   }
 
   loadDashboardData() {
     this.loading = true;
     this.errorMessage = '';
 
-    this.orderService.getDashboardMetrics().subscribe({
+    this.orderService.getDashboardMetrics(this.selectedShiftId || undefined).subscribe({
       next: (data) => {
-        // Se TotalOrders for 0 e não houver status, significa que o Shift veio nulo
         if (!data.shiftStatus && data.totalOrders === 0) {
-          this.errorMessage = 'Nenhum caixa está aberto no momento.';
+          this.errorMessage = 'Métricas vazias ou caixa não encontrado.';
           this.metrics = null;
         } else {
           this.metrics = data;
@@ -103,7 +137,7 @@ export class Dashboard implements OnInit {
         }
         this.loading = false;
       },
-      error: (err) => {
+      error: () => {
         this.errorMessage = 'Erro ao carregar as métricas do painel.';
         this.loading = false;
       },
@@ -116,15 +150,8 @@ export class Dashboard implements OnInit {
       this.chartData.datasets[0].data = [];
       return;
     }
-
     this.chartData.labels = data.salesChart.map((item) => item.label);
     this.chartData.datasets[0].data = data.salesChart.map((item) => item.value);
-
     this.chartData = { ...this.chartData };
-  }
-
-  private formatDateForInput(date: Date): string {
-    const pad = (num: number) => num.toString().padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 }

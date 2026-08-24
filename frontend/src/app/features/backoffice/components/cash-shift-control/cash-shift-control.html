@@ -16,8 +16,11 @@
       <div class="form-row" style="margin-bottom: 20px">
         <div class="form-group flex-1">
           <label>Troco Inicial</label>
-          <app-input-component type="number" (ngModel)="(initialBalance)" placeholder="Ex: 100.00">
-          </app-input-component>
+          <app-input-component
+            type="number"
+            [(value)]="initialBalance"
+            placeholder="Ex: 150.75"
+          ></app-input-component>
           <small style="color: var(--text-secondary); margin-top: 4px">
             Valor disponível em gaveta antes de iniciar as vendas.
           </small>
@@ -59,10 +62,9 @@
           <label>Valor físico em Gaveta</label>
           <app-input-component
             type="number"
-            (ngModel)="(finalReportedBalance)"
-            placeholder="Ex: 500.00"
-          >
-          </app-input-component>
+            [(value)]="finalReportedBalance"
+            placeholder="Ex: 514.35"
+          ></app-input-component>
           <small style="color: var(--text-secondary); margin-top: 4px">
             Faça a contagem de cédulas e moedas antes de encerrar.
           </small>
