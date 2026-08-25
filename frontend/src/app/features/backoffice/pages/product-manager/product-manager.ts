@@ -132,7 +132,7 @@ export class ProductManager
       this.toastr.warning('O nome do produto é obrigatório.');
       return false;
     }
-    if (item.price == null || item.price <= 0) {
+    if (item.price == null || item.price < 0) {
       this.toastr.warning('O preço do produto deve ser maior ou igual a zero.');
       return false;
     }

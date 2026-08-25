@@ -20,23 +20,24 @@ export class CartService {
     return this.cartItemsSignal().reduce((acc, item) => acc + item.quantity, 0);
   });
 
-  public subTotal = computed(() => {
-    return this.cartItemsSignal()
-      .reduce((acc, item) => {
-        let itemTotal = new Decimal(item.product.price);
+  subTotal = computed(() => {
+    return this.cartItemsSignal().reduce((acc, item) => {
+      const itemPrice = item.product.price ?? item.unitPrice ?? 0;
+      const itemQuantity = item.quantity ?? 1;
 
-        if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-          const modifiersTotal = item.selectedModifiers.reduce(
-            (mAcc, mod) => mAcc.plus(mod.additionalPrice),
-            new Decimal(0),
-          );
-          itemTotal = itemTotal.plus(modifiersTotal);
-        }
+      let total = new Decimal(itemPrice).times(itemQuantity);
 
-        const totalDaLinha = itemTotal.times(item.quantity);
-        return acc.plus(totalDaLinha);
-      }, new Decimal(0))
-      .toNumber();
+      if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+        item.selectedModifiers.forEach((mod: any) => {
+          const modPrice = mod.price ?? mod.unitPrice ?? 0;
+          const modQuantity = mod.quantity ?? 1;
+
+          total = total.plus(new Decimal(modPrice).times(modQuantity));
+        });
+      }
+
+      return acc.plus(total);
+    }, new Decimal(0));
   });
 
   public addProduct(

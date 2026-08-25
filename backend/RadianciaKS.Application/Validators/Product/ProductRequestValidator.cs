@@ -12,7 +12,6 @@ namespace RadianciaKS.Application.Validators.Product
                 .MaximumLength(100).WithMessage("O nome não pode exceder 100 caracteres.");
 
             RuleFor(x => x.Price)
-                .NotEmpty().WithMessage("O preço do produto é obrigatório.")
                 .GreaterThanOrEqualTo(0).WithMessage("A preço do produto não pode ser negativo.");
 
             RuleFor(x => x.CategoryId)

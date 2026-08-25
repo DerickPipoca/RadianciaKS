@@ -84,7 +84,7 @@ export class Checkout implements OnInit {
   }
 
   get total(): number {
-    return this.existingOrderId ? this.existingOrderTotal : this.cartService.subTotal();
+    return this.existingOrderId ? this.existingOrderTotal : this.cartService.subTotal().toNumber();
   }
 
   get totalPaid(): number {
