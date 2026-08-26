@@ -25,7 +25,11 @@
     } @else {
       <div class="history-grid">
         @for (shift of shiftHistory; track shift.cashShiftId) {
-          <div class="history-card" (click)="openDashboardDetailed(shift.cashShiftId)">
+          <div
+            class="history-card"
+            [ngClass]="shift.status === 1 ? 'open' : 'closed'"
+            (click)="openDashboardDetailed(shift.cashShiftId)"
+          >
             <div class="card-header">
               <div class="card-date">
                 <lucide-icon [img]="Calendar" size="24px" />
