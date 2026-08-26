@@ -16,6 +16,7 @@ import { Pagination } from '../../../../shared/components/pagination/pagination'
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ToastrService } from 'ngx-toastr';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { UploadService } from '../../../../core/services/upload-service';
 
 @Component({
   selector: 'app-product-manager',
@@ -45,6 +46,7 @@ export class ProductManager
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   private modifierService = inject(ModifierService);
+  private uploadService = inject(UploadService);
   private toastr = inject(ToastrService);
 
   categories: CategoryResponseDto[] = [];
@@ -114,14 +116,10 @@ export class ProductManager
     const file: File = event.target.files[0];
 
     if (file) {
-      this.productService.uploadImage(file).subscribe({
+      this.uploadService.uploadImage(file, 'products').subscribe({
         next: (res) => {
           this.currentItem.imagePath = res.url;
           this.toastr.success('Imagem enviada com sucesso!');
-        },
-        error: (err) => {
-          console.error('Erro no upload', err);
-          this.toastr.error('Falha ao enviar a imagem.');
         },
       });
     }
@@ -226,15 +224,11 @@ export class ProductManager
   onEditOptionImageSelected(event: any, option: any, groupId: string): void {
     const file: File = event.target.files[0];
     if (file) {
-      this.productService.uploadImage(file).subscribe({
+      this.uploadService.uploadImage(file, 'modifiers').subscribe({
         next: (res) => {
           option.imagePath = res.url;
           this.updateOption(option);
           this.toastr.success('Imagem alterada!');
-        },
-        error: (err) => {
-          console.error('Erro no upload', err);
-          this.toastr.error('Falha ao enviar a imagem.');
         },
       });
     }
@@ -267,14 +261,10 @@ export class ProductManager
   onOptionImageSelected(event: any, groupId: string): void {
     const file: File = event.target.files[0];
     if (file) {
-      this.productService.uploadImage(file).subscribe({
+      this.uploadService.uploadImage(file, 'modifiers').subscribe({
         next: (res) => {
           this.setOptionField(groupId, 'imagePath', res.url);
           this.toastr.success('Imagem do modificador enviada!');
-        },
-        error: (err) => {
-          console.error('Erro no upload', err);
-          this.toastr.error('Falha ao enviar a imagem do modificador.');
         },
       });
     }

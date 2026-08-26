@@ -11,6 +11,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { LucideAngularModule, TextSearch } from 'lucide-angular';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ToastrService } from 'ngx-toastr';
+import { UploadService } from '../../../../core/services/upload-service';
 
 @Component({
   selector: 'app-category-manager',
@@ -30,6 +31,7 @@ export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryRespon
   TextSearch = TextSearch;
 
   private categoryService = inject(CategoryService);
+  private uploadService = inject(UploadService);
 
   searchSubject = new Subject<string>();
 
@@ -100,13 +102,9 @@ export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryRespon
     const file: File = event.target.files[0];
 
     if (file) {
-      this.categoryService.uploadImage(file).subscribe({
+      this.uploadService.uploadImage(file, 'categories').subscribe({
         next: (res) => {
           this.currentItem.imagePath = res.url;
-        },
-        error: (err) => {
-          console.error('Erro no upload', err);
-          this.toastr.info('Falha ao enviar a imagem.');
         },
       });
     }
