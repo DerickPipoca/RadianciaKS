@@ -55,5 +55,19 @@ namespace RadianciaKS.Api.Controllers
             await _modifierService.DeleteOptionAsync(optionId);
             return NoContent();
         }
+
+        [HttpPut("groups/{groupId}")]
+        public async Task<IActionResult> UpdateGroup(Guid groupId, [FromBody] ModifierGroupRequestDto request)
+        {
+            var group = await _modifierService.UpdateGroupAsync(groupId, request);
+            return Ok(group);
+        }
+
+        [HttpPut("options/{optionId}")]
+        public async Task<IActionResult> UpdateOption(Guid optionId, [FromBody] ModifierOptionRequestDto request)
+        {
+            var option = await _modifierService.UpdateOptionAsync(optionId, request);
+            return Ok(option);
+        }
     }
 }

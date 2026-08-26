@@ -49,7 +49,7 @@ export class ProductManager
 
   categories: CategoryResponseDto[] = [];
   productModifiers: any[] = [];
-  newGroup = { name: '', minChoices: 0, maxChoices: 1 };
+  newGroup = { name: '', minChoices: 0, maxChoices: 1, priority: 1 };
   newOptions: {
     [groupId: string]: { name: string; price: number; description?: string; imagePath?: string };
   } = {};
@@ -149,6 +149,8 @@ export class ProductManager
     this.productModifiers = item.modifierGroups
       ? JSON.parse(JSON.stringify(item.modifierGroups))
       : [];
+
+    this.productModifiers.sort((a: any, b: any) => (a.priority || 0) - (b.priority || 0));
   }
 
   override closeModal(): void {
@@ -170,18 +172,72 @@ export class ProductManager
       name: this.newGroup.name.trim(),
       minChoices: this.newGroup.minChoices,
       maxChoices: this.newGroup.maxChoices,
+      priority: this.newGroup.priority || 0,
       productId: this.editingId,
     };
 
     this.modifierService.createGroup(dto as any).subscribe({
       next: (res) => {
         this.productModifiers.push({ ...res, options: [] });
-        this.newGroup = { name: '', minChoices: 0, maxChoices: 1 };
+        this.productModifiers.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+        this.newGroup = { name: '', minChoices: 0, maxChoices: 1, priority: 1 };
         this.toastr.success('Grupo criado com sucesso!');
         this.loadData();
       },
       error: () => this.toastr.error('Erro ao criar grupo de modificadores.'),
     });
+  }
+
+  updateGroup(group: any): void {
+    const dto = {
+      name: group.name,
+      minChoices: group.minChoices,
+      maxChoices: group.maxChoices,
+      priority: group.priority || 0,
+    };
+
+    this.modifierService.updateGroup(group.id, dto as any).subscribe({
+      next: () => {
+        this.productModifiers.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+        this.toastr.success('Grupo atualizado!');
+        this.loadData();
+      },
+      error: () => this.toastr.error('Erro ao atualizar grupo.'),
+    });
+  }
+
+  updateOption(option: any): void {
+    const dto = {
+      name: option.name,
+      description: option.description || '',
+      additionalPrice: option.additionalPrice || 0,
+      imagePath: option.imagePath || '',
+    };
+
+    this.modifierService.updateOption(option.id, dto as any).subscribe({
+      next: () => {
+        this.toastr.success('Opção atualizada!');
+        this.loadData();
+      },
+      error: () => this.toastr.error('Erro ao atualizar opção.'),
+    });
+  }
+
+  onEditOptionImageSelected(event: any, option: any, groupId: string): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.productService.uploadImage(file).subscribe({
+        next: (res) => {
+          option.imagePath = res.url;
+          this.updateOption(option);
+          this.toastr.success('Imagem alterada!');
+        },
+        error: (err) => {
+          console.error('Erro no upload', err);
+          this.toastr.error('Falha ao enviar a imagem.');
+        },
+      });
+    }
   }
 
   deleteGroup(groupId: string): void {

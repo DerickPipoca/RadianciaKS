@@ -3,6 +3,7 @@ export interface ModifierGroupRequestDto {
   name: string;
   minChoices: number;
   maxChoices: number;
+  priority: number;
 }
 
 export interface ModifierGroupResponseDto {
@@ -10,6 +11,7 @@ export interface ModifierGroupResponseDto {
   name: string;
   minChoices: number;
   maxChoices: number;
+  priority: number;
   options: ModifierOptionResponseDto[];
 }
 

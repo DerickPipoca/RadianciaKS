@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.DTOs.Modifier;
@@ -55,7 +54,8 @@ namespace RadianciaKS.Application.Services
                 ProductId = dto.ProductId,
                 Name = dto.Name,
                 MinChoices = dto.MinChoices,
-                MaxChoices = dto.MaxChoices
+                MaxChoices = dto.MaxChoices,
+                Priority = dto.Priority
             };
 
             _context.ModifierGroups.Add(group);
@@ -87,6 +87,7 @@ namespace RadianciaKS.Application.Services
             var groups = await _context.ModifierGroups
                 .Include(g => g.Options)
                 .Where(g => g.ProductId == productId)
+                .OrderBy(g => g.Priority)
                 .ToListAsync();
 
             return groups.Select(MapToGroupDto);
@@ -100,6 +101,7 @@ namespace RadianciaKS.Application.Services
                 Name = group.Name,
                 MinChoices = group.MinChoices,
                 MaxChoices = group.MaxChoices,
+                Priority = group.Priority,
                 Options = group.Options?.Select(o => new ModifierOptionResponseDto
                 {
                     Id = o.Id,
@@ -107,6 +109,51 @@ namespace RadianciaKS.Application.Services
                     AdditionalPrice = o.AdditionalPrice,
                     Description = o.Description
                 }).ToList() ?? new List<ModifierOptionResponseDto>()
+            };
+        }
+
+        public async Task<ModifierGroupResponseDto> UpdateGroupAsync(Guid groupId, ModifierGroupRequestDto dto)
+        {
+            var group = await _context.ModifierGroups.FindAsync(groupId);
+            if (group == null) throw new ArgumentException("Grupo não encontrado.");
+
+            group.Name = dto.Name;
+            group.MinChoices = dto.MinChoices;
+            group.MaxChoices = dto.MaxChoices;
+            group.Priority = dto.Priority;
+
+            _context.ModifierGroups.Update(group);
+            await _context.SaveChangesAsync();
+
+            var updatedGroup = await _context.ModifierGroups
+                .Include(g => g.Options)
+                .FirstAsync(g => g.Id == groupId);
+
+            return MapToGroupDto(updatedGroup);
+        }
+
+        public async Task<ModifierOptionResponseDto> UpdateOptionAsync(Guid optionId, ModifierOptionRequestDto dto)
+        {
+            await _validator.ValidateAndThrowAsync(dto);
+
+            var option = await _context.ModifierOptions.FindAsync(optionId);
+            if (option == null) throw new ArgumentException("Opção não encontrada.");
+
+            option.Name = dto.Name;
+            option.AdditionalPrice = dto.AdditionalPrice;
+            option.Description = dto.Description;
+            option.ImagePath = dto.ImagePath;
+
+            _context.ModifierOptions.Update(option);
+            await _context.SaveChangesAsync();
+
+            return new ModifierOptionResponseDto
+            {
+                Id = option.Id,
+                Name = option.Name,
+                AdditionalPrice = option.AdditionalPrice,
+                Description = option.Description,
+                ImagePath = option.ImagePath
             };
         }
     }

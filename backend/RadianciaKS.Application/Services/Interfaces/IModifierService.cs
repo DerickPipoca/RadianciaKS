@@ -9,6 +9,8 @@ namespace RadianciaKS.Application.Services.Interfaces
     public interface IModifierService
     {
         Task<ModifierGroupResponseDto> CreateGroupAsync(ModifierGroupRequestDto dto);
+        Task<ModifierGroupResponseDto> UpdateGroupAsync(Guid groupId, ModifierGroupRequestDto dto);
+        Task<ModifierOptionResponseDto> UpdateOptionAsync(Guid optionId, ModifierOptionRequestDto dto);
         Task<ModifierOptionResponseDto> AddOptionToGroupAsync(Guid groupId, ModifierOptionRequestDto dto);
         Task<IEnumerable<ModifierGroupResponseDto>> GetGroupsByProductAsync(Guid productId);
         Task DeleteGroupAsync(Guid groupId);

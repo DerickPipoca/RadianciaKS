@@ -165,7 +165,6 @@
       <div class="form-group">
         <label for="prodCategory">Categoria *</label>
 
-        <!-- DIRETIVA CLICK OUTSIDE NO DROPDOWN -->
         <div class="custom-select-container" appClickOutside (clickOutside)="dropdownOpen = false">
           <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
             {{ getSelectedCategoryName() || 'Selecione uma categoria...' }}
@@ -228,37 +227,51 @@
         <div class="modifier-creator-box">
           <h4 class="box-title">Criar Grupo de Modificadores</h4>
 
-          <div class="form-row">
-            <div class="form-group flex-2">
-              <label>Nome do Grupo</label>
-              <app-input-component
-                placeholder="(Ex: Molho, Ponto da Carne)"
-                [(value)]="newGroup.name"
-              ></app-input-component>
-            </div>
+          <div class="form-group w-full">
+            <label>Nome do Grupo</label>
+            <app-input-component
+              placeholder="(Ex: Molho, Ponto da Carne)"
+              [(value)]="newGroup.name"
+            ></app-input-component>
+          </div>
 
-            <div class="form-group flex-1">
+          <div class="form-row items-end w-full">
+            <div class="form-group flex-1 mb-0">
               <label>Mín. Escolhas</label>
               <app-input-component
                 type="number"
-                min="0.00"
+                min="0"
                 placeholder="0"
                 [(value)]="newGroup.minChoices"
               ></app-input-component>
             </div>
-
-            <div class="form-group flex-1">
+            <div class="form-group flex-1 mb-0">
               <label>Máx. Escolhas</label>
               <app-input-component
                 type="number"
-                min="0.00"
+                min="1"
                 placeholder="1"
                 [(value)]="newGroup.maxChoices"
               ></app-input-component>
             </div>
+            <div class="form-group flex-1 mb-0">
+              <label>Ordem (Prioridade)</label>
+              <app-input-component
+                type="number"
+                min="0"
+                placeholder="0"
+                [(value)]="newGroup.priority"
+                title="Grupos com menor número aparecem primeiro"
+              ></app-input-component>
+            </div>
           </div>
 
-          <app-button-component variant="primary" size="sm" class="w-full-btn" (click)="addGroup()">
+          <app-button-component
+            variant="primary"
+            size="sm"
+            class="w-full-btn mt-16"
+            (click)="addGroup()"
+          >
             + Adicionar Grupo
           </app-button-component>
         </div>
@@ -266,123 +279,116 @@
         @for (group of productModifiers; track group.id) {
           <div class="modifier-group-card">
             <div class="group-header">
-              <div class="group-title-area">
-                <h4>{{ group.name }}</h4>
-                <span class="group-rules">
-                  Mín: {{ group.minChoices }} • Máx: {{ group.maxChoices }}
-                </span>
+              <div class="form-group w-full mb-0">
+                <label>Nome do Grupo</label>
+                <app-input-component
+                  [(value)]="group.name"
+                  (focusout)="updateGroup(group)"
+                ></app-input-component>
               </div>
-              <app-button-component
-                [size]="'sm'"
-                [variant]="'danger'"
-                (click)="deleteGroup(group.id)"
-              >
-                Apagar grupo
-              </app-button-component>
+
+              <div class="form-row items-end w-full mt-12">
+                <div class="form-group flex-1 mb-0">
+                  <label>Mín.</label>
+                  <app-input-component
+                    type="number"
+                    min="0"
+                    [(value)]="group.minChoices"
+                    (focusout)="updateGroup(group)"
+                  ></app-input-component>
+                </div>
+                <div class="form-group flex-1 mb-0">
+                  <label>Máx.</label>
+                  <app-input-component
+                    type="number"
+                    min="1"
+                    [(value)]="group.maxChoices"
+                    (focusout)="updateGroup(group)"
+                  ></app-input-component>
+                </div>
+                <div class="form-group flex-1 mb-0">
+                  <label>Ordem</label>
+                  <app-input-component
+                    type="number"
+                    min="0"
+                    [(value)]="group.priority"
+                    (focusout)="updateGroup(group)"
+                  ></app-input-component>
+                </div>
+                <div class="form-group mb-0">
+                  <app-button-component
+                    [size]="'sm'"
+                    [variant]="'danger'"
+                    (click)="deleteGroup(group.id)"
+                  >
+                    Apagar
+                  </app-button-component>
+                </div>
+              </div>
             </div>
 
             <ul class="options-list">
               @for (opt of group.options; track opt.id) {
                 <li class="option-item">
-                  <div class="opt-left">
+                  <div
+                    class="option-img-preview"
+                    (click)="editOptFileInput.click()"
+                    title="Alterar imagem"
+                  >
                     @if (opt.imagePath) {
-                      <img [src]="'https://localhost:7047' + opt.imagePath" class="opt-img" />
+                      <img [src]="'https://localhost:7047' + opt.imagePath" />
                     } @else {
-                      <div class="opt-no-img"><lucide-icon [img]="Hamburger" class="icon" /></div>
+                      <div class="opt-no-img">
+                        <lucide-icon [img]="Hamburger" size="20px" class="icon" />
+                      </div>
                     }
-                    <div style="display: flex; flex-direction: column; gap: 2px">
-                      <span class="opt-name">{{ opt.name }}</span>
-                      @if (opt.description) {
-                        <span class="opt-desc" style="font-size: 0.8rem; color: #888">
-                          {{ opt.description }}
-                        </span>
-                      }
-                    </div>
                   </div>
+                  <input
+                    type="file"
+                    #editOptFileInput
+                    class="hidden-input"
+                    accept="image/*"
+                    (change)="onEditOptionImageSelected($event, opt, group.id)"
+                  />
 
-                  <div class="opt-right">
-                    <span class="opt-price">
-                      + R$ {{ opt.additionalPrice | number: '1.2-2' }}
-                    </span>
-                    <button class="btn-remove-opt" (click)="deleteOption(group.id, opt.id)">
-                      &times;
-                    </button>
+                  <div class="option-fields w-full">
+                    <div class="form-row items-center w-full">
+                      <div class="form-group flex-1 mb-0">
+                        <app-input-component
+                          placeholder="Nome da opção"
+                          [(value)]="opt.name"
+                          (focusout)="updateOption(opt)"
+                        ></app-input-component>
+                      </div>
+                      <button class="btn-remove-opt" (click)="deleteOption(group.id, opt.id)">
+                        &times;
+                      </button>
+                    </div>
+
+                    <div class="form-group w-full mb-0 mt-12">
+                      <textarea
+                        rows="2"
+                        placeholder="Descrição"
+                        [(ngModel)]="opt.description"
+                        (blur)="updateOption(opt)"
+                      ></textarea>
+                    </div>
+
+                    <div class="form-group max-w-140 mb-0 mt-12">
+                      <app-input-component
+                        type="number"
+                        icon="R$"
+                        placeholder="0,00"
+                        [(value)]="opt.additionalPrice"
+                        (focusout)="updateOption(opt)"
+                      ></app-input-component>
+                    </div>
                   </div>
                 </li>
               } @empty {
                 <li class="empty-option">Nenhuma opção adicionada neste grupo ainda.</li>
               }
             </ul>
-
-            <div class="add-option-inline">
-              <div
-                class="option-img-preview"
-                (click)="optFileInput.click()"
-                style="
-                  width: 40px;
-                  height: 40px;
-                  border-radius: 6px;
-                  border: 1px dashed var(--border-color);
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  cursor: pointer;
-                  overflow: hidden;
-                  flex-shrink: 0;
-                "
-                title="Adicionar Foto"
-              >
-                @if (newOptions[group.id]?.imagePath) {
-                  <img
-                    [src]="'https://localhost:7047' + newOptions[group.id]?.imagePath"
-                    style="width: 100%; height: 100%; object-fit: cover"
-                  />
-                } @else {
-                  <span style="font-size: 1.2rem; color: var(--text-secondary)"
-                    ><lucide-icon [img]="ImagePlus" size="24px" class="icon"
-                  /></span>
-                }
-              </div>
-              <input
-                type="file"
-                #optFileInput
-                style="display: none"
-                accept="image/*"
-                (change)="onOptionImageSelected($event, group.id)"
-              />
-              <app-input-component
-                placeholder="(ex: Cheddar)"
-                [value]="newOptions[group.id]?.name"
-                (valueChange)="setOptionField(group.id, 'name', $event)"
-              ></app-input-component>
-
-              <app-input-component
-                placeholder="Descrição (Opcional)"
-                [value]="newOptions[group.id]?.description"
-                (valueChange)="setOptionField(group.id, 'description', $event)"
-              ></app-input-component>
-
-              <app-input-component
-                type="number"
-                icon="R$"
-                placeholder="0,00"
-                class="price-input-wrapper"
-                [value]="newOptions[group.id]?.price"
-                min="0.00"
-                (valueChange)="setOptionField(group.id, 'price', $event)"
-                style="height: 100%; max-width: 140px"
-              ></app-input-component>
-
-              <app-button-component
-                class="add-modifier-btn"
-                variant="primary"
-                size="sm"
-                (click)="addOption(group.id)"
-                style="margin: auto"
-              >
-                Adicionar
-              </app-button-component>
-            </div>
           </div>
         }
       }

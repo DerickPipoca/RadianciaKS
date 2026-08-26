@@ -6,5 +6,6 @@ namespace RadianciaKS.Application.DTOs.Modifier
         public string Name { get; set; } = string.Empty;
         public int MinChoices { get; set; } = 0;
         public int MaxChoices { get; set; } = 1;
+        public int Priority { get; set; } = 0;
     }
 }
