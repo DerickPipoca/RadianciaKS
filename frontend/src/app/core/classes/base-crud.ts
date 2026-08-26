@@ -117,16 +117,14 @@ export abstract class BaseCrud<TRequest, TResponse, TId = string> implements OnI
         next: () => {
           this.loadData();
           this.closeModal();
-        },
-        error: (err) => alert('Erro ao atualizar o item.'),
+        }
       });
     } else {
       this.crudService.create(this.currentItem).subscribe({
         next: () => {
           this.loadData();
           this.closeModal();
-        },
-        error: (err) => alert('Erro ao criar o item.'),
+        }
       });
     }
   }
@@ -134,8 +132,7 @@ export abstract class BaseCrud<TRequest, TResponse, TId = string> implements OnI
   delete(id: TId): void {
     if (confirm('Tem a certeza que deseja apagar este registo?')) {
       this.crudService.delete(id).subscribe({
-        next: () => this.loadData(),
-        error: (err) => alert('Erro ao apagar. Pode estar a ser usado noutro local.'),
+        next: () => this.loadData()
       });
     }
   }

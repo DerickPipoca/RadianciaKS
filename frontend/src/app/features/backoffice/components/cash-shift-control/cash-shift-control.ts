@@ -47,8 +47,7 @@ export class CashShiftControlComponent implements OnInit {
     this.cashShiftService.openShift({ initialBalance: this.initialBalance }).subscribe({
       next: () => {
         this.showOpenModal = false;
-      },
-      error: (err) => alert(err.error?.message || 'Erro ao abrir caixa.'),
+      }
     });
   }
 
@@ -60,8 +59,7 @@ export class CashShiftControlComponent implements OnInit {
       .subscribe({
         next: () => {
           this.showCloseModal = false;
-        },
-        error: (err) => alert(err.error?.message || 'Erro ao fechar caixa.'),
+        }
       });
   }
 }

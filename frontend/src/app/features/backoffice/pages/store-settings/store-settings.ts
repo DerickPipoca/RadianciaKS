@@ -5,6 +5,7 @@ import { ButtonComponent } from '../../../../shared/components/button-component/
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 import { StoreSettingsRequestDto } from '../../../../core/models/store-settings.model';
 import { StoreSettingsService } from '../../../../core/services/store-settings-service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-store-settings',
@@ -13,6 +14,7 @@ import { StoreSettingsService } from '../../../../core/services/store-settings-s
   styleUrl: './store-settings.scss',
 })
 export class StoreSettings implements OnInit {
+  private toastr = inject(ToastrService);
   private storeService = inject(StoreSettingsService);
   settings: StoreSettingsRequestDto = {
     storeName: '',
@@ -42,6 +44,8 @@ export class StoreSettings implements OnInit {
   }
 
   save() {
-    this.storeService.updateSettings(this.settings).subscribe(() => alert('Configurações salvas!'));
+    this.storeService
+      .updateSettings(this.settings)
+      .subscribe(() => this.toastr.success('Configurações salvas!'));
   }
 }

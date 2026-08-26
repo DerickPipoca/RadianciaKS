@@ -45,10 +45,7 @@ namespace RadianciaKS.Application.Services
         {
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null)
-                throw new ArgumentException("O empregado informado não existe.");
-
-            if (employee.Id == _userProvider.GetUserId())
-                throw new ArgumentException("Não é possível deletar a conta logada pela mesma.");
+                throw new ArgumentException("O funcionário informado não existe.");
 
             EnsureTargetPermission(employee);
 
@@ -67,7 +64,7 @@ namespace RadianciaKS.Application.Services
         {
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null)
-                throw new ArgumentException("O empregado informado não existe.");
+                throw new ArgumentException("O funcionário informado não existe.");
 
             return _mapper.ToBasicDto(employee);
         }
@@ -76,7 +73,7 @@ namespace RadianciaKS.Application.Services
         {
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null)
-                throw new ArgumentException("O empregado informado não existe.");
+                throw new ArgumentException("O funcionário informado não existe.");
 
             return _mapper.ToDto(employee);
         }
@@ -86,7 +83,7 @@ namespace RadianciaKS.Application.Services
             await _updateValidator.ValidateAndThrowAsync(dto);
             var employe = await _context.Employees.FindAsync(id);
             if (employe == null)
-                throw new ArgumentException("A categoria informada não existe.");
+                throw new ArgumentException("O funcionário informado não existe.");
 
             EnsureTargetPermission(employe);
             EnsureRoleAssignmentPermission(dto.Role);
@@ -119,6 +116,9 @@ namespace RadianciaKS.Application.Services
         {
             var currentUserId = _userProvider.GetUserId();
             var currentUserRoleStr = _userProvider.GetUserRole();
+
+            if (targetEmployee.Id == _userProvider.GetUserId())
+                throw new ArgumentException("Não é possível alterar a conta logada pela mesma.");
 
             if (string.IsNullOrEmpty(currentUserRoleStr) || !Enum.TryParse<EmployeeRole>(currentUserRoleStr, out var currentUserRole))
                 throw new ArgumentException("Usuário não autenticado ou com cargo inválido.");

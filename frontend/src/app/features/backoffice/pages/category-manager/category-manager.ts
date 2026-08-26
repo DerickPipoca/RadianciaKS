@@ -9,15 +9,24 @@ import { ButtonComponent } from '../../../../shared/components/button-component/
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { LucideAngularModule, TextSearch } from 'lucide-angular';
-import { ModalComponent } from "../../../../shared/components/modal-component/modal-component";
+import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-category-manager',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, LucideAngularModule, ModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    InputComponent,
+    LucideAngularModule,
+    ModalComponent,
+  ],
   templateUrl: './category-manager.html',
   styleUrl: './category-manager.scss',
 })
 export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryResponseDto, string> {
+  private toastr = inject(ToastrService);
   TextSearch = TextSearch;
 
   private categoryService = inject(CategoryService);
@@ -80,9 +89,10 @@ export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryRespon
 
   protected override validateSave(item: CategoryRequestDto): boolean {
     if (!item.name || item.name.trim() === '') {
-      alert('O nome da categoria é obrigatório.');
+      this.toastr.warning('O nome da categoria é obrigatório.');
       return false;
     }
+    this.toastr.success('Categoria salva com sucesso!');
     return true;
   }
 
@@ -96,7 +106,7 @@ export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryRespon
         },
         error: (err) => {
           console.error('Erro no upload', err);
-          alert('Falha ao enviar a imagem.');
+          this.toastr.info('Falha ao enviar a imagem.');
         },
       });
     }
