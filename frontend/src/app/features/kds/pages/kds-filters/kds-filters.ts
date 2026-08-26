@@ -46,6 +46,17 @@ export class KdsFilters implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   ngOnInit(): void {
+    const savedFilters = localStorage.getItem('rk_kds_filters');
+    if (savedFilters) {
+      const parsedFilters = JSON.parse(savedFilters);
+      if (Array.isArray(parsedFilters)) {
+        this.selectedCategoryIds = new Set<string>(parsedFilters);
+      }
+    }
+
+    this.timerInterval = setInterval(() => {}, 60000);
+    this.loadCategories();
+
     this.timerInterval = setInterval(() => {}, 60000);
 
     this.loadCategories();
@@ -198,6 +209,7 @@ export class KdsFilters implements OnInit, OnDestroy {
 
   selectAllCategories() {
     this.selectedCategoryIds.clear();
+    this.saveFiltersToLocalStorage();
   }
 
   toggleCategory(categoryId: string) {
@@ -206,6 +218,11 @@ export class KdsFilters implements OnInit, OnDestroy {
     } else {
       this.selectedCategoryIds.add(categoryId);
     }
+    this.saveFiltersToLocalStorage();
+  }
+
+  private saveFiltersToLocalStorage(): void {
+    localStorage.setItem('rk_kds_filters', JSON.stringify(Array.from(this.selectedCategoryIds)));
   }
 
   private playSound(): void {
