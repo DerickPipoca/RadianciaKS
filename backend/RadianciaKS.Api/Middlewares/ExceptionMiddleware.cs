@@ -29,27 +29,38 @@ namespace RadianciaKS.Api.Middlewares
 
         private static Task HandleExceptionAsync(HttpContext httpContext, Exception ex)
         {
-            httpContext.Response.ContentType = "applicaton/json";
-            if (ex is FluentValidation.ValidationException validationException)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                var errors = validationException.Errors.Select(e => e.ErrorMessage);
-                var result = JsonSerializer.Serialize(new { error = "Erro de validação.", details = errors });
+            httpContext.Response.ContentType = "application/json";
 
-                return httpContext.Response.WriteAsync(result);
+            string message;
+            int statusCode;
+
+            switch (ex)
+            {
+                case FluentValidation.ValidationException validationException:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    message = validationException.Errors.FirstOrDefault()?.ErrorMessage ?? "Erro de validação.";
+                    break;
+
+                case ArgumentException argumentException:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    message = argumentException.Message;
+                    break;
+
+                case UnauthorizedAccessException unauthorizedException:
+                    statusCode = (int)HttpStatusCode.Forbidden;
+                    message = unauthorizedException.Message;
+                    break;
+
+                default:
+                    statusCode = (int)HttpStatusCode.InternalServerError;
+                    message = "Ocorreu um erro interno no servidor. Por favor, tente novamente mais tarde.";
+                    break;
             }
 
-            if (ex is ArgumentException)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            httpContext.Response.StatusCode = statusCode;
+            var result = JsonSerializer.Serialize(new { error = message });
 
-                var result = JsonSerializer.Serialize(new { error = ex.Message });
-                return httpContext.Response.WriteAsync(result);
-            }
-
-            httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            var internalResult = JsonSerializer.Serialize(new { error = "Ocorreu um erro interno no servidor. Por favor, tente novamente mais tarde." });
-            return httpContext.Response.WriteAsync(internalResult);
+            return httpContext.Response.WriteAsync(result);
         }
     }
 }
