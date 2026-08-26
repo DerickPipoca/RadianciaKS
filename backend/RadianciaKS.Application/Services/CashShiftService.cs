@@ -15,11 +15,15 @@ namespace RadianciaKS.Application.Services
         private readonly IApplicationDbContext _context;
         private readonly IUserProvider _userProvider;
         private readonly CashShiftMapper _mapper;
+        private readonly ITenantProvider _tenantProvider;
+        private readonly IKdsNotificationService _notificationService;
 
-        public CashShiftService(IApplicationDbContext context, IUserProvider userProvider)
+        public CashShiftService(IApplicationDbContext context, IUserProvider userProvider, ITenantProvider tenantProvider, IKdsNotificationService notificationService)
         {
             _context = context;
             _userProvider = userProvider;
+            _tenantProvider = tenantProvider;
+            _notificationService = notificationService;
             _mapper = new CashShiftMapper();
         }
 
@@ -45,6 +49,9 @@ namespace RadianciaKS.Application.Services
             openShift.EmployeeCloserId = _userProvider.GetUserId();
 
             await _context.SaveChangesAsync();
+
+            var tenantId = _tenantProvider.GetTenantId().ToString();
+            await _notificationService.UpdateCashShiftStatusAsync(tenantId, CashShiftStatus.Closed);
 
             return _mapper.ToDto(openShift);
         }
@@ -110,6 +117,9 @@ namespace RadianciaKS.Application.Services
 
             _context.CashShifts.Add(shift);
             await _context.SaveChangesAsync();
+
+            var tenantId = _tenantProvider.GetTenantId().ToString();
+            await _notificationService.UpdateCashShiftStatusAsync(tenantId, CashShiftStatus.Open);
 
             return _mapper.ToDto(shift);
         }

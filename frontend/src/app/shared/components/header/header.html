@@ -6,14 +6,29 @@
     </button>
   </div>
   <div class="topbar-right">
-    <div class="cash-shift-widget" [class.is-open]="hasOpenShift">
+    <div
+      class="cash-shift-widget"
+      [class.is-open]="
+        (signalrService.connectionStatus$ | async) === 'Conectado' &&
+        (signalrService.cashShiftStatus$ | async) === 'Aberto'
+      "
+      [class.is-loading]="
+        (signalrService.connectionStatus$ | async) === 'Conectado' &&
+        (signalrService.cashShiftStatus$ | async) === 'Carregando...'
+      "
+    >
       <div class="indicator-dot"></div>
       <div class="indicator-text">
         <span class="title">Sistema</span>
-        @if (hasOpenShift) {
+
+        @if ((signalrService.connectionStatus$ | async) === 'Desconectado') {
+          <span class="status-closed">Offline</span>
+        } @else if ((signalrService.cashShiftStatus$ | async) === 'Aberto') {
           <span class="status-open">Aberto</span>
-        } @else {
+        } @else if ((signalrService.cashShiftStatus$ | async) === 'Fechado') {
           <span class="status-closed">Fechado</span>
+        } @else {
+          <span class="status-loading">Verificando</span>
         }
       </div>
     </div>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using RadianciaKS.Api.Hubs;
 using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Application.Services.Interfaces;
+using RadianciaKS.Domain.Enums;
 
 namespace RadianciaKS.Api.Services
 {
@@ -22,6 +23,11 @@ namespace RadianciaKS.Api.Services
         public async Task NotifyDeliveredItemAsync(string tenantId, object item)
         {
             await _hubContext.Clients.Group(tenantId).SendAsync("OnItemDelivered", item);
+        }
+
+        public async Task UpdateCashShiftStatusAsync(string tenantId, CashShiftStatus status)
+        {
+            await _hubContext.Clients.Group(tenantId).SendAsync("UpdateSystemStatus", status);
         }
 
         public async Task NotifyOrderCanceledAsync(string tenantId, OrderResponseDto order)

@@ -122,12 +122,24 @@ header {
       font-size: 0.9rem;
       color: var(--green-status);
     }
+    .status-loading {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
   }
 
   &.is-open {
     .indicator-dot {
       background-color: #4caf50;
       box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+    }
+  }
+
+  &.is-loading {
+    .indicator-dot {
+      background-color: var(--text-secondary);
+      box-shadow: 0 0 8px rgba(150, 150, 150, 0.6);
     }
   }
 }

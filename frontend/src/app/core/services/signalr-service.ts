@@ -3,10 +3,12 @@ import {
   HubConnectionBuilder,
   LogLevel,
   HttpTransportType,
+  HubConnectionState,
 } from '@microsoft/signalr';
 import { inject, Injectable, NgZone } from '@angular/core';
-import { OrderItemResponseDto, OrderResponseDto } from '../models/order.model';
-import { Subject } from 'rxjs';
+import { OrderResponseDto } from '../models/order.model';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +16,7 @@ import { Subject } from 'rxjs';
 export class SignalrService {
   private hubConnection: HubConnection | undefined;
   private zone = inject(NgZone);
+  public toastrService = inject(ToastrService);
 
   private readonly testTenantId = '8d1ed281-9f3b-4659-8a46-7eb26c5d550e';
   private readonly hubUrl = 'https://localhost:7047/hubs/kds';
@@ -24,37 +27,64 @@ export class SignalrService {
   private orderCanceledSource = new Subject<OrderResponseDto>();
   public orderCanceled$ = this.orderCanceledSource.asObservable();
 
+  public connectionStatus$ = new BehaviorSubject<'Conectado' | 'Desconectado'>('Desconectado');
+  public cashShiftStatus$ = new BehaviorSubject<'Aberto' | 'Fechado' | 'Carregando...'>(
+    'Carregando...',
+  );
+
   public startConnection(): void {
-    if (this.hubConnection && this.hubConnection.state !== 'Disconnected') {
+    if (this.hubConnection && this.hubConnection.state !== HubConnectionState.Disconnected) {
       return;
     }
 
-    this.hubConnection = new HubConnectionBuilder()
-      .withUrl(this.hubUrl, {
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
-      })
-      .configureLogging(LogLevel.Information)
-      .withAutomaticReconnect()
-      .build();
+    if (!this.hubConnection) {
+      this.hubConnection = new HubConnectionBuilder()
+        .withUrl(this.hubUrl, {
+          skipNegotiation: true,
+          transport: HttpTransportType.WebSockets,
+        })
+        .configureLogging(LogLevel.Information)
+        .withAutomaticReconnect()
+        .build();
 
-    this.hubConnection.on('ReceiveOrderCanceled', (order: OrderResponseDto) => {
-      this.orderCanceledSource.next(order);
-    });
+      this.hubConnection.on('ReceiveOrderCanceled', (order: OrderResponseDto) => {
+        this.orderCanceledSource.next(order);
+      });
 
-    this.hubConnection.onreconnected(() => {
-      console.log('SignalR reconectado! Reentrando no grupo...');
-      this.joinKitchenGroup();
-    });
+      this.hubConnection.on('UpdateSystemStatus', (status) => {
+        if (status === 0 || status === 'Open' || status === 'Aberto' || status === 1) {
+          this.cashShiftStatus$.next('Aberto');
+          this.toastrService.info('Caixa aberto!');
+        } else {
+          this.cashShiftStatus$.next('Fechado');
+          this.toastrService.warning('Caixa fechado!');
+        }
+      });
+
+      this.hubConnection.onreconnected(() => {
+        console.log('SignalR reconectado! Reentrando no grupo...');
+        this.connectionStatus$.next('Conectado');
+        this.joinKitchenGroup();
+      });
+
+      this.hubConnection.onclose(() => {
+        this.connectionStatus$.next('Desconectado');
+      });
+
+      this.addListeners();
+    }
 
     this.hubConnection
       .start()
       .then(() => {
         console.log('SignalR conectado!');
+        this.connectionStatus$.next('Conectado');
         this.joinKitchenGroup();
-        this.addListeners();
       })
-      .catch((err) => console.error('Erro ao conectar ao SignalR: ', err));
+      .catch((err) => {
+        console.error('Erro ao conectar ao SignalR: ', err);
+        this.connectionStatus$.next('Desconectado');
+      });
   }
 
   private joinKitchenGroup(): void {
@@ -88,7 +118,10 @@ export class SignalrService {
     if (this.hubConnection) {
       this.hubConnection
         .stop()
-        .then(() => console.log('Conexão SignalR terminada.'))
+        .then(() => {
+          console.log('Conexão SignalR terminada.');
+          this.connectionStatus$.next('Desconectado');
+        })
         .catch((err) => console.error('Erro ao parar conexão:', err));
     }
   }
