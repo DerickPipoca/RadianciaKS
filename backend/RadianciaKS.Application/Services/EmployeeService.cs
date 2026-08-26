@@ -4,6 +4,7 @@ using RadianciaKS.Application.DTOs.Employee;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Mappers;
 using RadianciaKS.Application.Services.Interfaces;
+using RadianciaKS.Domain.Enums;
 
 namespace RadianciaKS.Application.Services
 {
@@ -14,19 +15,24 @@ namespace RadianciaKS.Application.Services
         private readonly IValidator<EmployeeRequestDto> _validator;
         private readonly IValidator<EmployeeUpdateDto> _updateValidator;
         private readonly EmployeeMapper _mapper;
+        private readonly IUserProvider _userProvider;
 
-        public EmployeeService(IApplicationDbContext context, IPasswordService passwordService, IValidator<EmployeeRequestDto> validator, IValidator<EmployeeUpdateDto> updateValidator)
+        public EmployeeService(IApplicationDbContext context, IPasswordService passwordService, IValidator<EmployeeRequestDto> validator, IValidator<EmployeeUpdateDto> updateValidator, IUserProvider userProvider)
         {
             _context = context;
             _passwordService = passwordService;
             _validator = validator;
             _updateValidator = updateValidator;
             _mapper = new EmployeeMapper();
+            _userProvider = userProvider;
         }
 
         public async Task<EmployeeResponseDto> CreateEmployee(EmployeeRequestDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
+
+            EnsureRoleAssignmentPermission(dto.Role);
+
             var employeeToAdd = _mapper.ToEntity(dto);
             string? password = EncryptPassword(dto.Password);
             employeeToAdd.PasswordHash = password!;
@@ -40,6 +46,11 @@ namespace RadianciaKS.Application.Services
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null)
                 throw new ArgumentException("O empregado informado não existe.");
+
+            if (employee.Id == _userProvider.GetUserId())
+                throw new ArgumentException("Não é possível deletar a conta logada pela mesma.");
+
+            EnsureTargetPermission(employee);
 
             employee.Active = false;
 
@@ -77,6 +88,9 @@ namespace RadianciaKS.Application.Services
             if (employe == null)
                 throw new ArgumentException("A categoria informada não existe.");
 
+            EnsureTargetPermission(employe);
+            EnsureRoleAssignmentPermission(dto.Role);
+
             string? password = EncryptPassword(dto.Password);
 
             employe.Update(
@@ -99,6 +113,41 @@ namespace RadianciaKS.Application.Services
                 return passwordHash;
             }
             return null;
+        }
+
+        private void EnsureTargetPermission(Domain.Models.Employee targetEmployee)
+        {
+            var currentUserId = _userProvider.GetUserId();
+            var currentUserRoleStr = _userProvider.GetUserRole();
+
+            if (string.IsNullOrEmpty(currentUserRoleStr) || !Enum.TryParse<EmployeeRole>(currentUserRoleStr, out var currentUserRole))
+                throw new ArgumentException("Usuário não autenticado ou com cargo inválido.");
+
+            if (currentUserRole == EmployeeRole.Admin) return;
+
+            if (currentUserRole == EmployeeRole.Manager)
+            {
+                if (targetEmployee.Role == EmployeeRole.Admin)
+                    throw new ArgumentException("Gerentes não podem alterar ou excluir Administradores.");
+
+                if (targetEmployee.Role == EmployeeRole.Manager && targetEmployee.Id != currentUserId)
+                    throw new ArgumentException("Gerentes não podem alterar ou excluir outros Gerentes.");
+            }
+        }
+
+        private void EnsureRoleAssignmentPermission(EmployeeRole newRole)
+        {
+            var currentUserRoleStr = _userProvider.GetUserRole();
+
+            if (string.IsNullOrEmpty(currentUserRoleStr) || !Enum.TryParse<EmployeeRole>(currentUserRoleStr, out var currentUserRole))
+                throw new ArgumentException("Usuário não autenticado ou com cargo inválido.");
+
+            if (currentUserRole == EmployeeRole.Admin) return;
+
+            if (currentUserRole == EmployeeRole.Manager && newRole == EmployeeRole.Admin)
+            {
+                throw new ArgumentException("Apenas Administradores podem conceder permissão de Administrador.");
+            }
         }
     }
 }
