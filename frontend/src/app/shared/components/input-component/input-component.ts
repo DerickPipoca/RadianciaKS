@@ -14,6 +14,7 @@ export class InputComponent {
   @Input() placeholder: string = '';
   @Input() icon: string | LucideIconData | null | undefined = '';
   @Input() ngModel: any;
+  @Input() min: number | null | string = null;
 
   @Input() variant: 'primary' | 'secondary' | 'transparent' = 'transparent';
   @Input() radius: 'default' | 'round' = 'default';

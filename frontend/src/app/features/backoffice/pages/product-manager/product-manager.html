@@ -194,7 +194,7 @@
           id="prodPrice"
           type="number"
           step="0.01"
-          min="0"
+          min="0.00"
           icon="R$"
           [radius]="'default'"
           placeholder="0,00"
@@ -241,6 +241,7 @@
               <label>Mín. Escolhas</label>
               <app-input-component
                 type="number"
+                min="0.00"
                 placeholder="0"
                 [(value)]="newGroup.minChoices"
               ></app-input-component>
@@ -250,6 +251,7 @@
               <label>Máx. Escolhas</label>
               <app-input-component
                 type="number"
+                min="0.00"
                 placeholder="1"
                 [(value)]="newGroup.maxChoices"
               ></app-input-component>
@@ -366,6 +368,7 @@
                 placeholder="0,00"
                 class="price-input-wrapper"
                 [value]="newOptions[group.id]?.price"
+                min="0.00"
                 (valueChange)="setOptionField(group.id, 'price', $event)"
                 style="height: 100%; max-width: 140px"
               ></app-input-component>

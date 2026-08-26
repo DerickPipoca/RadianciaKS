@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.DTOs.Modifier;
 using RadianciaKS.Application.Interfaces;
@@ -9,14 +11,17 @@ namespace RadianciaKS.Application.Services
     public class ModifierService : IModifierService
     {
         private readonly IApplicationDbContext _context;
+        private readonly IValidator<ModifierOptionRequestDto> _validator;
 
-        public ModifierService(IApplicationDbContext context)
+        public ModifierService(IApplicationDbContext context, IValidator<ModifierOptionRequestDto> validator)
         {
             _context = context;
+            _validator = validator;
         }
 
         public async Task<ModifierOptionResponseDto> AddOptionToGroupAsync(Guid groupId, ModifierOptionRequestDto dto)
         {
+            await _validator.ValidateAndThrowAsync(dto);
             var group = await _context.ModifierGroups.FindAsync(groupId);
             if (group == null) throw new ArgumentException("Grupo de modificadores não encontrado.");
 
