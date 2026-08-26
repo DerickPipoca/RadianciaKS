@@ -21,6 +21,9 @@ export class StoreSettingsService {
   uploadLogo(file: File, isBig: boolean): Observable<{ url: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ url: string }>(`${this.endPoint}/upload-logo?isBig=${isBig}`, formData);
+    return this.http.post<{ url: string }>(
+      `${this.endPoint}/upload-image?isBig=${isBig}`,
+      formData,
+    );
   }
 }
