@@ -17,7 +17,7 @@ namespace RadianciaKS.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadImage([FromForm] IFormFile file, [FromForm] string folderName = "images")
+        public async Task<IActionResult> UploadImage(IFormFile file, [FromForm] string folderName = "images")
         {
             if (file == null || file.Length == 0)
             {
