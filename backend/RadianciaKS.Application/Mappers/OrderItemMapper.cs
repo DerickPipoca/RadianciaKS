@@ -12,6 +12,8 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreSource("ProductId")]
         [MapperIgnoreSource("TenantId")]
         [MapperIgnoreSource("Active")]
+        [MapperIgnoreSource("PromotionId")]
+        [MapperIgnoreSource("Promotion")]
         [MapProperty("Product.CategoryId", "CategoryId")]
         public partial OrderItemResponseDto ToDto(OrderItem item);
 
@@ -33,6 +35,7 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreTarget("KdsStatus")]
         [MapperIgnoreTarget("SelectedModifiers")]
         [MapperIgnoreSource("SelectedModifierIds")]
+        [MapperIgnoreTarget("Promotion")]
         public partial OrderItem ToEntity(OrderItemRequestDto dto);
 
     }

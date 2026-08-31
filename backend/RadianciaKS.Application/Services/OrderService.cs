@@ -247,7 +247,7 @@ namespace RadianciaKS.Application.Services
                 CashFlow = cashFlow,
                 SalesChart = salesChart,
 
-                OpenedByName = shift.EmployeeOpener?.Name ?? "Sistema", 
+                OpenedByName = shift.EmployeeOpener?.Name ?? "Sistema",
                 ClosedByName = shift.EmployeeCloser?.Name,
 
                 InitialBalance = shift.InitialBalance,
@@ -392,7 +392,7 @@ namespace RadianciaKS.Application.Services
             if (order.OrderStatus == OrderStatus.Canceled || order.PaymentStatus == PaymentStatus.Paid)
                 throw new ArgumentException("Incapaz de remover qualquer item deste pedido.");
 
-            var item = await FindItemByIdAsync(order, itemId);
+            var item = FindItemById(order, itemId);
 
             _context.OrderItems.Remove(item);
             order.TotalAmount -= (item.UnitPrice * item.Quantity);
@@ -404,7 +404,7 @@ namespace RadianciaKS.Application.Services
         public async Task<OrderResponseDto> UpdateItemStatus(Guid orderId, Guid itemId, KdsStatus status)
         {
             var order = await FindOrderByIdAsync(orderId);
-            var item = await FindItemByIdAsync(order, itemId);
+            var item = FindItemById(order, itemId);
 
             item.KdsStatus = status;
 
@@ -493,7 +493,30 @@ namespace RadianciaKS.Application.Services
             newItem.Id = Guid.NewGuid();
             newItem.ProductId = product.Id;
             newItem.Product = product;
+
+            decimal basePrice = product.Price;
             decimal modifiersTotal = 0;
+            Promotion? activePromotion = null;
+
+            if (itemDto.PromotionId.HasValue)
+            {
+                activePromotion = await _context.Promotions
+                    .Include(p => p.PromotionModifiers)
+                    .FirstOrDefaultAsync(p => p.Id == itemDto.PromotionId.Value && p.Running);
+
+                if (activePromotion == null)
+                    throw new ArgumentException("Promoção não encontrada ou inativa.");
+
+                if (activePromotion.BaseProductId != product.Id)
+                    throw new ArgumentException("Esta promoção não se aplica a este produto.");
+
+                if (activePromotion.PromotionalPrice.HasValue)
+                {
+                    basePrice = activePromotion.PromotionalPrice.Value;
+                }
+
+                newItem.PromotionId = activePromotion.Id;
+            }
 
             if (itemDto.SelectedModifierIds != null && itemDto.SelectedModifierIds.Any())
             {
@@ -508,18 +531,32 @@ namespace RadianciaKS.Application.Services
                     if (modifierOption == null)
                         throw new ArgumentException("Opção adicional não encontrada.");
 
+                    decimal modPrice = modifierOption.AdditionalPrice;
+
+                    if (activePromotion != null)
+                    {
+                        var overrideRule = activePromotion.PromotionModifiers
+                            .FirstOrDefault(pm => pm.ModifierOptionId == modId);
+
+                        if (overrideRule != null)
+                        {
+                            modPrice = overrideRule.OverridePrice;
+                        }
+                    }
+
                     newItem.SelectedModifiers.Add(new OrderItemModifier
                     {
                         Id = Guid.NewGuid(),
                         Name = modifierOption.Name,
                         GroupName = modifierOption.ModifierGroup.Name,
-                        AdditionalPrice = modifierOption.AdditionalPrice
+                        AdditionalPrice = modPrice
                     });
 
-                    modifiersTotal += modifierOption.AdditionalPrice;
+                    modifiersTotal += modPrice;
                 }
             }
-            newItem.UnitPrice = product.Price + modifiersTotal;
+
+            newItem.UnitPrice = basePrice + modifiersTotal;
 
             return newItem;
         }
@@ -547,7 +584,7 @@ namespace RadianciaKS.Application.Services
             return product;
         }
 
-        private async Task<OrderItem> FindItemByIdAsync(Order order, Guid itemId)
+        private OrderItem FindItemById(Order order, Guid itemId)
         {
             var item = order.Items.FirstOrDefault(i => i.Id == itemId);
             if (item == null)

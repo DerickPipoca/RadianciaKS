@@ -9,9 +9,11 @@ import { ModifierModal } from '../../components/modifier-modal/modifier-modal';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
-import { LucideAngularModule, TextSearch, Utensils } from 'lucide-angular';
+import { LucideAngularModule, TextSearch, Utensils, Flame } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
+import { PromotionResponseDto } from '../../../../core/models/promotion.model';
+import { PromotionService } from '../../../../core/services/promotion-service';
 
 @Component({
   selector: 'app-catalog',
@@ -30,14 +32,19 @@ import { Pagination } from '../../../../shared/components/pagination/pagination'
 export class Catalog implements OnInit, OnDestroy {
   readonly TextSearch = TextSearch;
   readonly Utensils = Utensils;
+  readonly Flame = Flame;
 
   private categoryService = inject(CategoryService);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
+  private promotionService = inject(PromotionService);
 
   categories: CategoryResponseDto[] = [];
   products: ProductResponseDto[] = [];
   filteredProducts: ProductResponseDto[] = [];
+
+  promotions: PromotionResponseDto[] = [];
+  viewingPromotions: boolean = false;
 
   searchTerm: string = '';
   pageNumber: number = 1;
@@ -49,6 +56,7 @@ export class Catalog implements OnInit, OnDestroy {
 
   activeCategory: CategoryResponseDto | null = null;
   selectedProductForModal: ProductResponseDto | null = null;
+  selectedPromotionIdForModal: string | null = null;
 
   constructor() {
     this.subscription.add(
@@ -65,6 +73,7 @@ export class Catalog implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadPromotions();
   }
 
   loadCategories(): void {
@@ -72,6 +81,17 @@ export class Catalog implements OnInit, OnDestroy {
       next: (data) => (this.categories = data),
       error: (err) => console.error('Erro ao carregar categorias', err),
     });
+  }
+
+  loadPromotions() {
+    this.promotionService.getActivePromotions().subscribe({
+      next: (data) => (this.promotions = data),
+      error: (err) => console.error(err),
+    });
+  }
+
+  showPromotions() {
+    this.viewingPromotions = true;
   }
 
   fetchProducts(): void {
@@ -95,6 +115,7 @@ export class Catalog implements OnInit, OnDestroy {
   }
 
   selectCategory(category: CategoryResponseDto): void {
+    this.viewingPromotions = false;
     this.activeCategory = category;
     this.pageNumber = 1;
     this.searchTerm = '';
@@ -103,6 +124,7 @@ export class Catalog implements OnInit, OnDestroy {
 
   clearCategory(): void {
     this.activeCategory = null;
+    this.viewingPromotions = false;
     this.pageNumber = 1;
     this.searchTerm = '';
   }
@@ -114,5 +136,16 @@ export class Catalog implements OnInit, OnDestroy {
 
   onProductClick(product: ProductResponseDto): void {
     this.selectedProductForModal = product;
+    this.selectedPromotionIdForModal = null;
+  }
+
+  openPromotionModal(promotion: PromotionResponseDto) {
+    this.selectedPromotionIdForModal = promotion.id; 
+    this.selectedProductForModal = promotion.baseProduct;
+  }
+
+  closeModal() {
+    this.selectedProductForModal = null;
+    this.selectedPromotionIdForModal = null;
   }
 }

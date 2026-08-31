@@ -7,5 +7,8 @@ namespace RadianciaKS.Application.DTOs.Modifier
         public string ImagePath { get; set; } = string.Empty;
         public decimal AdditionalPrice { get; set; }
         public string? Description { get; set; }
+
+        public bool IsPromotional { get; set; }
+        public decimal? PromotionalPrice { get; set; }
     }
 }

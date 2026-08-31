@@ -189,6 +189,7 @@ export class Checkout implements OnInit {
         productId: cartItem.product.id,
         quantity: cartItem.quantity,
         notes: cartItem.notes,
+        promotionId: cartItem.promotionId || undefined,
         selectedModifierIds: cartItem.selectedModifiers.map((mod) => mod.id),
       }));
 

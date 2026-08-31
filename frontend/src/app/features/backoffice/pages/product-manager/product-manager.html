@@ -389,6 +389,74 @@
                 <li class="empty-option">Nenhuma opção adicionada neste grupo ainda.</li>
               }
             </ul>
+            <div class="add-option-container mt-16">
+              <h5 class="add-option-title">+ Nova Opção para {{ group.name || 'este grupo' }}</h5>
+
+              <div class="add-option-inline">
+                <div
+                  class="option-img-preview"
+                  (click)="newOptFileInput.click()"
+                  title="Adicionar imagem"
+                >
+                  @if (newOptions[group.id]?.imagePath) {
+                    <img [src]="'https://localhost:7047' + newOptions[group.id].imagePath" />
+                  } @else {
+                    <div class="icon-placeholder">
+                      <lucide-icon [img]="ImagePlus" size="20px" class="icon" />
+                    </div>
+                  }
+                </div>
+                <input
+                  type="file"
+                  #newOptFileInput
+                  class="hidden-input"
+                  accept="image/*"
+                  (change)="onOptionImageSelected($event, group.id)"
+                />
+
+                <div class="option-fields">
+                  <div class="form-row items-center w-full">
+                    <div class="form-group flex-1 mb-0">
+                      <app-input-component
+                        placeholder="Nome da nova opção (Ex: Bacon)"
+                        [value]="newOptions[group.id]?.name || ''"
+                        (valueChange)="setOptionField(group.id, 'name', $event)"
+                      ></app-input-component>
+                    </div>
+
+                    <div class="form-group max-w-140 mb-0">
+                      <app-input-component
+                        type="number"
+                        icon="R$"
+                        placeholder="0,00"
+                        [value]="newOptions[group.id]?.price || 0"
+                        (valueChange)="setOptionField(group.id, 'price', $event)"
+                      ></app-input-component>
+                    </div>
+
+                    <div class="form-group mb-0">
+                      <app-button-component
+                        variant="primary"
+                        size="sm"
+                        (click)="addOption(group.id)"
+                      >
+                        Adicionar
+                      </app-button-component>
+                    </div>
+                  </div>
+
+                  <div class="form-group w-full mb-0 mt-12">
+                    <textarea
+                      #descInput
+                      rows="1"
+                      placeholder="Descrição (opcional)"
+                      [value]="newOptions[group.id]?.description || ''"
+                      (input)="setOptionField(group.id, 'description', descInput.value)"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         }
       }

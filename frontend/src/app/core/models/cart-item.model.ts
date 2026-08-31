@@ -10,4 +10,5 @@ export interface CartItemDto {
   unitPrice: number;
   totalPrice: number;
   isExistingItem?: boolean;
+  promotionId?: string | null;
 }

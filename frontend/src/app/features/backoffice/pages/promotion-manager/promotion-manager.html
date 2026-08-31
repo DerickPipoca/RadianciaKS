@@ -1,0 +1,203 @@
+<div class="page-header">
+  <div class="header-title">
+    <h2>Promoções e Combos</h2>
+  </div>
+  <app-input-component
+    type="text"
+    [icon]="TextSearch"
+    [variant]="'transparent'"
+    placeholder="Procurar promoção..."
+    [value]="searchTerm"
+    (valueChange)="searchTerm = $event; searchSubject.next($event)"
+  />
+  <app-button-component size="md" variant="primary" radius="round" (click)="openNewModal()">
+    + Adicionar
+  </app-button-component>
+</div>
+
+<div class="card-table">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Promoção</th>
+        <th>Produto Base</th>
+        <th class="actions-column">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (promo of dataList; track promo.id) {
+        <tr>
+          <td>
+            <button
+              class="btn-status"
+              [class.active]="true"
+              (click)="toggleRunningStatus(promo)"
+              title="Pausar/Ativar"
+            >
+              <!-- Se sua listagem tiver o running status: -->
+              <lucide-icon
+                [img]="Flame"
+                size="20"
+                class="status-icon"
+                color="#ff4500"
+              ></lucide-icon>
+            </button>
+          </td>
+          <td>
+            <div class="product-info-cell">
+              <div class="product-text-group">
+                <strong class="product-name">{{ promo.name }}</strong>
+                <span class="product-desc">{{ promo.description || 'Sem descrição' }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge-category">{{ promo.baseProduct.name }}</span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-action btn-edit" (click)="openEditModal(promo)">Editar</button>
+            <button class="btn-action btn-delete" (click)="delete(promo.id)">Apagar</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="empty-row">Nenhuma promoção encontrada.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (totalRecords > 0) {
+    <app-pagination
+      [pageNumber]="pageNumber"
+      [pageSize]="pageSize"
+      [totalRecords]="totalRecords"
+      (pageChange)="changePage($event)"
+    >
+    </app-pagination>
+  }
+</div>
+
+@if (showModal) {
+  <app-modal-component
+    [title]="isEditing ? 'Editar Promoção' : 'Nova Promoção'"
+    (onClose)="closeModal()"
+  >
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nome da Promoção *</label>
+        <app-input-component
+          placeholder="(Ex: Combo Burger + Fritas)"
+          [(value)]="currentItem.name"
+        ></app-input-component>
+      </div>
+
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea
+          rows="2"
+          [(ngModel)]="currentItem.description"
+          placeholder="(Ex: Na compra do burger, a batata e o refri saem com desconto)"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Produto Base *</label>
+        <div
+          class="custom-select-container"
+          appClickOutsideDirective
+          (clickOutside)="dropdownOpen = false"
+        >
+          <button type="button" class="custom-select-trigger" (click)="toggleDropdown()">
+            {{ getSelectedProductName() || 'Selecione o produto principal...' }}
+            <span class="arrow">▼</span>
+          </button>
+
+          @if (dropdownOpen) {
+            <ul class="options-list">
+              @for (prod of products; track prod.id) {
+                <li
+                  class="option"
+                  [class.is-selected]="currentItem.baseProductId === prod.id"
+                  (click)="selectProduct(prod.id)"
+                >
+                  {{ prod.name }} (R$ {{ prod.price | number: '1.2-2' }})
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+
+      @if (selectedBaseProduct) {
+        <hr class="divider" />
+        <h3 class="section-title text-orange-500">Configuração de Descontos</h3>
+
+        <div class="info-alert mb-16">
+          <p>Deixe o campo vazio para manter o preço original do cardápio.</p>
+        </div>
+
+        <div class="modifier-group-card">
+          <div class="group-header">
+            <h4 style="margin: 0">Produto Principal</h4>
+          </div>
+          <ul class="options-list">
+            <li class="option-item" style="background: rgba(255, 211, 105, 0.1)">
+              <div class="option-fields">
+                <strong style="color: var(--text-primary)">{{ selectedBaseProduct.name }}</strong>
+                <span style="font-size: 0.85rem; color: var(--text-secondary)"
+                  >Preço Normal: R$ {{ selectedBaseProduct.price | number: '1.2-2' }}</span
+                >
+              </div>
+              <div class="max-w-140">
+                <app-input-component
+                  type="number"
+                  icon="R$"
+                  placeholder="Novo Preço"
+                  [(value)]="currentItem.promotionalPrice"
+                ></app-input-component>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        @for (group of selectedBaseProduct.modifierGroups; track group.id) {
+          <div class="modifier-group-card">
+            <div class="group-header">
+              <h4 style="margin: 0">Grupo: {{ group.name }}</h4>
+            </div>
+            <ul class="options-list">
+              @for (opt of group.options; track opt.id) {
+                <li class="option-item">
+                  <div class="option-fields">
+                    <strong style="color: var(--text-primary)">{{ opt.name }}</strong>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary)">
+                      Adicional Normal: + R$ {{ opt.additionalPrice | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="max-w-140">
+                    <app-input-component
+                      type="number"
+                      icon="R$"
+                      placeholder="Promocional"
+                      [(value)]="modifierOverrides[opt.id]"
+                    ></app-input-component>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="modal-footer">
+      <app-button-component variant="danger" size="sm" (click)="closeModal()">
+        Cancelar
+      </app-button-component>
+      <app-button-component variant="primary" size="sm" (click)="save()">
+        Salvar Promoção
+      </app-button-component>
+    </div>
+  </app-modal-component>
+}

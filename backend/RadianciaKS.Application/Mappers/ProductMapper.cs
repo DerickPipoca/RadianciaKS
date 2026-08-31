@@ -8,6 +8,8 @@ namespace RadianciaKS.Application.Mappers
     [Mapper]
     public partial class ProductMapper
     {
+        [MapperIgnoreTarget("IsPromotional")]
+        [MapperIgnoreTarget("PromotionalPrice")]
         [MapperIgnoreSource("TenantId")]
         public partial ProductResponseDto ToDto(Product product);
 
@@ -23,6 +25,8 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreSource("TenantId")]
         [MapperIgnoreSource("Active")]
         [MapperIgnoreSource("CreatedAt")]
+        [MapperIgnoreTarget("IsPromotional")]
+        [MapperIgnoreTarget("PromotionalPrice")]
         public partial ModifierOptionResponseDto OptionToDto(ModifierOption option);
 
         [MapperIgnoreTarget("Id")]

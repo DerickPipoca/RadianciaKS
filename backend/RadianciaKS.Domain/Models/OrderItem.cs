@@ -15,6 +15,9 @@ namespace RadianciaKS.Domain.Models
         public Guid ProductId { get; set; }
         public virtual Product Product { get; set; } = null!;
 
+        public Guid? PromotionId { get; set; }
+        public virtual Promotion? Promotion { get; set; } = null!;
+
         public ICollection<OrderItemModifier> SelectedModifiers { get; set; } = new List<OrderItemModifier>();
     }
 }

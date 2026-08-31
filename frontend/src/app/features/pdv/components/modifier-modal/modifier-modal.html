@@ -1,7 +1,19 @@
 <div class="modal-backdrop" (click)="close.emit()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <header class="modal-header">
-      <h2>{{ product.name }}</h2>
+      <div class="header-titles">
+        <h2>{{ product.name }}</h2>
+        <div class="header-prices">
+          @if (product.isPromotional) {
+            <del class="text-gray-400 text-sm">R$ {{ product.price | number: '1.2-2' }}</del>
+            <span class="text-green-500 font-bold ml-2"
+              >R$ {{ product.promotionalPrice | number: '1.2-2' }}</span
+            >
+          } @else {
+            <span class="text-gray-400">R$ {{ product.price | number: '1.2-2' }}</span>
+          }
+        </div>
+      </div>
       <button class="close-btn" (click)="close.emit()">✕</button>
     </header>
 
@@ -25,14 +37,27 @@
 
             <div class="options-list">
               @for (option of group.options; track option.id) {
-                <div class="option-item" [class.selected]="isOptionSelected(group.id, option.id)">
+                <div
+                  class="option-item"
+                  [class.selected]="isOptionSelected(group.id, option.id)"
+                  [class.promo-highlight]="option.isPromotional"
+                >
                   <div class="option-info">
                     <span class="option-name">{{ option.name }}</span>
 
                     @if (option.description) {
                       <span class="option-desc">{{ option.description }}</span>
                     }
-                    @if (option.additionalPrice > 0) {
+                    @if (option.isPromotional) {
+                      <div class="option-price-promo">
+                        <del class="text-gray-400"
+                          >R$ {{ option.additionalPrice | number: '1.2-2' }}</del
+                        >
+                        <span class="text-green-500 font-bold"
+                          >+ R$ {{ option.promotionalPrice | number: '1.2-2' }}</span
+                        >
+                      </div>
+                    } @else if (option.additionalPrice > 0) {
                       <span class="option-price"
                         >+ R$ {{ option.additionalPrice | number: '1.2-2' }}</span
                       >

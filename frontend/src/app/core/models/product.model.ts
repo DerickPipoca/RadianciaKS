@@ -10,6 +10,9 @@ export interface ProductResponseDto {
   categoryId: string;
   categoryName: string;
   modifierGroups: ModifierGroupResponseDto[];
+
+  isPromotional?: boolean;
+  promotionalPrice?: number;
 }
 
 export interface ProductRequestDto {

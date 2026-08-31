@@ -10,6 +10,7 @@ import {
   Users,
   Settings,
   ShoppingCart,
+  BaggageClaim,
 } from 'lucide-angular';
 import { CashShiftControlComponent } from '../components/cash-shift-control/cash-shift-control';
 
@@ -26,6 +27,7 @@ export class Layout implements OnInit {
   readonly Users = Users;
   readonly Settings = Settings;
   readonly ShoppingCart = ShoppingCart;
+  readonly BaggageClaim = BaggageClaim;
 
   private authService = inject(AuthService);
   private router = inject(Router);

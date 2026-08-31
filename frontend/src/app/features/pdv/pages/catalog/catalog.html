@@ -1,10 +1,11 @@
 <div class="catalog-container">
   <header class="catalog-topbar">
-    @if (activeCategory) {
-      <button class="btn-back" (click)="clearCategory()">‹ Sair do pedido</button>
+    @if (activeCategory || viewingPromotions) {
+      <button class="btn-back" (click)="clearCategory()">‹ Sair da seção</button>
     } @else {
       <button class="btn-back" routerLink="/pdv/home">‹ Sair do pedido</button>
     }
+
     @if (activeCategory) {
       <app-input-component
         type="text"
@@ -18,10 +19,23 @@
   </header>
 
   <div class="catalog-content">
-    @if (!activeCategory) {
+    <!-- VISÃO 1: LISTAGEM DE CATEGORIAS -->
+    @if (!activeCategory && !viewingPromotions) {
       <h2 class="section-title">Categorias</h2>
 
       <div class="categories-grid">
+        <!-- Card Fixo de Promoções -->
+        @if (promotions.length > 0) {
+          <div class="category-card promo-highlight" (click)="showPromotions()">
+            <div class="bg-placeholder flex-center">
+              <lucide-icon [img]="Flame" size="40" color="#ff4500"></lucide-icon>
+            </div>
+            <div class="overlay"></div>
+            <h3>Promoções e Combos</h3>
+          </div>
+        }
+
+        <!-- Demais Categorias -->
         @for (category of categories; track category.id) {
           <div class="category-card" (click)="selectCategory(category)">
             @if (category.imagePath) {
@@ -33,20 +47,74 @@
             } @else {
               <div class="bg-placeholder"></div>
             }
-
             <div class="overlay"></div>
-
             <h3>{{ category.name }}</h3>
           </div>
         } @empty {
           <div class="empty-state">Nenhuma categoria cadastrada.</div>
         }
       </div>
-    } @else {
+    }
+
+    <!-- VISÃO 2: LISTAGEM DE PROMOÇÕES -->
+    @else if (viewingPromotions) {
       <header class="breadcrumb-header">
         <h2 class="breadcrumb-title">
           <span class="back-link" (click)="clearCategory()">Categoria</span> >
-          <span>{{ activeCategory.name }}</span>
+          <span class="text-orange-500">Promoções e Combos</span>
+        </h2>
+      </header>
+
+      <main class="products-grid">
+        @for (promo of promotions; track promo.id) {
+          <div class="product-card promo-card-border" (click)="openPromotionModal(promo)">
+            <div class="product-info">
+              <h3 class="text-orange-500">{{ promo.name }}</h3>
+              <p class="product-desc">{{ promo.description }}</p>
+
+              <span class="price">
+                <!-- Se o produto em si tiver desconto, mostre riscado -->
+                @if (promo.baseProduct.isPromotional) {
+                  <del class="text-gray-400 text-sm"
+                    >R$ {{ promo.baseProduct.price | number: '1.2-2' }}</del
+                  >
+                  <span class="text-green-600 font-bold ml-2"
+                    >R$ {{ promo.baseProduct.promotionalPrice | number: '1.2-2' }}</span
+                  >
+                } @else {
+                  A partir de R$ {{ promo.baseProduct.price | number: '1.2-2' }}
+                }
+              </span>
+            </div>
+
+            <div class="product-image">
+              @if (promo.baseProduct.imagePath) {
+                <img
+                  [src]="'https://localhost:7047' + promo.baseProduct.imagePath"
+                  [alt]="promo.name"
+                />
+              } @else {
+                <div class="no-image">
+                  <lucide-icon [img]="Flame" class="icon text-orange-500" size="32"></lucide-icon>
+                </div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">
+            <p>Nenhuma promoção ativa no momento.</p>
+          </div>
+        }
+      </main>
+    }
+
+    <!-- VISÃO 3: LISTAGEM DE PRODUTOS NORMAIS -->
+    @else {
+      <!-- MANTIDO O SEU CÓDIGO ORIGINAL AQUI DENTRO (Breadcrumb, filteredProducts, Pagination) -->
+      <header class="breadcrumb-header">
+        <h2 class="breadcrumb-title">
+          <span class="back-link" (click)="clearCategory()">Categoria</span> >
+          <span>{{ activeCategory?.name }}</span>
         </h2>
       </header>
 
@@ -87,15 +155,19 @@
             [pageSize]="pageSize"
             [totalRecords]="totalRecords"
             (pageChange)="changePage($event)"
-          >
-          </app-pagination>
+          ></app-pagination>
         </div>
       }
     }
   </div>
 </div>
 
+<!-- Renderização do Modal de Modificadores reaproveitado! -->
 @if (selectedProductForModal) {
-  <app-modifier-modal [product]="selectedProductForModal" (close)="selectedProductForModal = null">
+  <app-modifier-modal
+    [product]="selectedProductForModal"
+    [promotionId]="selectedPromotionIdForModal"
+    (close)="closeModal()"
+  >
   </app-modifier-modal>
 }

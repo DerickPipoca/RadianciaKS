@@ -18,6 +18,7 @@ import Decimal from 'decimal.js';
 })
 export class ModifierModal implements OnInit {
   @Input({ required: true }) product!: ProductResponseDto;
+  @Input() promotionId: string | null = null;
 
   @Output() close = new EventEmitter<void>();
 
@@ -26,8 +27,6 @@ export class ModifierModal implements OnInit {
   quantity: number = 1;
   notes: string = '';
 
-  // Alteramos o Map para guardar também a referência do grupo inteiro, não apenas as opções
-  // Isso facilita buscar o nome do grupo na hora de confirmar
   selections = new Map<
     string,
     { group: ModifierGroupResponseDto; options: ModifierOptionResponseDto[] }
@@ -101,11 +100,21 @@ export class ModifierModal implements OnInit {
 
     this.selections.forEach((data) => {
       data.options.forEach((opt) => {
-        modifiersTotal = modifiersTotal.plus(new Decimal(opt.additionalPrice));
+        const optPrice =
+          opt.isPromotional && opt.promotionalPrice !== undefined
+            ? opt.promotionalPrice
+            : opt.additionalPrice;
+
+        modifiersTotal = modifiersTotal.plus(new Decimal(optPrice));
       });
     });
 
-    const basePrice = new Decimal(this.product.price);
+    const basePriceValue =
+      this.product.isPromotional && this.product.promotionalPrice !== undefined
+        ? this.product.promotionalPrice
+        : this.product.price;
+
+    const basePrice = new Decimal(basePriceValue);
     const finalUnit = basePrice.plus(modifiersTotal);
 
     return finalUnit.times(this.quantity).toNumber();
@@ -118,16 +127,27 @@ export class ModifierModal implements OnInit {
 
     this.selections.forEach((data) => {
       data.options.forEach((opt) => {
+        const finalPrice =
+          opt.isPromotional && opt.promotionalPrice !== undefined
+            ? opt.promotionalPrice
+            : opt.additionalPrice;
+
         selectedModifiers.push({
           id: opt.id,
           name: opt.name,
-          additionalPrice: opt.additionalPrice,
+          additionalPrice: finalPrice,
           groupName: data.group.name,
         });
       });
     });
 
-    this.cartService.addProduct(this.product, this.quantity, selectedModifiers, this.notes);
+    this.cartService.addProduct(
+      this.product,
+      this.quantity,
+      selectedModifiers,
+      this.notes,
+      this.promotionId,
+    );
     this.close.emit();
   }
 }

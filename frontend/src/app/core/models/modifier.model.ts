@@ -27,6 +27,8 @@ export interface ModifierOptionResponseDto {
   additionalPrice: number;
   imagePath?: string;
   description?: string;
+  isPromotional?: boolean;
+  promotionalPrice?: number;
 }
 
 export interface OrderItemModifierResponseDto {

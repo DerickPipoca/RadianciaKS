@@ -22,21 +22,7 @@ export class CartService {
 
   subTotal = computed(() => {
     return this.cartItemsSignal().reduce((acc, item) => {
-      const itemPrice = item.product.price ?? item.unitPrice ?? 0;
-      const itemQuantity = item.quantity ?? 1;
-
-      let total = new Decimal(itemPrice).times(itemQuantity);
-
-      if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-        item.selectedModifiers.forEach((mod: any) => {
-          const modPrice = mod.price ?? mod.unitPrice ?? 0;
-          const modQuantity = mod.quantity ?? 1;
-
-          total = total.plus(new Decimal(modPrice).times(modQuantity));
-        });
-      }
-
-      return acc.plus(total);
+      return acc.plus(new Decimal(item.totalPrice || 0));
     }, new Decimal(0));
   });
 
@@ -45,10 +31,13 @@ export class CartService {
     quantity: number = 1,
     selectedModifiers: OrderItemModifierResponseDto[] = [],
     notes?: string,
+    promotionId?: string | null,
   ): void {
     const existingItemIndex = this.cartItemsSignal().findIndex((item) => {
       if (item.product.id !== product.id || item.isExistingItem) return false;
       if (item.notes !== notes) return false;
+
+      if (item.promotionId !== promotionId) return false;
 
       const mods1 = item.selectedModifiers || [];
       const mods2 = selectedModifiers || [];
@@ -57,11 +46,17 @@ export class CartService {
       return mods1.every((m1) => mods2.some((m2) => m1.id === m2.id));
     });
 
+    const basePrice =
+      product.isPromotional && product.promotionalPrice !== undefined
+        ? new Decimal(product.promotionalPrice)
+        : new Decimal(product.price);
+
     const modifiersTotal = selectedModifiers.reduce(
       (sum, mod) => sum.plus(mod.additionalPrice),
       new Decimal(0),
     );
-    const unitPriceWithModifiers = new Decimal(product.price).plus(modifiersTotal);
+
+    const unitPriceWithModifiers = basePrice.plus(modifiersTotal);
 
     if (existingItemIndex > -1) {
       this.cartItemsSignal.update((items) => {
@@ -86,6 +81,7 @@ export class CartService {
         unitPrice: unitPriceWithModifiers.toNumber(),
         totalPrice: totalPrice.toNumber(),
         isExistingItem: false,
+        promotionId: promotionId,
       };
 
       this.cartItemsSignal.update((items) => [...items, newItem]);
@@ -104,11 +100,17 @@ export class CartService {
       if (item.quantity > 1) {
         item.quantity -= 1;
 
+        const basePrice =
+          item.product.isPromotional && item.product.promotionalPrice !== undefined
+            ? new Decimal(item.product.promotionalPrice)
+            : new Decimal(item.product.price);
+
         const modsTotal = (item.selectedModifiers || []).reduce(
           (acc, mod) => acc.plus(mod.additionalPrice),
           new Decimal(0),
         );
-        const unitPrice = new Decimal(item.product.price).plus(modsTotal);
+
+        const unitPrice = basePrice.plus(modsTotal);
         item.totalPrice = unitPrice.times(item.quantity).toNumber();
       } else {
         newItems.splice(index, 1);
@@ -129,11 +131,17 @@ export class CartService {
 
       item.quantity += 1;
 
+      const basePrice =
+        item.product.isPromotional && item.product.promotionalPrice !== undefined
+          ? new Decimal(item.product.promotionalPrice)
+          : new Decimal(item.product.price);
+
       const modsTotal = (item.selectedModifiers || []).reduce(
         (acc, mod) => acc.plus(mod.additionalPrice),
         new Decimal(0),
       );
-      const unitPrice = new Decimal(item.product.price).plus(modsTotal);
+
+      const unitPrice = basePrice.plus(modsTotal);
       item.totalPrice = unitPrice.times(item.quantity).toNumber();
 
       return newItems;
@@ -154,7 +162,6 @@ export class CartService {
     this.editingOrderId.set(order.id);
     this.existingOrderData.set(order);
 
-    // Converte os itens antigos do pedido no formato do carrinho
     const pastItems: CartItemDto[] = order.items.map((item) => ({
       id: item.id,
       product: { id: item.productId, name: item.productName } as any,

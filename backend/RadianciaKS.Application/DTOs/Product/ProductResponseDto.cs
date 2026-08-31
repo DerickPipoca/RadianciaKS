@@ -12,6 +12,9 @@ namespace RadianciaKS.Application.DTOs.Product
         public string? ImagePath { get; set; }
         public decimal Price { get; set; }
 
+        public bool IsPromotional { get; set; }
+        public decimal? PromotionalPrice { get; set; }
+
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
 

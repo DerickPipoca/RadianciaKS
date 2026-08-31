@@ -115,6 +115,19 @@
     padding: 16px 0;
     border-bottom: 1px solid var(--border-color);
 
+    &.promo-highlight {
+      background-color: rgba(34, 197, 94, 0.05); 
+      border-left: 3px solid #22c55e;
+      padding-left: 16px;
+    }
+
+    .option-price-promo {
+      display: flex;
+      gap: 8px;
+      font-size: 0.9rem;
+      align-items: center;
+    }
+
     &:last-child {
       border-bottom: none;
     }

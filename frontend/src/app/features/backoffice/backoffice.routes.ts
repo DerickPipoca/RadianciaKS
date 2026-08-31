@@ -6,6 +6,7 @@ import { EmployeeManager } from './pages/employee-manager/employee-manager';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { StoreSettings } from './pages/store-settings/store-settings';
 import { OrderManager } from './pages/order-manager/order-manager';
+import { PromotionManager } from './pages/promotion-manager/promotion-manager';
 
 export const BACKOFFICE_ROUTES: Routes = [
   {
@@ -17,6 +18,7 @@ export const BACKOFFICE_ROUTES: Routes = [
       { path: 'categorias', component: CategoryManager },
       { path: 'pedidos', component: OrderManager },
       { path: 'produtos', component: ProductManager },
+      { path: 'promocoes', component: PromotionManager },
       { path: 'equipe', component: EmployeeManager },
       { path: 'configuracoes-loja', component: StoreSettings },
     ],
