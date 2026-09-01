@@ -36,4 +36,5 @@ export interface OrderItemModifierResponseDto {
   name: string;
   groupName: string;
   additionalPrice: number;
+  originalAdditionalPrice?: number;
 }

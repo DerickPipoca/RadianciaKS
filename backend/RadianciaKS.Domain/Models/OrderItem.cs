@@ -7,6 +7,7 @@ namespace RadianciaKS.Domain.Models
         public int Quantity { get; set; }
         public string? Notes { get; set; }
         public decimal UnitPrice { get; set; }
+        public decimal? OriginalUnitPrice { get; set; }
         public KdsStatus KdsStatus { get; set; } = KdsStatus.Pending;
 
         public Guid OrderId { get; set; }

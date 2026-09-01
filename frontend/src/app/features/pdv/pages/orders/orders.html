@@ -139,15 +139,47 @@
             <li class="item-row">
               <div class="item-main-info">
                 <strong>{{ item.quantity }}x {{ item.productName }}</strong>
-                <span>R$ {{ item.unitPrice | number: '1.2-2' }}</span>
+
+                <div class="price-container">
+                  @if (item.originalUnitPrice && item.originalUnitPrice > item.unitPrice) {
+                    <span class="old-price">R$ {{ item.originalUnitPrice | number: '1.2-2' }}</span>
+                  }
+                  <span class="current-price">R$ {{ item.unitPrice | number: '1.2-2' }}</span>
+                </div>
               </div>
 
               @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-                <ul class="modifier-list">
-                  @for (mod of item.selectedModifiers; track mod.id) {
-                    <li>+ {{ mod.name }}</li>
+                <div class="modifiers-container">
+                  @for (group of item.selectedModifiers | groupBy: 'groupName'; track group.key) {
+                    <div class="modifier-group">
+                      <span class="group-title">{{ group.key }}</span>
+
+                      <ul class="modifier-list">
+                        @for (mod of group.items; track mod.id) {
+                          <li>
+                            <span>+ {{ mod.name }}</span>
+
+                            <div class="price-container">
+                              @if (
+                                mod.originalAdditionalPrice &&
+                                mod.originalAdditionalPrice > mod.additionalPrice
+                              ) {
+                                <span class="old-price"
+                                  >R$ {{ mod.originalAdditionalPrice | number: '1.2-2' }}</span
+                                >
+                              }
+                              @if (mod.additionalPrice > 0 || mod.originalAdditionalPrice) {
+                                <span class="current-price"
+                                  >R$ {{ mod.additionalPrice | number: '1.2-2' }}</span
+                                >
+                              }
+                            </div>
+                          </li>
+                        }
+                      </ul>
+                    </div>
                   }
-                </ul>
+                </div>
               }
 
               @if (item.notes) {
@@ -161,17 +193,28 @@
 
         <hr class="divider" />
 
-        <div class="summary-totals">
-          <div class="line">
-            <span>Total Cobrado:</span>
-            <strong>R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
+        <div class="summary-box">
+          <div>
+            <label>Status de Pagamento</label>
+            <strong
+              class="badge-status"
+              [ngClass]="selectedOrder.paymentStatus | paymentStatusClass"
+            >
+              {{ selectedOrder.paymentStatus | paymentStatusLabel }}
+            </strong>
           </div>
-          @if (selectedOrder.changeAmount > 0) {
-            <div class="line change">
-              <span>Troco Devolvido:</span>
-              <strong>R$ {{ selectedOrder.changeAmount | number: '1.2-2' }}</strong>
-            </div>
-          }
+          <div style="text-align: right">
+            <label>Total Cobrado</label>
+            <strong class="total-price"
+              >R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong
+            >
+
+            @if (selectedOrder.changeAmount > 0) {
+              <div style="font-size: 0.9rem; color: var(--green-status); margin-top: 4px">
+                Troco: R$ {{ selectedOrder.changeAmount | number: '1.2-2' }}
+              </div>
+            }
+          </div>
         </div>
       </main>
 

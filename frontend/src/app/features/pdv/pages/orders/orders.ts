@@ -24,6 +24,7 @@ import { Pagination } from '../../../../shared/components/pagination/pagination'
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ToastrService } from 'ngx-toastr';
 import { PrintService } from '../../../../core/services/print-service';
+import { GroupByPipe } from '../../../../core/pipes/group-by-pipe';
 
 @Component({
   selector: 'app-orders',
@@ -40,6 +41,7 @@ import { PrintService } from '../../../../core/services/print-service';
     ClickOutsideDirective,
     Pagination,
     ModalComponent,
+    GroupByPipe,
   ],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
@@ -160,6 +162,7 @@ export class Orders implements OnInit, OnDestroy {
 
   openDetails(order: OrderResponseDto) {
     this.selectedOrder = order;
+    console.log(order);
   }
 
   closeDetails() {

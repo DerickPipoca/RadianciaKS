@@ -73,6 +73,7 @@ export class Cart implements OnDestroy {
       productId: cartItem.product.id,
       quantity: cartItem.quantity,
       notes: cartItem.notes,
+      promotionId: cartItem.promotionId || undefined,
       selectedModifierIds: cartItem.selectedModifiers.map((mod) => mod.id),
     }));
 
@@ -104,10 +105,11 @@ export class Cart implements OnDestroy {
     const orderId = this.cartService.editingOrderId();
     const newItems = this.cartService.getNewItemsOnly();
 
-    const payload = newItems.map((item) => ({
+    const payload: OrderItemRequestDto[] = newItems.map((item) => ({
       productId: item.product.id,
       quantity: item.quantity,
       notes: item.notes,
+      promotionId: item.promotionId || undefined,
       selectedModifierIds: item.selectedModifiers.map((m) => m.id),
     }));
 

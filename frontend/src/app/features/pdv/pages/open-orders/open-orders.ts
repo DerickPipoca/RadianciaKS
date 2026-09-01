@@ -27,6 +27,7 @@ import {
 } from '../../../../core/pipes/payment-status-pipe-pipe';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ClickOutsideDirective } from '../../../../core/directives/click-outside-directive';
+import { GroupByPipe } from "../../../../core/pipes/group-by-pipe";
 
 @Component({
   selector: 'app-open-orders',
@@ -40,7 +41,8 @@ import { ClickOutsideDirective } from '../../../../core/directives/click-outside
     PaymentStatusClassPipe,
     ClickOutsideDirective,
     ModalComponent,
-  ],
+    GroupByPipe
+],
   templateUrl: './open-orders.html',
   styleUrl: './open-orders.scss',
 })

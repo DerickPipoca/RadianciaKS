@@ -25,6 +25,7 @@ export interface OrderItemResponseDto {
   notes?: string;
   quantity: number;
   unitPrice: number;
+  originalUnitPrice?: number;
   kdsStatus: KdsStatus;
   createdAt?: string | Date;
   selectedModifiers: OrderItemModifierResponseDto[];

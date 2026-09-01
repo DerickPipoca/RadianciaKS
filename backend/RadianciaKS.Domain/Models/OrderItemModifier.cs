@@ -4,6 +4,7 @@ namespace RadianciaKS.Domain.Models
     {
         public string Name { get; set; } = string.Empty;
         public decimal AdditionalPrice { get; set; } = 0m;
+        public decimal? OriginalAdditionalPrice { get; set; }
 
         public string GroupName { get; set; } = string.Empty;
 

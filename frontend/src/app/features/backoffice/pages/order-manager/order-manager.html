@@ -127,41 +127,87 @@
 
       <hr class="divider" />
 
-      <h3 class="section-title" style="margin-top: 0; color: var(--text-primary)">
+      <h3
+        class="section-title"
+        style="margin-top: 0; margin-bottom: 16px; color: var(--text-primary)"
+      >
         Itens Consumidos
       </h3>
 
-      <ul class="options-list" style="max-height: 280px; overflow-y: auto; padding-right: 8px">
+      <!-- Usando a classe padrão da nossa UX global -->
+      <ul class="items-list" style="max-height: 280px; overflow-y: auto; padding-right: 8px">
         @for (item of currentItem.items; track item.id) {
-          <li class="option-item">
-            <div class="opt-left" style="display: flex; flex-direction: column; gap: 4px">
-              <span class="opt-name">
-                <strong>{{ item.quantity }}x</strong> {{ item.productName }}
-              </span>
-
-              @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
-                <span class="opt-desc">
-                  @for (mod of item.selectedModifiers; track mod.id) {
-                    {{ mod.name }}
-                    @if (!$last) {
-                      ,
-                    }
+          <li class="item-row">
+            <div class="item-main-info">
+              <!-- Lado Esquerdo: Quantidade, Nome e Preço Unitário -->
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <span
+                  ><strong>{{ item.quantity }}x</strong> {{ item.productName }}</span
+                >
+                <div class="price-container">
+                  @if (item.originalUnitPrice && item.originalUnitPrice > item.unitPrice) {
+                    <span class="old-price">R$ {{ item.originalUnitPrice | number: '1.2-2' }}</span>
                   }
-                </span>
-              }
+                  <span class="current-price">R$ {{ item.unitPrice | number: '1.2-2' }}</span>
+                </div>
+              </div>
+
+              <!-- Lado Direito: Preço Total daquele Item (Qtd * Valor) -->
+              <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary)">
+                R$ {{ item.unitPrice * item.quantity | number: '1.2-2' }}
+              </div>
             </div>
 
-            <div class="opt-right">
-              <span class="opt-price">
-                R$ {{ item.unitPrice * item.quantity | number: '1.2-2' }}
-              </span>
-            </div>
+            <!-- Modificadores Agrupados com Pipe -->
+            @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
+              <div class="modifiers-container">
+                @for (group of item.selectedModifiers | groupBy: 'groupName'; track group.key) {
+                  <div class="modifier-group">
+                    <span class="group-title">{{ group.key }}</span>
+
+                    <ul class="modifier-list">
+                      @for (mod of group.items; track mod.id) {
+                        <li>
+                          <span>+ {{ mod.name }}</span>
+
+                          <div class="price-container">
+                            @if (
+                              mod.originalAdditionalPrice &&
+                              mod.originalAdditionalPrice > mod.additionalPrice
+                            ) {
+                              <span class="old-price"
+                                >R$ {{ mod.originalAdditionalPrice | number: '1.2-2' }}</span
+                              >
+                            }
+                            @if (mod.additionalPrice > 0 || mod.originalAdditionalPrice) {
+                              <span class="current-price"
+                                >R$ {{ mod.additionalPrice | number: '1.2-2' }}</span
+                              >
+                            }
+                          </div>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (item.notes) {
+              <p class="item-notes">Obs: {{ item.notes }}</p>
+            }
           </li>
         } @empty {
-          <li class="empty-option">Nenhum item registrado neste pedido.</li>
+          <li
+            class="empty-row"
+            style="text-align: center; padding: 12px; color: var(--text-secondary)"
+          >
+            Nenhum item registrado neste pedido.
+          </li>
         }
       </ul>
 
+      <!-- Mantive a sua summary-box original para não quebrar o seu design específico de admin -->
       <div class="summary-box">
         <div>
           <label>Status de Pagamento</label>

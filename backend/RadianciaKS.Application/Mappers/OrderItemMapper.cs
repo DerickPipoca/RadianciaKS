@@ -29,6 +29,7 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreTarget("CreatedAt")]
         [MapperIgnoreTarget("Active")]
         [MapperIgnoreTarget("UnitPrice")]
+        [MapperIgnoreTarget("OriginalUnitPrice")]
         [MapperIgnoreTarget("Order")]
         [MapperIgnoreTarget("Product")]
         [MapperIgnoreTarget("OrderId")]

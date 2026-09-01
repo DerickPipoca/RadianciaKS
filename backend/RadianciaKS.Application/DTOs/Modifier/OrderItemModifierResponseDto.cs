@@ -6,5 +6,6 @@ namespace RadianciaKS.Application.DTOs.Modifier
         public string GroupName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public decimal AdditionalPrice { get; set; }
+        public decimal? OriginalAdditionalPrice { get; set; }
     }
 }

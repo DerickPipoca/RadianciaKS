@@ -22,13 +22,13 @@ import { Pagination } from '../../../../shared/components/pagination/pagination'
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ToastrService } from 'ngx-toastr';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { GroupByPipe } from '../../../../core/pipes/group-by-pipe';
 
 @Component({
   selector: 'app-order-manager',
   imports: [
     CommonModule,
     FormsModule,
-    ButtonComponent,
     InputComponent,
     LucideAngularModule,
     OrderStatusClassPipe,
@@ -37,6 +37,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     PaymentStatusLabelPipe,
     Pagination,
     ModalComponent,
+    GroupByPipe,
+    ButtonComponent,
   ],
   templateUrl: './order-manager.html',
   styleUrl: './order-manager.scss',

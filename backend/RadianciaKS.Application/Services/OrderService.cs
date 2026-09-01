@@ -494,6 +494,8 @@ namespace RadianciaKS.Application.Services
             newItem.ProductId = product.Id;
             newItem.Product = product;
 
+            newItem.OriginalUnitPrice = product.Price;
+
             decimal basePrice = product.Price;
             decimal modifiersTotal = 0;
             Promotion? activePromotion = null;
@@ -549,7 +551,8 @@ namespace RadianciaKS.Application.Services
                         Id = Guid.NewGuid(),
                         Name = modifierOption.Name,
                         GroupName = modifierOption.ModifierGroup.Name,
-                        AdditionalPrice = modPrice
+                        AdditionalPrice = modPrice,
+                        OriginalAdditionalPrice = modifierOption.AdditionalPrice
                     });
 
                     modifiersTotal += modPrice;

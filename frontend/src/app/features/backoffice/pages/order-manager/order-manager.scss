@@ -1,4 +1,5 @@
 @use '../../../../../styles' as *;
+@use '../../../../../modal-ux' as *;
 
 .card-table {
   background-color: var(--bg-base);
@@ -179,60 +180,6 @@
   border: 0;
   border-top: 1px solid var(--border-color);
   margin: 20px 0;
-}
-
-.options-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 16px 0;
-
-  .option-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: rgba(var(--bg-surface), 0.3);
-    border-radius: $radius-sm;
-    margin-bottom: 8px;
-    border: 1px solid rgba(var(--border-color), 0.5);
-
-    .opt-name {
-      font-size: 0.95rem;
-      color: var(--text-primary);
-    }
-
-    .opt-desc {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-
-    .opt-right {
-      display: flex;
-      align-items: center;
-    }
-
-    .opt-price {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-  }
-
-  .empty-option {
-    padding: 12px;
-    text-align: center;
-    color: var(--text-secondary);
-    font-style: italic;
-    font-size: 0.85rem;
-  }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-  }
 }
 
 .summary-box {
