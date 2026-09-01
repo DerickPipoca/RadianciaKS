@@ -33,6 +33,7 @@ export class Checkout implements OnInit {
 
   existingOrderId: string | null = null;
   existingOrderTotal: number = 0;
+  alreadyPaidAmount: number = 0;
 
   tableNumber: string = '';
   isProcessing: boolean = false;
@@ -72,6 +73,13 @@ export class Checkout implements OnInit {
         this.existingOrderTotal = order.totalAmount;
 
         this.tableNumber = order.tableNumber || '';
+
+        if (order.payments && order.payments.length > 0) {
+          this.alreadyPaidAmount = order.payments.reduce((acc, p) => acc + p.amount, 0);
+        } else {
+          this.alreadyPaidAmount = 0;
+        }
+
         this.amountToAdd = this.remainingAmount;
         this.isProcessing = false;
       },
@@ -88,8 +96,11 @@ export class Checkout implements OnInit {
   }
 
   get totalPaid(): number {
-    const sum = this.addedPayments.reduce((acc, p) => acc.plus(p.amount), new Decimal(0));
-    return sum.toNumber();
+    const sumNew = this.addedPayments.reduce((acc, p) => acc.plus(p.amount), new Decimal(0));
+
+    const total = sumNew.plus(this.alreadyPaidAmount);
+
+    return total.toNumber();
   }
 
   get remainingAmount(): number {

@@ -44,7 +44,6 @@ namespace RadianciaKS.Application.Services
             foreach (var item in itemsDto)
             {
                 var newItem = await BuildOrderItemAsync(item);
-
                 newItem.OrderId = orderId;
                 newItem.KdsStatus = KdsStatus.Pending;
 
@@ -98,19 +97,17 @@ namespace RadianciaKS.Application.Services
             if (order.PaymentStatus == PaymentStatus.Paid)
                 throw new ArgumentException($"Pedido já pago.");
 
-            decimal totalValue = 0;
             foreach (var paymentDto in checkoutDto.Payments)
             {
-                totalValue += paymentDto.Amount;
-
                 var payment = _paymentMapper.ToEntity(paymentDto);
-
                 order.Payments.Add(payment);
                 _context.Payments.Add(payment);
             }
 
-            if (totalValue < order.TotalAmount)
-                throw new ArgumentException($"Valor pago é insuficiente.");
+            decimal allPaymentsTotal = order.Payments.Sum(p => p.Amount);
+
+            if (allPaymentsTotal < order.TotalAmount)
+                throw new ArgumentException($"Valor pago é insuficiente. Faltam {order.TotalAmount - allPaymentsTotal:C}");
 
             order = await CheckoutOrderAsync(order, employeeId);
 
@@ -118,7 +115,7 @@ namespace RadianciaKS.Application.Services
 
             var orderResponse = _mapper.ToDto(order);
 
-            var changeAmount = totalValue - order.TotalAmount;
+            var changeAmount = allPaymentsTotal - order.TotalAmount;
             orderResponse.ChangeAmount = changeAmount;
 
             return orderResponse;
@@ -291,8 +288,6 @@ namespace RadianciaKS.Application.Services
 
             foreach (var item in dto.Items)
             {
-                var product = await FindProductByIdAsync(item.ProductId);
-
                 var newItem = await BuildOrderItemAsync(item);
                 orderToAdd.Items.Add(newItem);
                 totalPrice += (newItem.UnitPrice * newItem.Quantity);
