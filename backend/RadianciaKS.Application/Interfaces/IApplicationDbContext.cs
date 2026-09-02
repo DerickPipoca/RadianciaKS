@@ -11,7 +11,7 @@ namespace RadianciaKS.Application.Interfaces
         DbSet<Order> Orders { get; }
         DbSet<Promotion> Promotions { get; }
         DbSet<PromotionModifier> PromotionModifiers { get; }
-        DbSet<CashShift> CashShifts { get; set; }
+        DbSet<CashShift> CashShifts { get; }
         DbSet<OrderItem> OrderItems { get; }
         DbSet<Payment> Payments { get; }
         DbSet<Employee> Employees { get; }
@@ -19,6 +19,7 @@ namespace RadianciaKS.Application.Interfaces
         DbSet<ModifierGroup> ModifierGroups { get; }
         DbSet<ModifierOption> ModifierOptions { get; }
         DbSet<OrderItemModifier> OrderItemModifiers { get; }
+        DbSet<AuditLog> AuditLogs { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

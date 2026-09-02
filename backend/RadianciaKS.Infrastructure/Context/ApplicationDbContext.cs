@@ -2,16 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Domain.Interfaces;
 using RadianciaKS.Domain.Models;
+using RadianciaKS.Infrastructure.Data.Auditing;
 
 namespace RadianciaKS.Infrastructure.Context
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         private readonly ITenantProvider _tenantProvider;
+        private readonly IUserProvider _userProvider;
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantProvider tenantProvider) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantProvider tenantProvider, IUserProvider userProvider) : base(options)
         {
             _tenantProvider = tenantProvider;
+            _userProvider = userProvider;
         }
 
         public DbSet<Category> Categories { get; set; }
@@ -28,9 +31,20 @@ namespace RadianciaKS.Infrastructure.Context
         public DbSet<StoreSettings> StoreSettings { get; set; }
         public DbSet<OrderItemModifier> OrderItemModifiers { get; set; }
 
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.ToTable("AuditLogs");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.OldValues).HasColumnType("jsonb");
+                entity.Property(e => e.NewValues).HasColumnType("jsonb");
+            });
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
@@ -72,6 +86,17 @@ namespace RadianciaKS.Infrastructure.Context
                 entry.Property("Active").CurrentValue = false;
             }
 
+            OnBeforeSaveChanges();
+
+            var addedAuditLogs = ChangeTracker.Entries().Where(e => e.State == EntityState.Added && e.Entity is IMustHaveTenant);
+            foreach (var entry in addedAuditLogs)
+            {
+                if (entry.Entity is IMustHaveTenant auditTenant && auditTenant.TenantId == Guid.Empty)
+                {
+                    auditTenant.TenantId = tenantId;
+                }
+            }
+
             return base.SaveChangesAsync(cancellationToken);
         }
 
@@ -90,6 +115,60 @@ namespace RadianciaKS.Infrastructure.Context
             else if (hasSoftDelete)
             {
                 modelBuilder.Entity<TEntity>().HasQueryFilter(e => EF.Property<bool>(e, "Active") == true);
+            }
+        }
+
+        private void OnBeforeSaveChanges()
+        {
+            ChangeTracker.DetectChanges();
+            var auditEntries = new List<AuditEntry>();
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.Entity is AuditLog || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                    continue;
+
+                var auditEntry = new AuditEntry(entry)
+                {
+                    TableName = entry.Metadata.GetTableName() ?? entry.Metadata.ClrType.Name,
+                    UserId = _userProvider.GetUserId()
+                };
+
+                auditEntries.Add(auditEntry);
+
+                foreach (var property in entry.Properties)
+                {
+                    if (property.IsTemporary) continue;
+
+                    string propertyName = property.Metadata.Name;
+
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            auditEntry.Action = "Create";
+                            auditEntry.NewValues[propertyName] = property.CurrentValue;
+                            break;
+
+                        case EntityState.Deleted:
+                            auditEntry.Action = "Delete";
+                            auditEntry.OldValues[propertyName] = property.OriginalValue;
+                            break;
+
+                        case EntityState.Modified:
+                            if (property.IsModified)
+                            {
+                                auditEntry.Action = "Update";
+                                auditEntry.OldValues[propertyName] = property.OriginalValue;
+                                auditEntry.NewValues[propertyName] = property.CurrentValue;
+                            }
+                            break;
+                    }
+                }
+            }
+
+            foreach (var auditEntry in auditEntries)
+            {
+                AuditLogs.Add(auditEntry.ToAuditLog());
             }
         }
     }
