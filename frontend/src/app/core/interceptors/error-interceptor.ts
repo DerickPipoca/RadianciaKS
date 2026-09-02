@@ -13,19 +13,27 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (httpError.status === 0) {
         errorMessage =
-          'Não foi possível conectar ao servidor. Verifique sua internet ou se a API está em execução.';
+          'Não foi possível conectar ao servidor. Verifique se o sistema está em execução.';
+      } else if (httpError.status === 401) {
+        errorMessage = 'Credenciais inválidas ou sessão expirada. Verifique seu login.';
       } else if (httpError.error) {
         if (typeof httpError.error === 'string') {
           errorMessage = httpError.error;
         } else if (typeof httpError.error === 'object') {
           const errorData = httpError.error;
 
-          if (errorData.details && Array.isArray(errorData.details)) {
-            errorMessage = errorData.details.join('<br>');
-          } else if (errorData.error) {
-            errorMessage = errorData.error;
-          } else if (errorData.message) {
-            errorMessage = errorData.message;
+          if (errorData.errors && typeof errorData.errors === 'object') {
+            const validationMessages: string[] = [];
+
+            for (const key in errorData.errors) {
+              if (Object.prototype.hasOwnProperty.call(errorData.errors, key)) {
+                validationMessages.push(...errorData.errors[key]);
+              }
+            }
+
+            errorMessage = validationMessages.join('<br>');
+          } else if (errorData.detail) {
+            errorMessage = errorData.detail;
           } else if (errorData.title) {
             errorMessage = errorData.title;
           }

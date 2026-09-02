@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 
 namespace RadianciaKS.Api.Middlewares
 {
@@ -31,34 +33,51 @@ namespace RadianciaKS.Api.Middlewares
         {
             httpContext.Response.ContentType = "application/json";
 
-            string message;
-            int statusCode;
+            var problemDetails = new ProblemDetails
+            {
+                Instance = httpContext.Request.Path
+            };
 
             switch (ex)
             {
-                case FluentValidation.ValidationException validationException:
-                    statusCode = (int)HttpStatusCode.BadRequest;
-                    message = validationException.Errors.FirstOrDefault()?.ErrorMessage ?? "Erro de validação.";
+                case ValidationException validationException:
+                    problemDetails.Status = (int)HttpStatusCode.BadRequest;
+                    problemDetails.Title = "Erro de Validação";
+                    problemDetails.Detail = "Um ou mais campos contêm erros.";
+
+                    var validationErrors = validationException.Errors
+                        .GroupBy(e => e.PropertyName)
+                        .ToDictionary(
+                            g => g.Key,
+                            g => g.Select(e => e.ErrorMessage).ToArray()
+                        );
+
+                    problemDetails.Extensions.Add("errors", validationErrors);
                     break;
 
                 case ArgumentException argumentException:
-                    statusCode = (int)HttpStatusCode.BadRequest;
-                    message = argumentException.Message;
+                    problemDetails.Status = (int)HttpStatusCode.BadRequest;
+                    problemDetails.Title = "Requisição Inválida";
+                    problemDetails.Detail = argumentException.Message;
                     break;
 
                 case UnauthorizedAccessException unauthorizedException:
-                    statusCode = (int)HttpStatusCode.Forbidden;
-                    message = unauthorizedException.Message;
+                    problemDetails.Status = (int)HttpStatusCode.Forbidden;
+                    problemDetails.Title = "Acesso Negado";
+                    problemDetails.Detail = unauthorizedException.Message;
                     break;
 
                 default:
-                    statusCode = (int)HttpStatusCode.InternalServerError;
-                    message = "Ocorreu um erro interno no servidor. Por favor, tente novamente mais tarde.";
+                    problemDetails.Status = (int)HttpStatusCode.InternalServerError;
+                    problemDetails.Title = "Erro Interno do Servidor";
+                    problemDetails.Detail = "Ocorreu um erro interno no servidor. Por favor, tente novamente mais tarde.";
                     break;
             }
 
-            httpContext.Response.StatusCode = statusCode;
-            var result = JsonSerializer.Serialize(new { error = message });
+            httpContext.Response.StatusCode = problemDetails.Status.Value;
+
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var result = JsonSerializer.Serialize(problemDetails, options);
 
             return httpContext.Response.WriteAsync(result);
         }

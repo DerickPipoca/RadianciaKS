@@ -32,12 +32,22 @@ namespace RadianciaKS.Api.Controllers
             var employee = await _context.Employees
                             .FirstOrDefaultAsync(e => e.CPF == dto.CPF && e.Active);
             if (employee == null)
-                return Unauthorized(new { message = "CPF ou senha incorretos." });
+                return Unauthorized(new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Falha na Autenticação",
+                    Detail = "CPF ou senha incorretos."
+                });
 
             var isPasswordValid = _passwordService.VerifyPassword(dto.Password, employee.PasswordHash);
 
             if (!isPasswordValid)
-                return Unauthorized(new { message = "CPF ou senha incorretos." });
+                return Unauthorized(new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Falha na Autenticação",
+                    Detail = "CPF ou senha incorretos."
+                });
 
             var token = GenerateJwtToken(employee);
 
