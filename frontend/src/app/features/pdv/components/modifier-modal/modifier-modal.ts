@@ -52,33 +52,39 @@ export class ModifierModal implements OnInit {
     }
   }
 
-  toggleOption(group: ModifierGroupResponseDto, option: ModifierOptionResponseDto) {
+  getOptionCount(groupId: string, optionId: string): number {
+    const currentData = this.selections.get(groupId);
+    if (!currentData) return 0;
+    return currentData.options.filter((o) => o.id === optionId).length;
+  }
+
+  addOption(group: ModifierGroupResponseDto, option: ModifierOptionResponseDto) {
     const currentData = this.selections.get(group.id);
     if (!currentData) return;
 
     const currentSelections = currentData.options;
-    const isAlreadySelected = currentSelections.some((o) => o.id === option.id);
 
     if (group.maxChoices === 1) {
       this.selections.set(group.id, { group: group, options: [option] });
     } else {
-      if (isAlreadySelected) {
-        this.selections.set(group.id, {
-          group: group,
-          options: currentSelections.filter((o) => o.id !== option.id),
-        });
-      } else {
-        if (currentSelections.length < group.maxChoices) {
-          this.selections.set(group.id, { group: group, options: [...currentSelections, option] });
-        }
+      if (currentSelections.length < group.maxChoices) {
+        this.selections.set(group.id, { group: group, options: [...currentSelections, option] });
       }
     }
   }
 
-  isOptionSelected(groupId: string, optionId: string): boolean {
-    const currentData = this.selections.get(groupId);
-    if (!currentData) return false;
-    return currentData.options.some((o) => o.id === optionId);
+  removeOption(group: ModifierGroupResponseDto, option: ModifierOptionResponseDto) {
+    const currentData = this.selections.get(group.id);
+    if (!currentData) return;
+
+    const currentSelections = currentData.options;
+    const index = currentSelections.findIndex((o) => o.id === option.id);
+
+    if (index !== -1) {
+      const newSelections = [...currentSelections];
+      newSelections.splice(index, 1);
+      this.selections.set(group.id, { group: group, options: newSelections });
+    }
   }
 
   isGroupValid(group: ModifierGroupResponseDto): boolean {

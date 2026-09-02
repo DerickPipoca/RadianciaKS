@@ -39,7 +39,7 @@
               @for (option of group.options; track option.id) {
                 <div
                   class="option-item"
-                  [class.selected]="isOptionSelected(group.id, option.id)"
+                  [class.selected]="getOptionCount(group.id, option.id) > 0"
                   [class.promo-highlight]="option.isPromotional"
                 >
                   <div class="option-info">
@@ -65,10 +65,10 @@
                   </div>
 
                   <div class="option-controls">
-                    @if (!isOptionSelected(group.id, option.id)) {
+                    @if (getOptionCount(group.id, option.id) === 0) {
                       <button
                         class="btn-add-option"
-                        (click)="toggleOption(group, option)"
+                        (click)="addOption(group, option)"
                         [disabled]="
                           group.maxChoices > 1 &&
                           (selections.get(group.id)?.options?.length || 0) >= group.maxChoices
@@ -78,9 +78,23 @@
                       </button>
                     } @else {
                       <div class="inline-qty-control">
-                        <button class="btn-yellow" (click)="toggleOption(group, option)">—</button>
-                        <span class="qty-number">1</span>
-                        <button class="btn-yellow disabled">+</button>
+                        <button class="btn-yellow" (click)="removeOption(group, option)">—</button>
+
+                        @if (group.maxChoices === 1) {
+                          <span class="qty-number">1</span>
+                          <button class="btn-add-option disabled" disabled></button>
+                        } @else {
+                          <span class="qty-number">{{ getOptionCount(group.id, option.id) }}</span>
+                          <button
+                            class="btn-add-option"
+                            (click)="addOption(group, option)"
+                            [disabled]="
+                              (selections.get(group.id)?.options?.length || 0) >= group.maxChoices
+                            "
+                          >
+                            +
+                          </button>
+                        }
                       </div>
                     }
                   </div>
