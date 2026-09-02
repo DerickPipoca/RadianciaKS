@@ -149,7 +149,7 @@
                   >Preço Normal: R$ {{ selectedBaseProduct.price | number: '1.2-2' }}</span
                 >
               </div>
-              <div class="max-w-140">
+              <div class="input-grow">
                 <app-input-component
                   type="number"
                   [formatDecimal]="true"
@@ -176,9 +176,10 @@
                       Adicional Normal: + R$ {{ opt.additionalPrice | number: '1.2-2' }}
                     </span>
                   </div>
-                  <div class="max-w-140">
+                  <div class="input-grow">
                     <app-input-component
                       type="number"
+                      [formatDecimal]="true"
                       icon="R$"
                       placeholder="Promocional"
                       [(value)]="modifierOverrides[opt.id]"

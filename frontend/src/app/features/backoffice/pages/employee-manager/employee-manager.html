@@ -102,6 +102,7 @@
           <label>CPF *</label>
           <app-input-component
             type="text"
+            [mask]="'cpf'"
             [(value)]="currentItem.cpf"
             placeholder="000.000.000-00"
           ></app-input-component>

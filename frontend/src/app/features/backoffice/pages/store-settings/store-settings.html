@@ -13,7 +13,11 @@
     </div>
     <div class="form-input">
       <label>CNPJ*</label>
-      <app-input-component label="CNPJ" [(value)]="settings.cnpj"></app-input-component>
+      <app-input-component
+        label="CNPJ"
+        [mask]="'cnpj'"
+        [(value)]="settings.cnpj"
+      ></app-input-component>
     </div>
   </div>
 

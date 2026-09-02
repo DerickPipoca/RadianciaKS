@@ -8,10 +8,10 @@
   }
   <input
     [class]="variant + ' font-size-' + fontSize"
-    [type]="type"
-    [attr.inputmode]="formatDecimal ? 'decimal' : null"
+    [type]="formatDecimal || mask ? 'text' : type"
+    [attr.inputmode]="formatDecimal ? 'decimal' : mask ? 'numeric' : null"
     [placeholder]="placeholder"
-    [value]="value"
+    [value]="formatValue(value)"
     [min]="min"
     [step]="type === 'number' ? step || 'any' : null"
     [disabled]="disabled"

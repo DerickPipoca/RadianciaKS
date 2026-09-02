@@ -83,6 +83,15 @@ export class PromotionManager
     };
   }
 
+  override openEditModal(item: PromotionResponseDto): void {
+    this.promotionService.getById(item.id).subscribe({
+      next: (promotion) => {
+        super.openEditModal(promotion);
+      },
+      error: () => this.toastr.error('Erro ao carregar detalhes da promoção.'),
+    });
+  }
+
   override ngOnInit(): void {
     this.loadProducts();
     super.ngOnInit();

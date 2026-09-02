@@ -19,6 +19,8 @@ export class InputComponent {
 
   @Input() formatDecimal: boolean = false;
 
+  @Input() mask: 'cpf' | 'cnpj' | 'cpf-cnpj' | null = null;
+
   @Input() variant: 'primary' | 'secondary' | 'transparent' = 'transparent';
   @Input() fontSize: 'default' | 'big' = 'default';
   @Input() radius: 'default' | 'round' = 'default';
@@ -28,9 +30,16 @@ export class InputComponent {
   @Output() valueChange = new EventEmitter<any>();
 
   formatValue(val: any): string {
-    if (this.formatDecimal && val !== null && val !== undefined) {
+    if (val === null || val === undefined) return '';
+
+    if (this.formatDecimal) {
       return val.toString().replace('.', ',');
     }
+
+    if (this.mask && typeof val === 'string') {
+      return this.applyMask(val, this.mask);
+    }
+
     return val;
   }
 
@@ -52,9 +61,38 @@ export class InputComponent {
 
       const numericValue = val.replace(',', '.');
       this.valueChange.emit(numericValue);
+    } else if (this.mask) {
+      const cleanValue = val.replace(/\D/g, '');
+
+      input.value = this.applyMask(cleanValue, this.mask);
+
+      this.valueChange.emit(cleanValue);
     } else {
       this.valueChange.emit(val);
     }
+  }
+
+  private applyMask(val: string, maskType: string): string {
+    let cleanValue = val.replace(/\D/g, '');
+
+    if (maskType === 'cpf' || (maskType === 'cpf-cnpj' && cleanValue.length <= 11)) {
+      cleanValue = cleanValue.substring(0, 11);
+      cleanValue = cleanValue.replace(/(\d{3})(\d)/, '$1.$2');
+      cleanValue = cleanValue.replace(/(\d{3})(\d)/, '$1.$2');
+      cleanValue = cleanValue.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      return cleanValue;
+    }
+
+    if (maskType === 'cnpj' || (maskType === 'cpf-cnpj' && cleanValue.length > 11)) {
+      cleanValue = cleanValue.substring(0, 14);
+      cleanValue = cleanValue.replace(/(\d{2})(\d)/, '$1.$2');
+      cleanValue = cleanValue.replace(/(\d{3})(\d)/, '$1.$2');
+      cleanValue = cleanValue.replace(/(\d{3})(\d)/, '$1/$2');
+      cleanValue = cleanValue.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+      return cleanValue;
+    }
+
+    return val;
   }
 
   isLucideIcon(icon: string | LucideIconData | null | undefined): icon is LucideIconData {
