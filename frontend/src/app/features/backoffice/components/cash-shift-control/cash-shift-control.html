@@ -18,6 +18,7 @@
           <label>Troco Inicial</label>
           <app-input-component
             type="number"
+            [formatDecimal]="true"
             [(value)]="initialBalance"
             placeholder="Ex: 150.75"
           ></app-input-component>
@@ -62,6 +63,7 @@
           <label>Valor físico em Gaveta</label>
           <app-input-component
             type="number"
+            [formatDecimal]="true"
             [(value)]="finalReportedBalance"
             placeholder="Ex: 514.35"
           ></app-input-component>

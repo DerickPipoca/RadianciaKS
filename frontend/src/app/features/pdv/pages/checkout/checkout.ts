@@ -15,10 +15,11 @@ import {
 import { ButtonComponent } from '../../../../shared/components/button-component/button-component';
 import { ToastrService } from 'ngx-toastr';
 import Decimal from 'decimal.js';
+import { InputComponent } from '../../../../shared/components/input-component/input-component';
 
 @Component({
   selector: 'app-checkout',
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
 })

@@ -71,6 +71,9 @@ lucide-icon {
     &.primary {
       color: var(--text-primary);
     }
+    &.font-size-big {
+      font-size: 1.4rem;
+    }
 
     &::placeholder {
       opacity: 0.7;

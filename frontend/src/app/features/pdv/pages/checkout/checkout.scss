@@ -157,12 +157,14 @@
       flex: 1;
       display: flex;
       align-items: center;
-      border: 1px solid var(--border-color);
+      justify-content: center;
       border-radius: $radius-sm;
       background: var(--bg-base);
       overflow: hidden;
-      &:focus-within {
-        border-color: var(--primary-color);
+
+      app-input-component {
+        height: 100%;
+        width: 100%;
       }
 
       .currency-symbol {

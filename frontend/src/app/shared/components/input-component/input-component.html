@@ -7,11 +7,14 @@
     }
   }
   <input
-    [class]="variant"
+    [class]="variant + ' font-size-' + fontSize"
     [type]="type"
+    [attr.inputmode]="formatDecimal ? 'decimal' : null"
     [placeholder]="placeholder"
     [value]="value"
     [min]="min"
+    [step]="type === 'number' ? step || 'any' : null"
+    [disabled]="disabled"
     (input)="onInput($event)"
   />
 </div>

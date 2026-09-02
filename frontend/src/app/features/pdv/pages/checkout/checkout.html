@@ -57,12 +57,14 @@
           @if (remainingAmount > 0) {
             <div class="payment-input-row">
               <div class="input-wrapper">
-                <span class="currency-symbol">R$</span>
-                <input
+                <app-input-component
                   type="number"
-                  [(ngModel)]="amountToAdd"
+                  icon="R$"
+                  [formatDecimal]="true"
+                  [value]="amountToAdd.toFixed(2)"
                   min="0.01"
                   step="0.01"
+                  [fontSize]="'big'"
                   [disabled]="isProcessing"
                   (keyup.enter)="addPayment()"
                 />

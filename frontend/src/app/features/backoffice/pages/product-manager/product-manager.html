@@ -192,6 +192,7 @@
         <app-input-component
           id="prodPrice"
           type="number"
+          [formatDecimal]="true"
           step="0.01"
           min="0.00"
           icon="R$"
@@ -377,6 +378,7 @@
                     <div class="form-group max-w-140 mb-0 mt-12">
                       <app-input-component
                         type="number"
+                        [formatDecimal]="true"
                         icon="R$"
                         placeholder="0,00"
                         [(value)]="opt.additionalPrice"
@@ -427,6 +429,7 @@
                     <div class="form-group max-w-140 mb-0">
                       <app-input-component
                         type="number"
+                        [formatDecimal]="true"
                         icon="R$"
                         placeholder="0,00"
                         [value]="newOptions[group.id]?.price || 0"
