@@ -10,27 +10,63 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding: 0 12px;
+
+  @include tablet-up {
+    padding: 0 24px;
+  }
 
   .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     background: transparent;
     border: none;
+    padding: 0;
+
     lucide-icon {
       height: 24px;
     }
+
     h1 {
       margin: 0;
-      font-size: 1.5rem;
-      color: --text-primary;
+      font-size: 1.1rem;
+      color: $dark-base;
+
+      @include tablet-up {
+        font-size: 1.5rem;
+      }
     }
+
     &:hover {
       cursor: pointer;
     }
   }
+
+  .topbar-right {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+
+    @include tablet-up {
+      gap: 16px;
+    }
+  }
+
+  .theme-toggle-btn {
+    display: flex;
+    background: transparent;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    padding: 4px;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
   .user-profile {
     display: flex;
     align-items: center;
@@ -43,17 +79,26 @@ header {
 
       .name {
         font-weight: bold;
+        font-size: 0.9rem;
+        @include tablet-up {
+          font-size: 1rem;
+        }
       }
 
       .role {
         font-size: 0.875rem;
-        color: --text-secondary;
+        color: $dark-base;
+
+        @include tablet-up {
+          display: block;
+        }
       }
 
       &:hover {
         cursor: pointer;
       }
     }
+
     .dropdown-menu {
       position: absolute;
       top: 100%;
@@ -65,33 +110,22 @@ header {
       overflow: hidden;
     }
   }
-  .topbar-right {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-
-    gap: 12px;
-  }
-  .theme-toggle-btn {
-    display: flex;
-    background: transparent;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    &:hover {
-      cursor: pointer;
-    }
-  }
 }
+
 .cash-shift-widget {
-  width: 120px;
+  width: auto;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-right: 22px;
+  gap: 6px;
+  margin-right: 4px;
   padding: 2px;
   transition: all 0.2s ease-in-out;
+
+  @include tablet-up {
+    width: 120px;
+    gap: 12px;
+    margin-right: 16px;
+  }
 
   .indicator-dot {
     width: 10px;
@@ -99,6 +133,7 @@ header {
     border-radius: 50%;
     background-color: #f44336;
     box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+    flex-shrink: 0;
   }
 
   .indicator-text {
@@ -106,40 +141,45 @@ header {
     flex-direction: column;
 
     .title {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #666;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+
+      @include tablet-up {
+        display: block;
+      }
+    }
+
+    .status-closed,
+    .status-open,
+    .status-loading {
+      font-weight: 600;
+      font-size: 0.8rem;
+
+      @include tablet-up {
+        font-size: 0.9rem;
+      }
     }
 
     .status-closed {
-      font-weight: 600;
-      font-size: 0.9rem;
       color: var(--red-status);
     }
     .status-open {
-      font-weight: 600;
-      font-size: 0.9rem;
       color: var(--green-status);
     }
     .status-loading {
-      font-weight: 600;
-      font-size: 0.9rem;
       color: var(--text-secondary);
     }
   }
 
-  &.is-open {
-    .indicator-dot {
-      background-color: #4caf50;
-      box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-    }
+  &.is-open .indicator-dot {
+    background-color: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
   }
 
-  &.is-loading {
-    .indicator-dot {
-      background-color: var(--text-secondary);
-      box-shadow: 0 0 8px rgba(150, 150, 150, 0.6);
-    }
+  &.is-loading .indicator-dot {
+    background-color: var(--text-secondary);
+    box-shadow: 0 0 8px rgba(150, 150, 150, 0.6);
   }
 }

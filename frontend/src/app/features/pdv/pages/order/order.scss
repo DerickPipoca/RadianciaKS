@@ -1,19 +1,30 @@
 @use '../../../../../styles.scss' as *;
+
 .order-layout {
   display: flex;
-  height: 92vh;
+  height: 100%;
   overflow: hidden;
+  position: relative;
 
   app-catalog {
     flex: 1;
-    overflow-y: auto;
+    width: 100%;
+    overflow-y: hidden;
   }
 
   app-cart {
-    width: 380px;
-    background: var(--bg-elevated);
-    display: flex;
-    flex-direction: column;
+    @include mobile-only {
+      display: none;
+    }
+
+    @include tablet-up {
+      display: flex;
+      width: 380px;
+      flex-direction: column;
+      background: var(--bg-elevated);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+    }
   }
 }
 
@@ -21,7 +32,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 92vh;
+  height: 100%;
 
   .warning-card {
     background: var(--bg-surface);
@@ -37,13 +48,11 @@
       margin: 0 0 12px 0;
       font-size: 1.5rem;
     }
-
     p {
       color: var(--text-primary);
       margin: 0 0 16px 0;
       font-size: 1rem;
     }
-
     .sub-text {
       color: var(--text-secondary);
       font-size: 0.9rem;
@@ -59,6 +68,7 @@
   height: 100%;
   color: var(--text-secondary);
 }
+
 .icon {
   color: var(--red-status);
   width: 24px;
@@ -68,6 +78,7 @@
     height: 128px;
   }
 }
+
 b {
   text-transform: uppercase;
 }

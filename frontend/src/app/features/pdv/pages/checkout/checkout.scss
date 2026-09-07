@@ -3,7 +3,7 @@
 .checkout-page-container {
   display: flex;
   flex-direction: column;
-  height: 92vh;
+  height: 100%;
   background-color: var(--bg-base);
   font-family: $font-family-base;
   overflow: hidden;
@@ -13,9 +13,14 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 16px 24px;
+  padding: 16px;
   background-color: var(--bg-base);
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+
+  @include tablet-up {
+    padding: 16px 24px;
+  }
 
   .btn-back {
     background: transparent;
@@ -48,36 +53,59 @@
 
 .checkout-layout {
   display: flex;
+  flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @include tablet-up {
+    flex-direction: row;
+    overflow: hidden;
+  }
 }
 
 .checkout-main-content {
   flex: 1;
-  padding: 24px;
-  overflow-y: auto;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  @include tablet-up {
+    padding: 24px;
+    overflow-y: auto;
+  }
 }
 
 .checkout-sidebar {
-  width: 400px;
+  width: 100%;
+  border-top: 1px solid var(--border-color);
   background-color: var(--bg-surface);
-  border-left: 1px solid var(--border-color);
-  padding: 24px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow-y: auto;
+  flex-shrink: 0;
+
+  @include tablet-up {
+    width: 400px;
+    border-top: none;
+    border-left: 1px solid var(--border-color);
+    padding: 24px;
+    overflow-y: auto; 
+  }
 }
 
 .page-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: $radius-md;
-  padding: 20px;
+  padding: 16px;
   box-shadow: $shadow-sm;
+
+  @include tablet-up {
+    padding: 20px;
+  }
 }
 
 .form-group {
@@ -91,6 +119,7 @@
     font-weight: bold;
     color: var(--text-primary);
   }
+
   input {
     padding: 12px;
     border: 1px solid var(--border-color);
@@ -124,8 +153,12 @@
 
   .payment-methods {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+
+    @include tablet-up {
+      grid-template-columns: repeat(4, 1fr);
+    }
 
     .payment-btn {
       padding: 14px 10px;
@@ -137,6 +170,10 @@
       color: var(--text-primary);
       cursor: pointer;
       transition: all 0.2s;
+
+      &:active {
+        transform: scale(0.95);
+      }
 
       &.selected {
         background: var(--primary-color);
@@ -165,29 +202,6 @@
       app-input-component {
         height: 100%;
         width: 100%;
-      }
-
-      .currency-symbol {
-        padding: 0 16px;
-        color: var(--text-secondary);
-        font-weight: 600;
-        background: var(--bg-base);
-        height: 100%;
-        display: flex;
-        align-items: center;
-        border-right: 1px solid var(--border-color);
-      }
-
-      input {
-        background: var(--bg-base);
-        flex: 1;
-        border: none;
-        padding: 12px;
-        font-size: 1.2rem;
-        font-weight: bold;
-        outline: none;
-        font-family: $font-family-base;
-        color: var(--text-primary);
       }
     }
   }
@@ -291,17 +305,19 @@
 
 .change-box {
   margin-top: 16px;
-  background: #e8f5e9;
-  border: 1px solid #c8e6c9;
+  background: rgba(var(--green-status), 0.1);
+  border: 1px solid rgba(var(--green-status), 0.3);
   padding: 16px;
   border-radius: $radius-sm;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .label {
     font-size: 1.05rem;
-    color: #2e7d32;
+    color: var(--green-status);
     font-weight: bold;
+    filter: brightness(0.8);
   }
   .value {
     font-size: 1.4rem;
@@ -314,26 +330,4 @@
   margin-top: auto;
   display: flex;
   width: 100%;
-
-  .confirm-page-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--green-status);
-    color: var(--text-primary);
-    border: none;
-    border-radius: $radius-sm;
-    font-weight: bold;
-    font-size: 1.2rem;
-    cursor: pointer;
-    font-family: $font-family-base;
-    box-shadow: $shadow-md;
-
-    &:disabled {
-      background: var(--bg-elevated);
-      color: var(--text-secondary);
-      border: 1px solid var(--text-secondary);
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-  }
 }

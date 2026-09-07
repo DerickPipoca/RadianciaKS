@@ -45,14 +45,9 @@ $radius-pill: 9999px;
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  font-family: $font-family-base;
-  background-color: var(--bg-surface);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
+html {
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 *,
@@ -61,8 +56,14 @@ body {
   box-sizing: inherit;
 }
 
-.hidden-preview {
-  display: block !important;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: $font-family-base;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 @media print {
@@ -105,4 +106,39 @@ input[type='number']::-webkit-inner-spin-button {
 input[type='number'] {
   appearance: textfield;
   -moz-appearance: textfield;
+}
+
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+@mixin tablet-up {
+  @media (min-width: #{$breakpoint-md}) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
+@mixin mobile-only {
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
+}
+
+.hide-on-mobile {
+  @include mobile-only {
+    display: none !important;
+  }
+}
+
+.show-on-mobile {
+  @include tablet-up {
+    display: none !important;
+  }
 }

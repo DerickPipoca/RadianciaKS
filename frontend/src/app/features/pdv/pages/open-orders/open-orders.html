@@ -3,9 +3,9 @@
     <button class="btn-back" (click)="goBack()"><i class="icon">‹</i> Voltar</button>
 
     <app-input-component
+      class="search-input"
       type="text"
       [icon]="Search"
-      style="width: 300px"
       [variant]="'primary'"
       placeholder="Buscar por Mesa ou Nº..."
       [value]="searchTerm"
@@ -69,7 +69,7 @@
 
   <div class="content-area">
     <div class="header-section">
-      <h2 class="section-title">Painel de Operações (Contas Ativas)</h2>
+      <h2 class="section-title">Pedidos Ativos</h2>
     </div>
 
     <main class="orders-grid">
@@ -132,7 +132,6 @@
     (onClose)="closeDetails()"
   >
     <main class="modal-body">
-      <!-- Badge movida para o corpo para aproveitar o componente padrão -->
       <div style="margin-bottom: 16px">
         <span class="status-badge" [ngClass]="selectedOrder.orderStatus | orderStatusClass">
           {{ selectedOrder.orderStatus | orderStatusLabel }}

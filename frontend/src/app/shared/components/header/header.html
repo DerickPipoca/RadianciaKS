@@ -48,12 +48,8 @@
           <span class="role">{{ authService.currentUser()?.role }}</span>
           @if (isDropdownOpen) {
             <div class="dropdown-menu" (click)="$event.stopPropagation()">
-              <app-button-component
-                variant="danger"
-                size="lg"
-                (click)="logout(); $event.stopPropagation()"
-              >
-                Deslogar
+              <app-button-component variant="danger" (click)="logout(); $event.stopPropagation()">
+                <lucide-icon [img]="LogOut" class="icon" />
               </app-button-component>
             </div>
           }

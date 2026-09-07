@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth-service';
-import { LucideAngularModule, Sparkle, Moon, Sun } from 'lucide-angular';
+import { LucideAngularModule, Sparkle, Moon, Sun, LogOut } from 'lucide-angular';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../button-component/button-component';
 import { ThemeService } from '../../../core/services/theme-service';
@@ -16,6 +16,7 @@ import { AsyncPipe } from '@angular/common';
 })
 export class HeaderComponent implements OnInit {
   public readonly Sparkle = Sparkle;
+  public readonly LogOut = LogOut;
   public readonly Sun = Sun;
   public readonly Moon = Moon;
 

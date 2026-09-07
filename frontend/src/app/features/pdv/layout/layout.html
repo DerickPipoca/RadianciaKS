@@ -1,18 +1,48 @@
-<div class="kitchen-status-bar">
-  @if (readyOrders.length > 0) {
-    <div class="scrolling-text">
-      <div class="scrolling-text-content">
-        @for (item of readyOrders; track item.id) {
-          <span>
-            Pedido
-            <strong>{{
-              item.tableNumber ?? 'Balcão #' + item.id.slice(0, 6).toUpperCase()
-            }}</strong>
-            pronto na cozinha!
-          </span>
-        }
+<div class="app-layout-container">
+  <div class="kitchen-status-bar">
+    @if (readyOrders.length > 0) {
+      <div class="scrolling-text">
+        <div class="scrolling-text-content">
+          @for (item of readyOrders; track item.id) {
+            <span>
+              Pedido
+              <strong>{{
+                item.tableNumber ?? 'Balcão #' + item.id.slice(0, 6).toUpperCase()
+              }}</strong>
+              pronto na cozinha!
+            </span>
+          }
+        </div>
       </div>
+    }
+  </div>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <nav class="bottom-nav show-on-mobile">
+    <a class="nav-item" routerLink="/pdv/carrinho" routerLinkActive="active">
+      <lucide-icon [img]="ShoppingCart" size="32" strokeWidth="2.5"></lucide-icon>
+      @if (cartService.totalItems() > 0) {
+        <span class="cart-badge">{{ cartService.totalItems() }}</span>
+      }
+    </a>
+    <a class="nav-item" routerLink="/pdv/pedidos-aberto" routerLinkActive="active">
+      <lucide-icon [img]="History" size="32" strokeWidth="2.5"></lucide-icon>
+    </a>
+
+    <div class="nav-item center-fab">
+      <a class="fab-button" routerLink="/pdv/catalogo" routerLinkActive="active">
+        <lucide-icon [img]="Banknote" size="64" strokeWidth="2"></lucide-icon>
+      </a>
     </div>
-  }
+
+    <a class="nav-item" routerLink="/kds/cozinha" routerLinkActive="active">
+      <lucide-icon [img]="Soup" size="32" strokeWidth="2.5"></lucide-icon>
+    </a>
+    <a class="nav-item" routerLink="/backoffice/dashboard" routerLinkActive="active">
+      <lucide-icon [img]="Settings" size="32" strokeWidth="2.5"></lucide-icon>
+    </a>
+  </nav>
 </div>
-<router-outlet></router-outlet>

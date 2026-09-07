@@ -5,6 +5,7 @@ import { Order } from './pages/order/order';
 import { Orders } from './pages/orders/orders';
 import { Checkout } from './pages/checkout/checkout';
 import { OpenOrders } from './pages/open-orders/open-orders';
+import { Cart } from './pages/cart/cart';
 
 export const PDV_ROUTES: Routes = [
   {
@@ -14,6 +15,7 @@ export const PDV_ROUTES: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: Home },
       { path: 'catalogo', component: Order },
+      { path: 'carrinho', component: Cart },
       { path: 'pedidos-aberto', component: OpenOrders },
       { path: 'pedidos', component: Orders },
       { path: 'checkout', component: Checkout },
