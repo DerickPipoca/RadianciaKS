@@ -2,41 +2,64 @@
 
 .main-content {
   background: linear-gradient(135deg, var(--bg-base), var(--primary-color));
-  height: 92vh;
+  height: calc(100vh - 8vh);
+  height: calc(100dvh - 8vh);
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
+  overflow-y: auto;
 }
 
 .module-card {
   background-color: var(--bg-surface);
-  padding: 48px;
+  padding: 24px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 800px;
+
+  @include tablet-up {
+    padding: 48px;
+  }
 
   .restaurant-name {
     color: var(--text-primary);
-    margin: 0 0 32px 0;
-    font-size: 1.8rem;
+    margin: 0 0 24px 0;
+    font-size: 1.4rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
+    text-align: center;
+
+    @include tablet-up {
+      font-size: 1.8rem;
+      margin: 0 0 32px 0;
+    }
   }
 
   .modules-grid {
     display: flex;
-    gap: 24px;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 16px;
+    width: 100%;
+
+    @include tablet-up {
+      gap: 24px;
+    }
   }
 
   .module-btn {
-    width: 180px;
-    height: 180px;
+    width: calc(50% - 8px);
+    max-width: 160px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+
     background-color: var(--primary-color);
     border: none;
     border-radius: 12px;
@@ -44,17 +67,32 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     cursor: pointer;
-    color: #1e1e1e;
+    color: $dark-base;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    font-family: $font-family-base;
     transition: all 0.2s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
+    @include tablet-up {
+      width: 180px;
+      height: 180px;
+      aspect-ratio: auto;
+      gap: 16px;
+      font-size: 1.1rem;
+    }
+
     .large-icon {
-      width: 64px;
-      height: 64px;
+      width: 40px;
+      height: 40px;
+
+      @include tablet-up {
+        width: 64px;
+        height: 64px;
+      }
+
       ::ng-deep svg {
         width: 100%;
         height: 100%;
@@ -68,7 +106,8 @@
     }
 
     &:active {
-      transform: translateY(0);
+      transform: scale(0.95);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
   }
 }
