@@ -19,10 +19,10 @@
   <table class="admin-table">
     <thead>
       <tr>
-        <th>Status</th>
-        <th>Promoção</th>
-        <th>Produto Base</th>
-        <th class="actions-column">Ações</th>
+        <th><button>Status</button></th>
+        <th><button>Promoção</button></th>
+        <th><button>Produto base</button></th>
+        <th class="actions-column"><button>Ações</button></th>
       </tr>
     </thead>
     <tbody>
@@ -67,16 +67,16 @@
       }
     </tbody>
   </table>
-  @if (totalRecords > 0) {
-    <app-pagination
-      [pageNumber]="pageNumber"
-      [pageSize]="pageSize"
-      [totalRecords]="totalRecords"
-      (pageChange)="changePage($event)"
-    >
-    </app-pagination>
-  }
 </div>
+@if (totalRecords > 0) {
+  <app-pagination
+    [pageNumber]="pageNumber"
+    [pageSize]="pageSize"
+    [totalRecords]="totalRecords"
+    (pageChange)="changePage($event)"
+  >
+  </app-pagination>
+}
 
 @if (showModal) {
   <app-modal-component

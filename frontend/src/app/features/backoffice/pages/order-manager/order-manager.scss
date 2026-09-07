@@ -3,14 +3,22 @@
 
 .card-table {
   background-color: var(--bg-base);
-  border-radius: $radius-md;
-  overflow: hidden;
+  border-radius: $radius-md $radius-md 0px 0px;
+  box-shadow: $shadow-sm;
+  width: 100%;
+  max-width: calc(100vw - 32px);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  @include tablet-up {
+    max-width: 100%;
+  }
 
   .admin-table {
     width: 100%;
     border-collapse: collapse;
-
-    table-layout: fixed;
+    min-width: 760px;
+    table-layout: auto;
 
     tbody tr {
       transition: background 0.2s;
@@ -18,16 +26,17 @@
       &:nth-child(odd) {
         background-color: var(--bg-surface);
       }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+      }
     }
-    width: 100%;
-    border-collapse: collapse;
 
     thead th {
       text-align: left;
-
+      border-bottom: 1px solid var(--border-color);
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+
       button {
         background-color: transparent;
         font-family: $font-family-base;
@@ -35,43 +44,35 @@
         color: var(--text-secondary);
         font-weight: 500;
         padding: 16px;
-        width: 100%;
         text-align: left;
+        cursor: pointer;
+        font-size: 0.95rem;
 
         &:hover {
-          cursor: pointer;
-        }
-
-        &:nth-child(1) {
-          width: 20%;
-        }
-        &:nth-child(2) {
-          width: 25%;
-        }
-        &:nth-child(3) {
-          width: 15%;
-        }
-        &:nth-child(4) {
-          width: 15%;
-        }
-        &:nth-child(5) {
-          width: 15%;
+          color: var(--primary-color);
         }
       }
+
       &.actions-column {
-        width: 10%;
         text-align: right;
         padding-right: 24px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 16px;
       }
     }
 
     td {
       padding: 16px;
       color: var(--text-primary);
-
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      vertical-align: middle;
+
+      &.empty-row {
+        text-align: center;
+        color: var(--text-secondary);
+        padding: 32px;
+      }
     }
   }
 }
@@ -112,6 +113,7 @@
 .actions-cell {
   text-align: right;
   padding-right: 24px !important;
+  white-space: nowrap;
 
   .btn-action {
     background: none;
@@ -120,10 +122,12 @@
     cursor: pointer;
     margin-left: 12px;
     font-family: $font-family-base;
+    font-size: 0.9rem;
 
     &:hover {
       color: var(--primary-color);
       text-decoration: underline;
+
       &.btn-delete {
         color: var(--red-status);
       }
@@ -139,15 +143,33 @@
 }
 .page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
   margin-bottom: 24px;
 
-  .header-actions {
-    display: flex;
-    gap: 12px;
+  @include tablet-up {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-title h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  app-input-component {
+    width: 100%;
+
+    @include tablet-up {
+      width: 320px;
+    }
   }
 }
+
 .filter-select,
 .search-input {
   background: var(--bg-surface);
@@ -169,10 +191,32 @@
 
 .form-row {
   display: flex;
-  gap: 25px;
-  height: auto;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  @include tablet-up {
+    flex-direction: row;
+    gap: 25px;
+
+    .form-group:last-child {
+      text-align: right;
+    }
+  }
+
   .flex-1 {
     flex: 1;
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
   }
 }
 
@@ -202,28 +246,6 @@
   .total-price {
     font-size: 1.6rem;
     color: var(--primary-color);
-  }
-
-  .badge-status {
-    padding: 6px 12px;
-    border-radius: $radius-pill;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    font-weight: bold;
-
-    &.paid {
-      background: rgba(var(--green-status), 0.2);
-      color: var(--green-status);
-    }
-    &.pending {
-      background: rgba(var(--orange-status), 0.2);
-      color: var(--orange-status);
-    }
-    &.refunded,
-    &.canceled {
-      background: rgba(var(--red-status), 0.2);
-      color: var(--red-status);
-    }
   }
 }
 

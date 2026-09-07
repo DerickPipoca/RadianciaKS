@@ -8,15 +8,46 @@
 
 .page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  @include tablet-up {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
 
   .header-title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+
+    &.with-gap {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 12px;
+
+      @include tablet-up {
+        align-items: center;
+        gap: 16px;
+      }
+    }
+
     .title-group {
       display: flex;
       flex-direction: column;
       justify-content: center;
+
+      > div {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
 
       h2 {
         margin: 0;
@@ -26,30 +57,15 @@
         margin: 4px 0 0 0;
         font-size: 0.85rem;
         color: var(--text-secondary);
-
         strong {
           color: var(--text-primary);
           font-weight: 600;
         }
-
         .dot-separator {
           margin: 0 6px;
           color: var(--border-color);
         }
       }
-    }
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    &.with-gap {
-      flex-direction: row;
-      align-items: center;
-      gap: 16px;
-    }
-
-    h2 {
-      margin: 0;
     }
 
     .header-subtitle {
@@ -63,11 +79,22 @@
     display: flex;
     gap: 16px;
     align-items: center;
+    width: 100%;
+
+    app-button-component {
+      width: 100%;
+    }
+
+    @include tablet-up {
+      width: auto;
+      app-button-component {
+        width: auto;
+      }
+    }
 
     .date-filter {
       width: 210px;
     }
-
     .btn-icon {
       width: 16px;
       height: 16px;
@@ -251,8 +278,11 @@
 
 .metrics-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  @include tablet-up {
+    gap: 24px;
+  }
 
   .metric-card {
     background: var(--bg-surface);
@@ -409,16 +439,26 @@
   background-color: var(--bg-surface);
   border-radius: $radius-md;
   border: 1px solid var(--border-color);
-  overflow: hidden;
+  /* MÁGICA MOBILE: Permite que as tabelas rolem horizontalmente sem estourar o app */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Suavidade no iOS */
   box-shadow: $shadow-md;
 
   .section-title {
     margin: 0;
-    padding: 20px 24px;
+    padding: 20px 16px; /* MOBILE: Padding menor */
     font-size: 1.1rem;
     color: var(--text-primary);
     border-bottom: 1px solid var(--border-color);
     background: rgba(var(--bg-dark-base), 0.4);
+
+    /* Trava o título no lugar enquanto a tabela rola */
+    position: sticky;
+    left: 0;
+
+    @include tablet-up {
+      padding: 20px 24px;
+    }
 
     &.title-with-icon {
       display: flex;
@@ -433,7 +473,6 @@
     }
   }
 }
-
 .chart-section {
   .chart-wrapper {
     position: relative;

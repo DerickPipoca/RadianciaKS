@@ -1,26 +1,63 @@
-<div class="admin-layout">
+<div class="admin-layout" [class.sidebar-open]="isSidebarOpen">
+  <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+
   <aside class="sidebar">
     <nav class="sidebar-nav">
       <div class="nav-section">
-        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/admin/dashboard"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="LayoutDashboard" class="icon" /> Dashboard
         </a>
-        <a routerLink="/admin/produtos" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/admin/produtos"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="BookOpen" class="icon" /> Cardápio
         </a>
-        <a routerLink="/admin/categorias" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/admin/categorias"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="History" class="icon" /> Categorias
         </a>
-        <a routerLink="/admin/pedidos" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/admin/pedidos"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="ShoppingCart" class="icon" /> Pedidos
         </a>
-        <a routerLink="/admin/equipe" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/admin/equipe"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="Users" class="icon" /> Funcionários
         </a>
-        <a routerLink="/admin/promocoes" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/admin/promocoes"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="BaggageClaim" class="icon" /> Promoções
         </a>
-        <a routerLink="/admin/configuracoes-loja" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/admin/configuracoes-loja"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="Settings" class="icon" /> Configurações
         </a>
       </div>
@@ -29,7 +66,13 @@
       <app-cash-shift-control></app-cash-shift-control>
     </div>
   </aside>
+
   <main class="content-area">
+    <!-- Botão Hamburguer (Apenas Mobile) -->
+    <button class="mobile-menu-btn show-on-mobile" (click)="toggleSidebar()">
+      <lucide-icon [img]="Menu" size="24"></lucide-icon> Menu
+    </button>
+
     <router-outlet></router-outlet>
   </main>
 </div>

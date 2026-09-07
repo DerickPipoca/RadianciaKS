@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LucideAngularModule, Rows3, History, Funnel } from 'lucide-angular';
+import { LucideAngularModule, Rows3, History, Funnel, Menu } from 'lucide-angular';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 
 @Component({
@@ -12,4 +12,15 @@ export class Layout {
   readonly Rows3 = Rows3;
   readonly Funnel = Funnel;
   readonly History = History;
+  readonly Menu = Menu;
+
+  isSidebarOpen = false;
+
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

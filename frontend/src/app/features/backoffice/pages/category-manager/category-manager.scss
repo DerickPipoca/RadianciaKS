@@ -2,9 +2,16 @@
 
 .page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
   margin-bottom: 24px;
+
+  @include tablet-up {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
 
   .header-title h2 {
     margin: 0;
@@ -12,28 +19,62 @@
     font-size: 1.5rem;
     font-weight: 600;
   }
+
+  app-input-component,
+  app-button-component {
+    width: 100%;
+
+    @include tablet-up {
+      width: auto;
+    }
+  }
 }
 
 .card-table {
   background-color: var(--bg-base);
-  border-radius: $radius-md;
-  overflow: hidden;
+  border-radius: $radius-md $radius-md 0px 0px;
   box-shadow: $shadow-sm;
+
+  width: 100%;
+  max-width: calc(100vw - 32px);
+
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  @include tablet-up {
+    max-width: 100%;
+  }
 
   .admin-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 700px;
 
     thead th {
       text-align: left;
-      color: var(--text-secondary);
-      font-weight: 500;
-      padding: 16px;
       border-bottom: 1px solid var(--border-color);
+
+      button {
+        background-color: transparent;
+        font-family: $font-family-base;
+        border: none;
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 0px 16px;
+        cursor: pointer;
+        font-size: 0.95rem;
+
+        &:hover {
+          color: var(--primary-color);
+        }
+      }
 
       &.actions-column {
         text-align: right;
         padding-right: 24px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 16px;
       }
     }
 
@@ -75,12 +116,14 @@
 .actions-cell {
   text-align: right;
   padding-right: 24px !important;
+  white-space: nowrap;
 
   .btn-action {
     background: none;
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
+    display: inline-block;
     margin-left: 12px;
     font-family: $font-family-base;
     font-size: 0.9rem;

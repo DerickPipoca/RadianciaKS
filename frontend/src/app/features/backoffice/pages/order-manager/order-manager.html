@@ -96,16 +96,16 @@
       }
     </tbody>
   </table>
-  @if (totalRecords > 0) {
-    <app-pagination
-      [pageNumber]="pageNumber"
-      [pageSize]="pageSize"
-      [totalRecords]="totalRecords"
-      (pageChange)="changePage($event)"
-    >
-    </app-pagination>
-  }
 </div>
+@if (totalRecords > 0) {
+  <app-pagination
+    [pageNumber]="pageNumber"
+    [pageSize]="pageSize"
+    [totalRecords]="totalRecords"
+    (pageChange)="changePage($event)"
+  >
+  </app-pagination>
+}
 
 @if (showModal) {
   <app-modal-component [title]="'Detalhes do Pedido #' + formattedOrderId" (onClose)="closeModal()">
@@ -134,12 +134,10 @@
         Itens Consumidos
       </h3>
 
-      <!-- Usando a classe padrão da nossa UX global -->
       <ul class="items-list" style="max-height: 280px; overflow-y: auto; padding-right: 8px">
         @for (item of currentItem.items; track item.id) {
           <li class="item-row">
             <div class="item-main-info">
-              <!-- Lado Esquerdo: Quantidade, Nome e Preço Unitário -->
               <div style="display: flex; flex-direction: column; gap: 4px">
                 <span
                   ><strong>{{ item.quantity }}x</strong> {{ item.productName }}</span
@@ -152,13 +150,11 @@
                 </div>
               </div>
 
-              <!-- Lado Direito: Preço Total daquele Item (Qtd * Valor) -->
               <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary)">
                 R$ {{ item.unitPrice * item.quantity | number: '1.2-2' }}
               </div>
             </div>
 
-            <!-- Modificadores Agrupados com Pipe -->
             @if (item.selectedModifiers && item.selectedModifiers.length > 0) {
               <div class="modifiers-container">
                 @for (group of item.selectedModifiers | groupBy: 'groupName'; track group.key) {
@@ -207,7 +203,6 @@
         }
       </ul>
 
-      <!-- Mantive a sua summary-box original para não quebrar o seu design específico de admin -->
       <div class="summary-box">
         <div>
           <label>Status de Pagamento</label>

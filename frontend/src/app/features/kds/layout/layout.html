@@ -1,24 +1,49 @@
-<div class="kds-layout">
+<div class="kds-layout" [class.sidebar-open]="isSidebarOpen">
+  <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+
   <aside class="kds-sidebar">
     <div class="logo-area">KDS - Cozinha</div>
 
     <nav class="sidebar-nav">
       <div class="nav-section">
-        <a routerLink="/kds/tabela" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/kds/tabela"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="Rows3" class="icon" /> Fila agrupada
         </a>
 
-        <a routerLink="/kds/filtros" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/kds/filtros"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="Funnel" class="icon" /> Filtros
         </a>
 
-        <a routerLink="/kds/historico" routerLinkActive="active" class="nav-item">
+        <a
+          routerLink="/kds/historico"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeSidebar()"
+        >
           <lucide-icon [img]="History" class="icon" /> Histórico
         </a>
       </div>
     </nav>
   </aside>
+
   <div class="kds-content-wrapper">
+    <header class="kds-mobile-bar show-on-mobile">
+      <button class="mobile-menu-btn" (click)="toggleSidebar()">
+        <lucide-icon [img]="Menu" size="22"></lucide-icon>
+        <span>Menu KDS</span>
+      </button>
+    </header>
+
     <router-outlet></router-outlet>
   </div>
 </div>
