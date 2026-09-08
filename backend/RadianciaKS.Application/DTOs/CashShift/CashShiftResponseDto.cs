@@ -13,5 +13,7 @@ namespace RadianciaKS.Application.DTOs.CashShift
         public DateTime? ClosedAt { get; set; }
         public Guid EmployeeOpenerId { get; set; }
         public Guid? EmployeeCloserId { get; set; }
+
+        public int PendingOrdersCount { get; set; }
     }
 }

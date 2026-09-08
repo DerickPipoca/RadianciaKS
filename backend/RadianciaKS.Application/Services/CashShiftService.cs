@@ -37,8 +37,26 @@ namespace RadianciaKS.Application.Services
             if (openShift == null)
                 throw new Exception("Não há caixa aberto para ser fechado.");
 
+            var pendingOrders = openShift.Orders
+                .Where(o => o.OrderStatus != OrderStatus.Canceled
+                         && o.PaymentStatus != PaymentStatus.Paid)
+                .ToList();
+
+            if (pendingOrders.Any())
+            {
+                var count = pendingOrders.Count;
+                var tableList = string.Join(", ", pendingOrders
+                    .Take(3)
+                    .Select(o => !string.IsNullOrWhiteSpace(o.TableNumber) ? $"Mesa {o.TableNumber}" : $"#{o.Id.ToString()[..6].ToUpper()}"));
+
+                var extra = count > 3 ? $" e mais {count - 3} pedido(s)" : "";
+
+                throw new InvalidOperationException(
+                    $"Não é possível fechar o caixa. Existem {count} comanda(s) aberta(s) ou com pagamento pendente ({tableList}{extra}). Finalize ou cancele os pedidos antes de encerrar o turno.");
+            }
+
             decimal totalSales = openShift.Orders
-                .Where(p => p.PaymentStatus == PaymentStatus.Paid)
+                .Where(o => o.PaymentStatus == PaymentStatus.Paid)
                 .SelectMany(o => o.Payments)
                 .Sum(p => p.Amount);
 
@@ -59,9 +77,17 @@ namespace RadianciaKS.Application.Services
         public async Task<CashShiftResponseDto?> GetCurrentOpenShift()
         {
             var shift = await _context.CashShifts
-                        .FirstOrDefaultAsync(c => c.Status == CashShiftStatus.Open);
+                .Include(c => c.Orders)
+                .FirstOrDefaultAsync(c => c.Status == CashShiftStatus.Open && c.Active);
 
-            return shift == null ? null : _mapper.ToDto(shift);
+            if (shift == null) return null;
+
+            var dto = _mapper.ToDto(shift);
+
+            dto.PendingOrdersCount = shift.Orders
+                .Count(o => o.OrderStatus != OrderStatus.Canceled && o.PaymentStatus != PaymentStatus.Paid);
+
+            return dto;
         }
 
 

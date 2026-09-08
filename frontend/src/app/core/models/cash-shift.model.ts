@@ -10,6 +10,8 @@ export interface CashShiftResponse {
   closedAt?: string;
   employeeOpenerId: string;
   employeeCloserId?: string;
+
+  pendingOrdersCount: number;
 }
 
 export interface OpenCashShiftRequest {

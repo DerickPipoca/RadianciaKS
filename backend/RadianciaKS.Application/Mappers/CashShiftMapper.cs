@@ -12,6 +12,7 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreSource(nameof(CashShift.EmployeeOpener))]
         [MapperIgnoreSource(nameof(CashShift.EmployeeCloser))]
         [MapperIgnoreSource(nameof(CashShift.Orders))]
+        [MapperIgnoreTarget(nameof(CashShiftResponseDto.PendingOrdersCount))]
         public partial CashShiftResponseDto ToDto(CashShift cashShift);
 
         [MapperIgnoreTarget(nameof(CashShift.Id))]
@@ -23,6 +24,7 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreSource(nameof(CashShiftResponseDto.CreatedAt))]
         [MapperIgnoreSource(nameof(CashShiftResponseDto.Id))]
         [MapperIgnoreTarget(nameof(CashShift.Orders))]
+        [MapperIgnoreSource(nameof(CashShiftResponseDto.PendingOrdersCount))]
         public partial CashShift ToEntity(CashShiftResponseDto cashShiftDto);
     }
 }
