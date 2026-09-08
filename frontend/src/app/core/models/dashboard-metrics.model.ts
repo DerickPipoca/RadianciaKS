@@ -38,6 +38,8 @@ export interface DashboardMetrics {
   openedByName: string;
   closedByName?: string;
 
+  serviceFeeBalance: number;
+
   initialBalance: number;
   finalCalculatedBalance?: number;
   finalReportedBalance?: number;

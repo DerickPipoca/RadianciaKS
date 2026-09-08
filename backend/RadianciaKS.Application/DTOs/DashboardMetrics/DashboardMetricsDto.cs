@@ -8,6 +8,8 @@ namespace RadianciaKS.Application.DTOs.DashboardMetrics
         public decimal AverageTicket { get; set; }
         public int TotalOrders { get; set; }
 
+        public decimal? ServiceFeeBalance { get; set; }
+
         public decimal InitialBalance { get; set; }
         public decimal? FinalCalculatedBalance { get; set; }
         public decimal? FinalReportedBalance { get; set; }

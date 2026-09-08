@@ -207,6 +207,16 @@
           </div>
         </div>
 
+        <div class="metric-card">
+          <div class="card-icon fee"><lucide-icon [img]="Percent" class="icon" /></div>
+          <div class="card-info">
+            <h3>Taxa de Serviço</h3>
+            <p class="value-fee">
+              {{ metrics.serviceFeeBalance | currency: 'BRL' : 'symbol' : '1.2-2' }}
+            </p>
+          </div>
+        </div>
+
         <div class="metric-card cancel-card">
           <div class="card-icon">
             <lucide-icon [img]="Ban" class="icon" />

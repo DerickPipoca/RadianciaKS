@@ -210,6 +210,10 @@ namespace RadianciaKS.Application.Services
                 .OrderBy(x => x.Label)
                 .ToList();
 
+            decimal? serviceFeeBalance = paidOrders
+                .Where(o => o.ServiceFeeAmount > 0)
+                .Sum(o => o.ServiceFeeAmount);
+
             var waiterProductivity = paidOrders
                 .Where(o => o.Employee != null)
                 .GroupBy(o => o.Employee)
@@ -260,6 +264,8 @@ namespace RadianciaKS.Application.Services
                 TopSellingItems = topItems,
                 CashFlow = cashFlow,
                 SalesChart = salesChart,
+
+                ServiceFeeBalance = serviceFeeBalance ?? .0m,
 
                 OpenedByName = shift.EmployeeOpener?.Name ?? "Sistema",
                 ClosedByName = shift.EmployeeCloser?.Name,

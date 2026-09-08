@@ -18,6 +18,7 @@ import {
   TrendingUp,
   TrendingDown,
   Users,
+  Percent,
 } from 'lucide-angular';
 import { CashShiftHistory } from '../../../../core/models/cash-shift.model';
 import { CashShiftService } from '../../../../core/services/cash-shift-service';
@@ -29,6 +30,7 @@ import { CashShiftService } from '../../../../core/services/cash-shift-service';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
+  readonly Percent = Percent;
   readonly RefreshCcw = RefreshCcw;
   readonly TriangleAlert = TriangleAlert;
   readonly Ticket = Ticket;
