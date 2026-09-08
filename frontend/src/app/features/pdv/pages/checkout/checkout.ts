@@ -57,8 +57,9 @@ export class Checkout implements OnInit {
         next: (settings) => {
           this.serviceChargePercentage = settings.serviceCharge;
 
-          if (this.serviceChargePercentage === 0) {
-            this.applyServiceFee = false;
+          if (!this.existingOrderId) {
+            this.applyServiceFee =
+              settings.chargeServiceByDefault && this.serviceChargePercentage > 0;
           }
         },
       });

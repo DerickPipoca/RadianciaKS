@@ -204,15 +204,34 @@
       </ul>
 
       <div class="summary-box">
-        <div>
-          <label>Status de Pagamento</label>
+        <div class="payment-status-col">
+          <span class="status-label">Status de Pagamento</span>
           <strong class="badge-status" [ngClass]="currentItem.paymentStatus | paymentStatusClass">
             {{ currentItem.paymentStatus | paymentStatusLabel }}
           </strong>
         </div>
-        <div style="text-align: right">
-          <label>Total Pago</label>
-          <strong class="total-price">R$ {{ currentItem.totalAmount | number: '1.2-2' }}</strong>
+
+        <div class="financial-details-col">
+          @if (currentItem.serviceFeeAmount && currentItem.serviceFeeAmount > 0) {
+            <div class="fee-row">
+              <span>Subtotal:</span>
+              <span class="fee-value">
+                R$ {{ currentItem.totalAmount - currentItem.serviceFeeAmount | number: '1.2-2' }}
+              </span>
+            </div>
+            <div class="fee-row service-highlight">
+              <span>Taxa de Serviço ({{ currentItem.serviceFeePercentage }}%):</span>
+              <span class="fee-value"
+                >+ R$ {{ currentItem.serviceFeeAmount | number: '1.2-2' }}</span
+              >
+            </div>
+            <div class="fee-divider"></div>
+          }
+
+          <div class="total-row">
+            <span class="total-label">Total Pago:</span>
+            <span class="total-amount">R$ {{ currentItem.totalAmount | number: '1.2-2' }}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -192,25 +192,89 @@
 }
 
 .summary-box {
-  background: rgba(var(--bg-base), 0.4);
+  background-color: var(--bg-base);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 20px;
-  margin-top: 24px;
+  padding: 16px 20px;
+  margin-top: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
 
-  label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+  .payment-status-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    .status-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
   }
 
-  .total-price {
-    font-size: 1.6rem;
-    color: var(--green-status);
+  .financial-details-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 220px;
+
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+
+      .fee-value {
+        font-weight: 600;
+        color: var(--green-status);
+        font-variant-numeric: tabular-nums;
+      }
+
+      &.service-highlight {
+        .fee-value {
+          color: var(--green-status);
+        }
+      }
+    }
+
+    .fee-divider {
+      height: 1px;
+      border-top: 1px dashed var(--border-color);
+      margin: 6px 0;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+
+      .total-label {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+      }
+
+      .total-amount {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--green-status);
+        font-variant-numeric: tabular-nums;
+      }
+    }
+
+    .change-row {
+      font-size: 0.85rem;
+      color: var(--green-status);
+      font-weight: 600;
+      text-align: right;
+      margin-top: 2px;
+    }
   }
 }
 

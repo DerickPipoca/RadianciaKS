@@ -40,13 +40,30 @@
     ></app-input-component>
   </div>
 
-  <div class="form-input">
-    <label>Taxa de serviço</label>
-    <app-input-component
-      label="Taxa de Serviço (%)"
-      type="number"
-      [(value)]="settings.serviceCharge"
-    ></app-input-component>
+  <div class="form-row">
+    <div class="form-input">
+      <label>Taxa de Serviço (%)</label>
+      <app-input-component
+        placeholder="Ex: 10"
+        type="number"
+        min="0"
+        step="0.5"
+        [(value)]="settings.serviceCharge"
+      ></app-input-component>
+    </div>
+
+    <div class="form-input">
+      <label>Taxa por padrão</label>
+      <label class="toggle-input-wrapper">
+        <span class="toggle-text">
+          {{ settings.chargeServiceByDefault ? 'Ativado' : 'Desativado' }}
+        </span>
+        <div class="switch">
+          <input type="checkbox" [(ngModel)]="settings.chargeServiceByDefault" />
+          <span class="slider"></span>
+        </div>
+      </label>
+    </div>
   </div>
 
   <div class="logo-section">

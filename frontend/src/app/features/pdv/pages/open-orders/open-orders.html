@@ -199,15 +199,35 @@
       <hr class="divider" />
 
       <div class="summary-box">
-        <div>
-          <label>Status de Pagamento</label>
+        <div class="payment-status-col">
+          <span class="status-label">Status de Pagamento</span>
           <strong class="badge-status" [ngClass]="selectedOrder.paymentStatus | paymentStatusClass">
             {{ selectedOrder.paymentStatus | paymentStatusLabel }}
           </strong>
         </div>
-        <div style="text-align: right">
-          <label>Total Parcial</label>
-          <strong class="total-price">R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</strong>
+
+        <div class="financial-details-col">
+          @if (selectedOrder.serviceFeeAmount && selectedOrder.serviceFeeAmount > 0) {
+            <div class="fee-row">
+              <span>Subtotal:</span>
+              <span class="fee-value">
+                R$
+                {{ selectedOrder.totalAmount - selectedOrder.serviceFeeAmount | number: '1.2-2' }}
+              </span>
+            </div>
+            <div class="fee-row service-highlight">
+              <span>Taxa de Serviço ({{ selectedOrder.serviceFeePercentage }}%):</span>
+              <span class="fee-value"
+                >+ R$ {{ selectedOrder.serviceFeeAmount | number: '1.2-2' }}</span
+              >
+            </div>
+            <div class="fee-divider"></div>
+          }
+
+          <div class="total-row">
+            <span class="total-label">Total Parcial:</span>
+            <span class="total-amount">R$ {{ selectedOrder.totalAmount | number: '1.2-2' }}</span>
+          </div>
         </div>
       </div>
     </main>
