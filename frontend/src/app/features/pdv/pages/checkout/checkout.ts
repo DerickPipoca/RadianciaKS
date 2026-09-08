@@ -114,14 +114,22 @@ export class Checkout implements OnInit {
 
   get subTotal(): number {
     if (this.existingOrderId) {
-      return this.existingOrderTotal - this.existingServiceFeeAmount;
+      return new Decimal(this.existingOrderTotal)
+        .minus(this.existingServiceFeeAmount)
+        .toDecimalPlaces(2, Decimal.ROUND_HALF_UP)
+        .toNumber();
     }
-    return this.cartService.subTotal().toNumber();
+    return this.cartService.subTotal().toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
   }
 
   get serviceFeeAmount(): number {
     if (!this.applyServiceFee || this.serviceChargePercentage === 0) return 0;
-    return this.subTotal * (this.serviceChargePercentage / 100);
+
+    return new Decimal(this.subTotal)
+      .mul(this.serviceChargePercentage)
+      .div(100)
+      .toDecimalPlaces(2, Decimal.ROUND_HALF_UP)
+      .toNumber();
   }
 
   toggleServiceFee(): void {
@@ -129,7 +137,10 @@ export class Checkout implements OnInit {
   }
 
   get total(): number {
-    return this.subTotal + this.serviceFeeAmount;
+    return new Decimal(this.subTotal)
+      .plus(this.serviceFeeAmount)
+      .toDecimalPlaces(2, Decimal.ROUND_HALF_UP)
+      .toNumber();
   }
 
   get totalPaid(): number {
@@ -144,17 +155,18 @@ export class Checkout implements OnInit {
     const totalDec = new Decimal(this.total);
     const paidDec = new Decimal(this.totalPaid);
 
-    const rem = totalDec.minus(paidDec);
-
+    const rem = totalDec.minus(paidDec).toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
     return rem.toNumber() > 0 ? rem.toNumber() : 0;
   }
 
   get changeAmount(): number {
     if (!this.totalPaid || !this.total) return 0;
 
-    const change = new Decimal(this.totalPaid).minus(this.total);
+    const change = new Decimal(this.totalPaid)
+      .minus(this.total)
+      .toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
 
-    return change.toNumber();
+    return change.toNumber() > 0 ? change.toNumber() : 0;
   }
 
   get isFormValid(): boolean {

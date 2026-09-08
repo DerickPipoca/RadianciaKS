@@ -4,5 +4,6 @@ namespace RadianciaKS.Application.DTOs.DashboardMetrics
     {
         public string ProductName { get; set; } = string.Empty;
         public int QuantitySold { get; set; }
+        public List<TopSellingModifierGroupDto> ModifierGroups { get; set; } = new();
     }
 }

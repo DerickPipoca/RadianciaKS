@@ -1,12 +1,6 @@
 import { CashShiftStatus } from '../enums/cash-shift-status';
 import { EmployeeRole } from '../enums/employee-role';
 
-export interface TopSellingItem {
-  productName: string;
-  quantitySold: number;
-  transactionsCount: number;
-}
-
 export interface HistoryComparison {
   hasPreviousShift: boolean;
   revenuePercentage: number;
@@ -28,6 +22,22 @@ export interface CashFlow {
 export interface SalesChart {
   label: string;
   value: number;
+}
+
+export interface TopSellingModifier {
+  name: string;
+  quantitySold: number;
+}
+
+export interface TopSellingModifierGroup {
+  groupName: string;
+  modifiers: TopSellingModifier[];
+}
+
+export interface TopSellingItem {
+  productName: string;
+  quantitySold: number;
+  modifierGroups: TopSellingModifierGroup[];
 }
 
 export interface DashboardMetrics {

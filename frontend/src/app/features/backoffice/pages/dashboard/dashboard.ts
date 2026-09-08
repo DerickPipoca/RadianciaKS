@@ -19,6 +19,8 @@ import {
   TrendingDown,
   Users,
   Percent,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-angular';
 import { CashShiftHistory } from '../../../../core/models/cash-shift.model';
 import { CashShiftService } from '../../../../core/services/cash-shift-service';
@@ -42,6 +44,8 @@ export class Dashboard implements OnInit {
   readonly TrendingUp = TrendingUp;
   readonly TrendingDown = TrendingDown;
   readonly Users = Users;
+  readonly ChevronDown = ChevronDown;
+  readonly ChevronRight = ChevronRight;
 
   loading = false;
   errorMessage = '';
@@ -55,6 +59,8 @@ export class Dashboard implements OnInit {
   metrics: DashboardMetrics | null = null;
 
   public chartType: ChartType = 'line';
+
+  expandedProducts: Set<string> = new Set<string>();
 
   public chartData: ChartConfiguration['data'] = {
     labels: [],
@@ -124,6 +130,23 @@ export class Dashboard implements OnInit {
     this.loadShiftHistory();
   }
 
+  toggleProductExpand(productName: string): void {
+    if (this.expandedProducts.has(productName)) {
+      this.expandedProducts.delete(productName);
+    } else {
+      this.expandedProducts.add(productName);
+    }
+  }
+
+  countTotalModifiers(item: any): number {
+    if (!item.modifierGroups) return 0;
+    return item.modifierGroups.reduce((acc: number, g: any) => acc + (g.modifiers?.length || 0), 0);
+  }
+
+  hasModifiers(item: any): boolean {
+    return !!item.modifierGroups && item.modifierGroups.length > 0;
+  }
+
   loadDashboardData() {
     this.loading = true;
     this.errorMessage = '';
@@ -152,8 +175,34 @@ export class Dashboard implements OnInit {
       this.chartData.datasets[0].data = [];
       return;
     }
-    this.chartData.labels = data.salesChart.map((item) => item.label);
-    this.chartData.datasets[0].data = data.salesChart.map((item) => item.value);
+    const points = data.salesChart.map((item) => ({
+      date: new Date(item.label),
+      value: item.value,
+      rawLabel: item.label,
+    }));
+    const uniqueDays = new Set(
+      points
+        .filter((p) => !isNaN(p.date.getTime()))
+        .map((p) => `${p.date.getFullYear()}-${p.date.getMonth()}-${p.date.getDate()}`),
+    );
+    const spansMultipleDays = uniqueDays.size > 1;
+    this.chartData.labels = points.map((p) => {
+      if (isNaN(p.date.getTime())) return p.rawLabel;
+      const timeStr = p.date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      if (!spansMultipleDays) {
+        return timeStr;
+      }
+      const dateStr = p.date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+      });
+      return [timeStr, dateStr];
+    });
+
+    this.chartData.datasets[0].data = points.map((p) => p.value);
     this.chartData = { ...this.chartData };
   }
 }

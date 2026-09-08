@@ -234,7 +234,7 @@
       </section>
 
       <section class="card-table chart-section mb-24">
-        <h3 class="section-title">Faturação (Meia Hora)</h3>
+        <h3 class="section-title">Faturação</h3>
         <div class="chart-wrapper">
           <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="chartType"></canvas>
         </div>
@@ -303,18 +303,64 @@
         <table class="admin-table">
           <thead>
             <tr>
-              <th>Produto / Insumo</th>
+              <th>Produto</th>
               <th class="text-center">Quantidade Vendida</th>
             </tr>
           </thead>
           <tbody>
             @for (item of metrics.topSellingItems; track item.productName) {
-              <tr>
-                <td [ngClass]="{ 'modifier-item': item.productName.startsWith('+') }">
-                  {{ item.productName }}
+              <!-- Linha Principal do Produto -->
+              <tr
+                class="product-row"
+                [class.clickable]="hasModifiers(item)"
+                (click)="hasModifiers(item) ? toggleProductExpand(item.productName) : null"
+              >
+                <td>
+                  <div class="product-name-container">
+                    @if (hasModifiers(item)) {
+                      <lucide-icon
+                        [img]="expandedProducts.has(item.productName) ? ChevronDown : ChevronRight"
+                        class="chevron-toggle"
+                      />
+                    } @else {
+                      <span class="chevron-placeholder"></span>
+                    }
+
+                    <strong class="product-title">{{ item.productName }}</strong>
+
+                    @if (hasModifiers(item)) {
+                      <span class="modifier-badge">
+                        {{ countTotalModifiers(item) }}
+                        {{ countTotalModifiers(item) === 1 ? 'adicional' : 'adicionais' }}
+                      </span>
+                    }
+                  </div>
                 </td>
                 <td class="text-center bold">{{ item.quantitySold }} un.</td>
               </tr>
+
+              @if (expandedProducts.has(item.productName) && hasModifiers(item)) {
+                <tr class="modifiers-expansion-row">
+                  <td colspan="2">
+                    <div class="modifiers-container">
+                      @for (group of item.modifierGroups; track group.groupName) {
+                        <div class="modifier-group">
+                          <span class="group-title">{{ group.groupName }}</span>
+
+                          <ul class="modifier-list">
+                            @for (mod of group.modifiers; track mod.name) {
+                              <li class="modifier-item">
+                                <span class="mod-name">+ {{ mod.name }}</span>
+                                <span class="mod-qty">{{ mod.quantitySold }} un.</span>
+                              </li>
+                            }
+                          </ul>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
             } @empty {
               <tr>
                 <td colspan="2" class="empty-row">Nenhum produto faturado no período.</td>

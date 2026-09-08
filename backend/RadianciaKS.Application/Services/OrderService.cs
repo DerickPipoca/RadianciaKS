@@ -170,19 +170,30 @@ namespace RadianciaKS.Application.Services
                 .Select(g => new TopSellingItemDto
                 {
                     ProductName = g.Key,
-                    QuantitySold = g.Sum(i => i.Quantity)
-                });
-
-            var topModifiers = paidOrders.SelectMany(o => o.Items)
-                .SelectMany(i => i.SelectedModifiers)
-                .GroupBy(m => m.Name)
-                .Select(g => new TopSellingItemDto
-                {
-                    ProductName = $"+ {g.Key}",
-                    QuantitySold = g.Count()
-                });
-
-            var topItems = topProducts.Concat(topModifiers)
+                    QuantitySold = g.Sum(i => i.Quantity),
+                    ModifierGroups = g.SelectMany(i => i.SelectedModifiers.Select(m => new
+                    {
+                        Name = m.Name,
+                        GroupName = string.IsNullOrWhiteSpace(m.GroupName) ? "Adicionais" : m.GroupName,
+                        Quantity = i.Quantity
+                    }))
+                        .GroupBy(m => m.GroupName)
+                        .Select(group => new TopSellingModifierGroupDto
+                        {
+                            GroupName = group.Key,
+                            Modifiers = group
+                                .GroupBy(m => m.Name)
+                                .Select(mg => new TopSellingModifierDto
+                                {
+                                    Name = mg.Key,
+                                    QuantitySold = mg.Sum(x => x.Quantity)
+                                })
+                                .OrderByDescending(m => m.QuantitySold)
+                                .ToList()
+                        })
+                        .OrderBy(group => group.GroupName)
+                        .ToList()
+                })
                 .OrderByDescending(x => x.QuantitySold)
                 .ToList();
 
@@ -197,17 +208,19 @@ namespace RadianciaKS.Application.Services
                 .ToList();
 
             var salesChart = paidOrders
-                .GroupBy(o => new
+                .Select(o =>
                 {
-                    o.CreatedAt.Hour,
-                    MinuteBlock = o.CreatedAt.Minute < 30 ? "00" : "30"
+                    var minuteBlock = o.CreatedAt.Minute < 30 ? 0 : 30;
+                    var bucket = new DateTime(o.CreatedAt.Year, o.CreatedAt.Month, o.CreatedAt.Day, o.CreatedAt.Hour, minuteBlock, 0, DateTimeKind.Utc);
+                    return new { Bucket = bucket, o.TotalAmount };
                 })
+                .GroupBy(x => x.Bucket)
+                .OrderBy(g => g.Key)
                 .Select(g => new SalesChartDto
                 {
-                    Label = $"{g.Key.Hour:00}:{g.Key.MinuteBlock}",
+                    Label = g.Key.ToString("o"),
                     Value = g.Sum(o => o.TotalAmount)
                 })
-                .OrderBy(x => x.Label)
                 .ToList();
 
             decimal? serviceFeeBalance = paidOrders
@@ -261,7 +274,7 @@ namespace RadianciaKS.Application.Services
                 TotalRevenue = totalRevenue,
                 TotalOrders = totalOrders,
                 AverageTicket = averageTicket,
-                TopSellingItems = topItems,
+                TopSellingItems = topProducts,
                 CashFlow = cashFlow,
                 SalesChart = salesChart,
 
