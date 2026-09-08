@@ -195,44 +195,55 @@
   background-color: var(--bg-base);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 16px 20px;
+  padding: 14px 16px;
   margin-top: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 
+  /* Linha 1: Status de Pagamento (Texto na esquerda, Badge na direita) */
   .payment-status-col {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
 
     .status-label {
-      font-size: 0.85rem;
-      font-weight: 500;
+      font-size: 0.9rem;
+      font-weight: 600;
       color: var(--text-secondary);
+      white-space: nowrap;
     }
   }
 
   .financial-details-col {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    min-width: 220px;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
 
     .fee-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      font-size: 0.88rem;
+      gap: 12px;
+      font-size: 0.9rem;
       color: var(--text-secondary);
+
+      span:first-child {
+        white-space: nowrap;
+      }
 
       .fee-value {
         font-weight: 600;
         color: var(--green-status);
         font-variant-numeric: tabular-nums;
+        white-space: nowrap;
       }
 
       &.service-highlight {
@@ -245,35 +256,40 @@
     .fee-divider {
       height: 1px;
       border-top: 1px dashed var(--border-color);
-      margin: 6px 0;
+      margin: 4px 0;
     }
 
     .total-row {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      gap: 16px;
+      align-items: center;
+      gap: 12px;
+      margin-top: 2px;
 
       .total-label {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
       }
 
       .total-amount {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
         font-weight: 800;
         color: var(--green-status);
         font-variant-numeric: tabular-nums;
+        white-space: nowrap;
       }
     }
 
     .change-row {
+      display: flex;
+      justify-content: flex-end;
       font-size: 0.85rem;
       color: var(--green-status);
       font-weight: 600;
-      text-align: right;
       margin-top: 2px;
+      white-space: nowrap;
     }
   }
 }
