@@ -37,6 +37,9 @@ namespace RadianciaKS.Application.Mappers
         [MapperIgnoreTarget(nameof(Order.PaidBy))]
         [MapperIgnoreTarget(nameof(Order.CashShiftId))]
         [MapperIgnoreTarget(nameof(Order.CashShift))]
+        [MapperIgnoreSource(nameof(OrderRequestDto.ApplyServiceFee))]
+        [MapperIgnoreTarget(nameof(Order.ServiceFeePercentage))]
+        [MapperIgnoreTarget(nameof(Order.ServiceFeeAmount))]
         public partial Order ToEntity(OrderRequestDto dto);
 
     }

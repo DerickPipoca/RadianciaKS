@@ -10,12 +10,13 @@ namespace RadianciaKS.Domain.Models
         public string? SmallLogoPath { get; set; }
         public string? BigLogoPath { get; set; }
         public decimal ServiceCharge { get; set; }
+        public bool ChargeServiceByDefault { get; set; }
 
         public void Update(string storeName,
         string cnpj, string? address,
         string? phone, string? receiptFooter,
         string? smallLogoPath, string? bigLogoPath,
-        decimal serviceCharge)
+        decimal serviceCharge, bool chargeServiceByDefault)
         {
             StoreName = storeName;
             CNPJ = cnpj;
@@ -25,6 +26,7 @@ namespace RadianciaKS.Domain.Models
             SmallLogoPath = smallLogoPath;
             BigLogoPath = bigLogoPath;
             ServiceCharge = serviceCharge;
+            ChargeServiceByDefault = chargeServiceByDefault;
         }
     }
 }

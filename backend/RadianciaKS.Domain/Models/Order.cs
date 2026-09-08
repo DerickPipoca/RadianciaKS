@@ -13,6 +13,9 @@ namespace RadianciaKS.Domain.Models
         public virtual ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
+        public decimal ServiceFeePercentage { get; set; }
+        public decimal ServiceFeeAmount { get; set; }
+
         public Guid CashShiftId { get; set; }
         public CashShift CashShift { get; set; } = null!;
 
@@ -21,5 +24,20 @@ namespace RadianciaKS.Domain.Models
 
         public Guid EmployeeId { get; set; }
         public virtual Employee Employee { get; set; } = null!;
+
+
+        public void ConfigureServiceFee(decimal subTotal, bool applyFee, decimal percentage = 10m)
+        {
+            if (applyFee)
+            {
+                ServiceFeePercentage = percentage;
+                ServiceFeeAmount = Math.Round(subTotal * (percentage / 100m), 2);
+            }
+            else
+            {
+                ServiceFeePercentage = 0m;
+                ServiceFeeAmount = 0m;
+            }
+        }
     }
 }

@@ -16,6 +16,7 @@ import { ButtonComponent } from '../../../../shared/components/button-component/
 import { ToastrService } from 'ngx-toastr';
 import Decimal from 'decimal.js';
 import { InputComponent } from '../../../../shared/components/input-component/input-component';
+import { StoreSettingsService } from '../../../../core/services/store-settings-service';
 
 @Component({
   selector: 'app-checkout',
@@ -26,6 +27,7 @@ import { InputComponent } from '../../../../shared/components/input-component/in
 export class Checkout implements OnInit {
   public cartService = inject(CartService);
   private orderService = inject(OrderService);
+  private storeSettingsService = inject(StoreSettingsService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastr = inject(ToastrService);
@@ -34,7 +36,11 @@ export class Checkout implements OnInit {
 
   existingOrderId: string | null = null;
   existingOrderTotal: number = 0;
+  existingServiceFeeAmount: number = 0;
   alreadyPaidAmount: number = 0;
+
+  serviceChargePercentage: number = 0;
+  applyServiceFee: boolean = true;
 
   tableNumber: string = '';
   isProcessing: boolean = false;
@@ -47,6 +53,16 @@ export class Checkout implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
+      this.storeSettingsService.getSettings().subscribe({
+        next: (settings) => {
+          this.serviceChargePercentage = settings.serviceCharge;
+
+          if (this.serviceChargePercentage === 0) {
+            this.applyServiceFee = false;
+          }
+        },
+      });
+
       const orderId = params['orderId'];
       const abertos = params['abertos'];
 
@@ -72,6 +88,9 @@ export class Checkout implements OnInit {
     this.orderService.getById(id).subscribe({
       next: (order: OrderResponseDto) => {
         this.existingOrderTotal = order.totalAmount;
+        this.existingServiceFeeAmount = order.serviceFeeAmount;
+
+        this.applyServiceFee = order.serviceFeeAmount > 0;
 
         this.tableNumber = order.tableNumber || '';
 
@@ -92,8 +111,24 @@ export class Checkout implements OnInit {
     });
   }
 
+  get subTotal(): number {
+    if (this.existingOrderId) {
+      return this.existingOrderTotal - this.existingServiceFeeAmount;
+    }
+    return this.cartService.subTotal().toNumber();
+  }
+
+  get serviceFeeAmount(): number {
+    if (!this.applyServiceFee || this.serviceChargePercentage === 0) return 0;
+    return this.subTotal * (this.serviceChargePercentage / 100);
+  }
+
+  toggleServiceFee(): void {
+    this.applyServiceFee = !this.applyServiceFee;
+  }
+
   get total(): number {
-    return this.existingOrderId ? this.existingOrderTotal : this.cartService.subTotal().toNumber();
+    return this.subTotal + this.serviceFeeAmount;
   }
 
   get totalPaid(): number {
@@ -182,7 +217,10 @@ export class Checkout implements OnInit {
         payments: this.addedPayments,
       };
 
-      const checkoutDto: CheckoutRequestDto = { payments: this.addedPayments };
+      const checkoutDto: CheckoutRequestDto = {
+        payments: this.addedPayments,
+        applyServiceFee: this.applyServiceFee,
+      };
 
       this.orderService.checkoutOrder(this.existingOrderId, checkoutDto).subscribe({
         next: () => {
@@ -207,6 +245,7 @@ export class Checkout implements OnInit {
 
       const payload: OrderRequestDto = {
         tableNumber: this.tableNumber ? this.tableNumber : undefined,
+        applyServiceFee: this.applyServiceFee,
         items: orderItems,
         payments: this.addedPayments,
       };

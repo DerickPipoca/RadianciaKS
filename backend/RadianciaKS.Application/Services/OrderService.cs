@@ -50,7 +50,12 @@ namespace RadianciaKS.Application.Services
                 _context.OrderItems.Add(newItem);
             }
 
-            order.TotalAmount = order.Items.Sum(i => i.UnitPrice * i.Quantity);
+            decimal subTotal = order.Items.Sum(i => i.UnitPrice * i.Quantity);
+
+            bool isFeeApplied = order.ServiceFeePercentage > 0;
+            order.ConfigureServiceFee(subTotal, isFeeApplied, order.ServiceFeePercentage);
+
+            order.TotalAmount = subTotal + order.ServiceFeeAmount;
 
             var totalPaid = order.Payments.Sum(p => p.Amount);
             if (order.PaymentStatus == PaymentStatus.Paid && order.TotalAmount > totalPaid)
@@ -79,7 +84,12 @@ namespace RadianciaKS.Application.Services
             var newItem = await BuildOrderItemAsync(itemDto);
 
             order.Items.Add(newItem);
-            order.TotalAmount += newItem.UnitPrice * newItem.Quantity;
+            decimal subTotal = order.Items.Sum(i => i.UnitPrice * i.Quantity);
+
+            bool isFeeApplied = order.ServiceFeePercentage > 0;
+            order.ConfigureServiceFee(subTotal, isFeeApplied, order.ServiceFeePercentage);
+
+            order.TotalAmount = subTotal + order.ServiceFeeAmount;
 
             await _context.SaveChangesAsync();
 
@@ -96,6 +106,13 @@ namespace RadianciaKS.Application.Services
 
             if (order.PaymentStatus == PaymentStatus.Paid)
                 throw new ArgumentException($"Pedido já pago.");
+
+            var storeSettings = await _context.StoreSettings.FirstOrDefaultAsync();
+            decimal serviceChargePercent = storeSettings?.ServiceCharge ?? 0m;
+
+            decimal subTotal = order.Items.Sum(i => i.UnitPrice * i.Quantity);
+            order.ConfigureServiceFee(subTotal, checkoutDto.ApplyServiceFee, serviceChargePercent);
+            order.TotalAmount = subTotal + order.ServiceFeeAmount;
 
             foreach (var paymentDto in checkoutDto.Payments)
             {
@@ -293,7 +310,12 @@ namespace RadianciaKS.Application.Services
                 totalPrice += (newItem.UnitPrice * newItem.Quantity);
             }
 
-            orderToAdd.TotalAmount = totalPrice;
+            var storeSettings = await _context.StoreSettings.FirstOrDefaultAsync();
+            decimal serviceChargePercent = storeSettings?.ServiceCharge ?? 0m;
+
+            orderToAdd.ConfigureServiceFee(totalPrice, dto.ApplyServiceFee, serviceChargePercent);
+            orderToAdd.TotalAmount = totalPrice + orderToAdd.ServiceFeeAmount;
+
             orderToAdd.EmployeeId = employeeId;
 
             decimal totalValue = 0;

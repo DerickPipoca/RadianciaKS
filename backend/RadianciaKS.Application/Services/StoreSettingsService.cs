@@ -53,7 +53,8 @@ namespace RadianciaKS.Application.Services
                 dto.ReceiptFooter,
                 dto.SmallLogoPath,
                 dto.BigLogoPath,
-                dto.ServiceCharge
+                dto.ServiceCharge,
+                dto.ChargeServiceByDefault
             );
 
             await _context.SaveChangesAsync();

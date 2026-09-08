@@ -6,6 +6,7 @@ namespace RadianciaKS.Application.DTOs.Order
     {
         public string? TableNumber { get; set; }
         public Guid EmployeeId { get; set; }
+        public bool ApplyServiceFee { get; set; }
         public List<OrderItemRequestDto> Items { get; set; } = [];
         public List<PaymentRequestDto> Payments { get; set; } = [];
     }

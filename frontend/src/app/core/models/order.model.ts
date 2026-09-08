@@ -6,6 +6,7 @@ import { PaymentRequestDto, PaymentResponseDto } from './payment.model';
 
 export interface CheckoutRequestDto {
   payments: PaymentResponseDto[];
+  applyServiceFee: boolean;
 }
 
 export interface OrderItemRequestDto {
@@ -33,6 +34,7 @@ export interface OrderItemResponseDto {
 
 export interface OrderRequestDto {
   tableNumber?: string;
+  applyServiceFee: boolean;
   items: OrderItemRequestDto[];
   payments: PaymentRequestDto[];
 }
@@ -46,6 +48,9 @@ export interface OrderResponseDto {
   totalAmount: number;
   changeAmount: number;
   paymentStatus: PaymentStatus;
+
+  serviceFeePercentage: number;
+  serviceFeeAmount: number;
 
   createdByName?: string;
   paidByName: string;

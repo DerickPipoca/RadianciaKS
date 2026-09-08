@@ -87,13 +87,43 @@
 
     <aside class="checkout-sidebar">
       <div class="page-card summary-box">
-        <div class="summary-line total">
-          <span class="label">Total a Pagar</span>
-          <span class="value">R$ {{ total | number: '1.2-2' }}</span>
+        <div class="summary-breakdown">
+          <div class="summary-row">
+            <span class="label">Subtotal dos itens</span>
+            <span class="value">R$ {{ subTotal | number: '1.2-2' }}</span>
+          </div>
+
+          @if (serviceChargePercentage > 0) {
+            <div class="summary-row service-fee-row" [class.inactive]="!applyServiceFee">
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="applyServiceFee" [disabled]="isProcessing" />
+                <span class="slider"></span>
+                <span class="label-text">
+                  Taxa de Serviço
+                  <span class="fee-badge">{{ serviceChargePercentage }}%</span>
+                </span>
+              </label>
+              <span class="value fee-value">
+                {{ applyServiceFee ? 'R$ ' + (serviceFeeAmount | number: '1.2-2') : 'Isento' }}
+              </span>
+            </div>
+          }
         </div>
-        <div class="summary-line remaining" [class.paid]="remainingAmount === 0">
-          <span class="label">Falta Pagar</span>
-          <span class="value">R$ {{ remainingAmount | number: '1.2-2' }}</span>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-cards">
+          <div class="summary-card total">
+            <span class="label">Total a Pagar</span>
+            <span class="value">R$ {{ total | number: '1.2-2' }}</span>
+          </div>
+
+          <div class="summary-card remaining" [class.paid]="remainingAmount === 0">
+            <span class="label">{{ remainingAmount === 0 ? 'Status' : 'Falta Pagar' }}</span>
+            <span class="value">
+              {{ remainingAmount === 0 ? 'Quitado' : 'R$ ' + (remainingAmount | number: '1.2-2') }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -111,6 +141,7 @@
                   class="remove-payment"
                   (click)="removePayment($index)"
                   [disabled]="isProcessing"
+                  title="Remover pagamento"
                 >
                   ✕
                 </button>

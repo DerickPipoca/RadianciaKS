@@ -8,6 +8,7 @@ export interface StoreSettingsResponseDto {
   smallLogoPath?: string;
   bigLogoPath?: string;
   serviceCharge: number;
+  chargeServiceByDefault: boolean;
 }
 
 export interface StoreSettingsRequestDto {
@@ -19,4 +20,5 @@ export interface StoreSettingsRequestDto {
   smallLogoPath?: string;
   bigLogoPath?: string;
   serviceCharge?: number;
+  chargeServiceByDefault: boolean;
 }

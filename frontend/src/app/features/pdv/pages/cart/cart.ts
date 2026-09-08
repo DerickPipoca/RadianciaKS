@@ -81,6 +81,7 @@ export class Cart implements OnDestroy {
       items: orderItems,
       payments: [],
       tableNumber: this.customerName.trim() || undefined,
+      applyServiceFee: true,
     };
 
     this.orderService.create(payload).subscribe({

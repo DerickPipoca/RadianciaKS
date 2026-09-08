@@ -5,5 +5,6 @@ namespace RadianciaKS.Application.DTOs.Order
     public class CheckoutRequestDto
     {
         public List<PaymentRequestDto> Payments { get; set; } = [];
+        public bool ApplyServiceFee { get; set; }
     }
 }

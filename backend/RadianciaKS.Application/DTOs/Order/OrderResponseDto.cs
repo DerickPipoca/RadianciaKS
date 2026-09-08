@@ -18,6 +18,9 @@ namespace RadianciaKS.Application.DTOs.Order
 
         public Guid CashShiftId { get; set; }
 
+        public decimal ServiceFeePercentage { get; set; }
+        public decimal ServiceFeeAmount { get; set; }
+
         public string CreatedByName { get; set; } = string.Empty;
         public string? PaidByName { get; set; }
 

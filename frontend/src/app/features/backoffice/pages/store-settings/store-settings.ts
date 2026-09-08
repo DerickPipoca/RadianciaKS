@@ -25,6 +25,7 @@ export class StoreSettings implements OnInit {
     smallLogoPath: '',
     bigLogoPath: '',
     serviceCharge: 0,
+    chargeServiceByDefault: false,
   };
 
   ngOnInit() {

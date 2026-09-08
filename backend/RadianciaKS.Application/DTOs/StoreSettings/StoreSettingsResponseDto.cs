@@ -11,5 +11,6 @@ namespace RadianciaKS.Application.DTOs.StoreSettings
         public string? SmallLogoPath { get; set; }
         public string? BigLogoPath { get; set; }
         public decimal ServiceCharge { get; set; }
+        public bool ChargeServiceByDefault { get; set; }
     }
 }
