@@ -12,6 +12,7 @@ import { LucideAngularModule, TextSearch } from 'lucide-angular';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ToastrService } from 'ngx-toastr';
 import { UploadService } from '../../../../core/services/upload-service';
+import { environment } from '../../../../../environment/environment';
 
 @Component({
   selector: 'app-category-manager',
@@ -28,6 +29,7 @@ import { UploadService } from '../../../../core/services/upload-service';
 })
 export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryResponseDto, string> {
   private toastr = inject(ToastrService);
+  public serverUrl = environment.serverUrl;
   TextSearch = TextSearch;
 
   private categoryService = inject(CategoryService);

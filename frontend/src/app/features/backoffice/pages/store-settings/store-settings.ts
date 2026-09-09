@@ -6,6 +6,7 @@ import { InputComponent } from '../../../../shared/components/input-component/in
 import { StoreSettingsRequestDto } from '../../../../core/models/store-settings.model';
 import { StoreSettingsService } from '../../../../core/services/store-settings-service';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../../../../environment/environment';
 
 @Component({
   selector: 'app-store-settings',
@@ -16,6 +17,8 @@ import { ToastrService } from 'ngx-toastr';
 export class StoreSettings implements OnInit {
   private toastr = inject(ToastrService);
   private storeService = inject(StoreSettingsService);
+  
+  public serverUrl = environment.serverUrl;
   settings: StoreSettingsRequestDto = {
     storeName: '',
     cnpj: '',

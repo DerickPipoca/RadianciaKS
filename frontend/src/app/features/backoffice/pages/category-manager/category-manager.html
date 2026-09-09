@@ -76,7 +76,7 @@
         >
           @if (currentItem.imagePath) {
             <img
-              [src]="'https://localhost:7047' + currentItem.imagePath"
+              [src]="serverUrl + currentItem.imagePath"
               alt="Preview"
               style="max-width: 100%; max-height: 140px; border-radius: 8px; object-fit: cover"
             />

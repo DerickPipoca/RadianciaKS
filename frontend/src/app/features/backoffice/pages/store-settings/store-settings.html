@@ -71,7 +71,7 @@
       <label>Logo Pequena</label>
       <div class="upload-zone" (click)="smallLogoInput.click()">
         @if (settings.smallLogoPath) {
-          <img [src]="'https://localhost:7047' + settings.smallLogoPath" />
+          <img [src]="serverUrl + settings.smallLogoPath" />
         } @else {
           <span>+ Logo Pequena</span>
         }
@@ -83,7 +83,7 @@
       <label>Logo Grande</label>
       <div class="upload-zone" (click)="bigLogoInput.click()">
         @if (settings.bigLogoPath) {
-          <img [src]="'https://localhost:7047' + settings.bigLogoPath" />
+          <img [src]="serverUrl + settings.bigLogoPath" />
         } @else {
           <span>+ Logo Grande</span>
         }

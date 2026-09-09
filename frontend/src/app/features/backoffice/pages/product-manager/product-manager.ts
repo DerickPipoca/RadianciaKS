@@ -17,6 +17,7 @@ import { ModalComponent } from '../../../../shared/components/modal-component/mo
 import { ToastrService } from 'ngx-toastr';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UploadService } from '../../../../core/services/upload-service';
+import { environment } from '../../../../../environment/environment';
 
 @Component({
   selector: 'app-product-manager',
@@ -40,6 +41,8 @@ export class ProductManager
   readonly Hamburger = Hamburger;
   readonly ImagePlus = ImagePlus;
   readonly Copy = Copy;
+
+  public serverUrl = environment.serverUrl;
 
   searchSubject = new Subject<string>();
 

@@ -9,6 +9,7 @@ import { inject, Injectable, NgZone } from '@angular/core';
 import { OrderResponseDto } from '../models/order.model';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../../environment/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class SignalrService {
   public toastrService = inject(ToastrService);
 
   private readonly testTenantId = '8d1ed281-9f3b-4659-8a46-7eb26c5d550e';
-  private readonly hubUrl = 'https://localhost:7047/hubs/kds';
+  private readonly hubUrl = `${environment.serverUrl}/hubs/kds`;
   public orderUpdated$ = new Subject<OrderResponseDto>();
 
   public orderDelivered$ = new Subject<OrderResponseDto | any>();

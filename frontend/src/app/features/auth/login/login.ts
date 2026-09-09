@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../../shared/components/button-component/but
 import { InputComponent } from '../../../shared/components/input-component/input-component';
 import { StoreSettingsService } from '../../../core/services/store-settings-service';
 import { StoreSettingsResponseDto } from '../../../core/models/store-settings.model';
+import { environment } from '../../../../environment/environment';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +19,7 @@ export class Login implements OnInit {
   private storeService = inject(StoreSettingsService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  public serverUrl = environment.serverUrl;
 
   credentials = { cpf: '', password: '' };
   errorMessage = signal<string | null>(null);

@@ -5,6 +5,7 @@ import { StoreSettingsService } from '../../../../core/services/store-settings-s
 import { StoreSettingsResponseDto } from '../../../../core/models/store-settings.model';
 import { PaymentMethod } from '../../../../core/enums/payment-method';
 import * as QRCode from 'qrcode';
+import { environment } from '../../../../../environment/environment';
 
 @Component({
   selector: 'app-print-preview',
@@ -14,6 +15,8 @@ import * as QRCode from 'qrcode';
 })
 export class PrintPreview implements OnInit {
   @Input() order!: OrderResponseDto;
+
+  public serverUrl = environment.serverUrl;
 
   public qrCodeDataUrl: string = '';
 

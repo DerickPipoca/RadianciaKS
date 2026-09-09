@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs'
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { PromotionResponseDto } from '../../../../core/models/promotion.model';
 import { PromotionService } from '../../../../core/services/promotion-service';
+import { environment } from '../../../../../environment/environment';
 
 @Component({
   selector: 'app-catalog',
@@ -30,6 +31,8 @@ import { PromotionService } from '../../../../core/services/promotion-service';
   styleUrl: './catalog.scss',
 })
 export class Catalog implements OnInit, OnDestroy {
+  public serverUrl = environment.serverUrl;
+
   readonly TextSearch = TextSearch;
   readonly Utensils = Utensils;
   readonly Flame = Flame;
@@ -140,7 +143,7 @@ export class Catalog implements OnInit, OnDestroy {
   }
 
   openPromotionModal(promotion: PromotionResponseDto) {
-    this.selectedPromotionIdForModal = promotion.id; 
+    this.selectedPromotionIdForModal = promotion.id;
     this.selectedProductForModal = promotion.baseProduct;
   }
 
