@@ -8,7 +8,7 @@ import { OrderResponseDto } from '../../../../core/models/order.model';
 import { KdsStatus } from '../../../../core/enums/kds-status';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { forkJoin } from 'rxjs';
+import { concatMap, forkJoin, from, toArray } from 'rxjs';
 import { OrderItemModifierResponseDto } from '../../../../core/models/modifier.model';
 
 @Component({
@@ -111,19 +111,20 @@ export class KdsBoard implements OnInit, OnDestroy {
 
     this.removeOrderFromScreen(order.id);
 
-    const requests = pendingItems.map((item) =>
-      this.kdsService.updateItemStatus(order.id, item.id, KdsStatus.Done),
-    );
-
-    forkJoin(requests).subscribe({
-      next: () => {
-        console.log(`Comanda #${order.id.substring(0, 6)} finalizada na API!`);
-      },
-      error: (err) => {
-        console.error('Erro ao finalizar comanda na API:', err);
-        this.loadPendingItems();
-      },
-    });
+    from(pendingItems)
+      .pipe(
+        concatMap((item) => this.kdsService.updateItemStatus(order.id, item.id, KdsStatus.Done)),
+        toArray(),
+      )
+      .subscribe({
+        next: () => {
+          console.log(`Comanda #${order.id.substring(0, 6)} finalizada na API com sucesso!`);
+        },
+        error: (err) => {
+          console.error('Erro ao finalizar comanda na API:', err);
+          this.loadPendingItems();
+        },
+      });
   }
 
   handleOrderUpdate(updatedOrder: OrderResponseDto): void {
@@ -213,9 +214,9 @@ export class KdsBoard implements OnInit, OnDestroy {
     const diffInMinutes = Math.floor(diffInMs / 60000);
 
     if (diffInMinutes >= 30) {
-      return 'bg-red'; 
+      return 'bg-red';
     } else if (diffInMinutes >= 15) {
-      return 'bg-orange'; 
+      return 'bg-orange';
     } else {
       return 'bg-green';
     }
