@@ -69,11 +69,11 @@ export class EmployeeManager extends BaseCrud<EmployeeRequestDto, EmployeeRespon
   dropdownOpen = false;
 
   roleOptions = [
-    { value: EmployeeRole.Admin, label: 'Administrador (Acesso Total)' },
+    { value: EmployeeRole.Admin, label: 'Administrador' },
     { value: EmployeeRole.Manager, label: 'Gerente' },
-    { value: EmployeeRole.Cashier, label: 'Caixa / PDV' },
-    { value: EmployeeRole.Waiter, label: 'Garçom / Mesa' },
-    { value: EmployeeRole.Kitchen, label: 'Cozinha / KDS' },
+    { value: EmployeeRole.Cashier, label: 'Caixa' },
+    { value: EmployeeRole.Waiter, label: 'Garçom' },
+    { value: EmployeeRole.Kitchen, label: 'Cozinha' },
   ];
 
   protected override get crudService(): any {

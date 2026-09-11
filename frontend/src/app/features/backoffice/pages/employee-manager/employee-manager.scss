@@ -167,3 +167,71 @@
     margin: 0 4px;
   }
 }
+
+.custom-select-container {
+  position: relative;
+  width: 100%;
+
+  .custom-select-trigger {
+    height: 38px;
+    width: 50%;
+    padding: 0 12px;
+    background: var(--bg-base);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-sm;
+    color: var(--text-primary);
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: $font-family-base;
+    font-size: 0.95rem;
+
+    &:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .arrow {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  .options-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 50%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-sm;
+    list-style: none;
+    margin: 4px 0 0 0;
+    padding: 0;
+    z-index: 1100;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: $shadow-md;
+
+    .option {
+      padding: 10px 12px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s ease;
+
+      &:hover {
+        background-color: var(--border-color);
+        color: var(--primary-color);
+      }
+
+      &.is-selected {
+        background-color: var(--primary-color);
+        color: $dark-base;
+        font-weight: 600;
+      }
+    }
+  }
+}
