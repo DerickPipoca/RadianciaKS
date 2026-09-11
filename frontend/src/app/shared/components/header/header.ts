@@ -1,3 +1,4 @@
+import { EmployeeRole } from './../../../core/enums/employee-role';
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth-service';
 import { LucideAngularModule, Sparkle, Moon, Sun, LogOut } from 'lucide-angular';
@@ -64,5 +65,20 @@ export class HeaderComponent implements OnInit {
     this.authService.logout();
     this.isDropdownOpen = false;
     this.router.navigate(['login']);
+  }
+
+  getEmployeeRoleName(method: string | undefined): string {
+    if (method) {
+      const names: Record<string, string> = {
+        Admin: 'Admin',
+        Cashier: 'Caixa',
+        Kitchen: 'Cozinha',
+        Manager: 'Gerente',
+        Waiter: 'Garçom',
+      };
+      return names[method];
+    } else {
+      return 'Funcionário';
+    }
   }
 }

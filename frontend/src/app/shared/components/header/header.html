@@ -45,7 +45,7 @@
       <div class="user-profile" (click)="toggleDropdown()">
         <div class="info">
           <span class="name">{{ authService.currentUser()?.name }}</span>
-          <span class="role">{{ authService.currentUser()?.role }}</span>
+          <span class="role">{{ getEmployeeRoleName(authService.currentUser()?.role) }}</span>
           @if (isDropdownOpen) {
             <div class="dropdown-menu" (click)="$event.stopPropagation()">
               <app-button-component variant="danger" (click)="logout(); $event.stopPropagation()">
