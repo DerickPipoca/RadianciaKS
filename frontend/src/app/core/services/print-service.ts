@@ -1,42 +1,18 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Order } from '../../features/pdv/pages/order/order';
+import { OrderResponseDto } from '../models/order.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PrintService {
-  printElement(elementId: string, title: string = 'Imprimir Documento'): void {
-    const printWindow = window.open('', '_blank', 'width=300,height=600');
+  private http = inject(HttpClient);
+  private readonly endPoint = 'printer';
 
-    if (printWindow) {
-      const content = document.getElementById(elementId)?.innerHTML;
-
-      if (!content) {
-        console.error(`Elemento com ID ${elementId} não encontrado para impressão.`);
-        return;
-      }
-
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>${title}</title>
-            <style>
-              body { font-family: 'Courier New', monospace; font-size: 14px; margin: 0; padding: 10px; width: 80mm; }
-              .receipt-container { width: 80mm; }
-            </style>
-          </head>
-          <body>
-            <div class="receipt-container">${content}</div>
-          </body>
-        </html>
-      `);
-
-      printWindow.document.close();
-      printWindow.focus();
-
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 100);
-    }
+  printReceiptSilent(order: OrderResponseDto): Observable<any> {
+    const urlEndPoint = `${this.endPoint}/receipt`;
+    return this.http.post(urlEndPoint, order);
   }
 }

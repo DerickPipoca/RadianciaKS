@@ -59,6 +59,7 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>();
 
 builder.Services.AddScoped<IImageStorageService, LocalImageStorageService>();
+builder.Services.AddScoped<IPrintService, PrintService>();
 
 builder.Services.AddScoped<IStoreSettingsService, StoreSettingsService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();

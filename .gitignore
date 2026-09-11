@@ -537,3 +537,5 @@ docker-compose.override.yml
 
 
 wwwroot/
+
+*teste.bin

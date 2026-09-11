@@ -252,6 +252,22 @@ export class Orders implements OnInit, OnDestroy {
   }
 
   confirmPrint() {
-    this.printService.printElement('print-section', 'Imprimir Comanda');
+    if (!this.selectedOrder) {
+      this.toastr.warning('Nenhum pedido selecionado para impressão.');
+      return;
+    }
+
+    this.isPrinting = true;
+    this.printService.printReceiptSilent(this.selectedOrder).subscribe({
+      next: () => {
+        this.toastr.success('Comanda enviada para a impressora com sucesso!');
+        this.isPrinting = false;
+      },
+      error: (err) => {
+        console.error('Erro na impressão silenciosa:', err);
+        this.toastr.error('Falha ao imprimir. Verifique a conexão com a impressora.');
+        this.isPrinting = false;
+      },
+    });
   }
 }
