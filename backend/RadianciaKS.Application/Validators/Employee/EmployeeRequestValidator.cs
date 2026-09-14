@@ -14,12 +14,15 @@ namespace RadianciaKS.Application.Validators.Employee
             RuleFor(x => x.Role)
                 .IsInEnum().WithMessage("É necessário um cargo para o empregado.");
             RuleFor(x => x.CPF)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("O CPF é obrigatório.")
-                .Must(CpfValidation.Validate).WithMessage("O CPF informado não é válido.");
+                .Length(11).WithMessage("O CPF deve ter 11 Caractéres.")
+                .Must(cpf => !string.IsNullOrWhiteSpace(cpf) && CpfValidation.Validate(cpf))
+                .WithMessage("O CPF informado não é válido.");
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("A senha é obrigatória.")
                 .MinimumLength(4).WithMessage("A senha deve ter ao menos 4 caractéres.")
-                .MaximumLength(64).WithMessage("A senha deve ter menos de 64 caractéres.");
+                .MaximumLength(32).WithMessage("A senha deve ter menos de 32 caractéres.");
         }
     }
 }
