@@ -5,23 +5,42 @@ namespace RadianciaKS.Api.Services
     public class TenantProvider : ITenantProvider
     {
         private readonly IHttpContextAccessor _context;
+        private readonly IConfiguration _configuration;
 
-        public TenantProvider(IHttpContextAccessor context)
+        public TenantProvider(IHttpContextAccessor context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public Guid GetTenantId()
         {
-            var headerValue = _context.HttpContext?.Request.Headers["X-Tenant-Id"].FirstOrDefault();
+            var httpContext = _context.HttpContext;
 
-            if (string.IsNullOrEmpty(headerValue))
+            if (httpContext != null)
+            {
+                if (httpContext.Request.Headers.TryGetValue("X-Tenant-Id", out var tenantHeader) &&
+                    Guid.TryParse(tenantHeader, out var tenantIdFromHeader))
+                {
+                    return tenantIdFromHeader;
+                }
+
+                var envTenant = _configuration["TENANT_ID"] ?? Environment.GetEnvironmentVariable("TENANT_ID");
+                if (!string.IsNullOrEmpty(envTenant) && Guid.TryParse(envTenant, out var fallbackTenantId))
+                {
+                    return fallbackTenantId;
+                }
+
                 throw new ArgumentException("Tenant não informado.");
+            }
 
-            if (!Guid.TryParse(headerValue, out var tenantId))
-                throw new ArgumentException("Formato de Tenant inválido.");
+            var startupTenant = _configuration["TENANT_ID"] ?? Environment.GetEnvironmentVariable("TENANT_ID");
+            if (!string.IsNullOrEmpty(startupTenant) && Guid.TryParse(startupTenant, out var id))
+            {
+                return id;
+            }
 
-            return tenantId;
+            throw new ArgumentException("Tenant não informado na inicialização do sistema.");
         }
     }
 }

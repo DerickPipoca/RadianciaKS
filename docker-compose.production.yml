@@ -1,5 +1,6 @@
 version: "3.8"
 
+
 services:
   db:
     image: postgres:16-alpine
@@ -26,6 +27,7 @@ services:
       - "8080:8080"
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=RadianciaDb;Username=radianciaKS;Password=radiancia!2026!radiancia
+      - TENANT_ID=${TENANT_ID}
       - ASPNETCORE_ENVIRONMENT=Development
 
   frontend:

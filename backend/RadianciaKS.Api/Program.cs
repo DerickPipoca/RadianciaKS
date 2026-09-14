@@ -13,6 +13,7 @@ using RadianciaKS.Application.Services;
 using RadianciaKS.Application.Services.Auth;
 using RadianciaKS.Application.Services.Interfaces;
 using RadianciaKS.Infrastructure.Context;
+using RadianciaKS.Infrastructure.Data;
 using RadianciaKS.Infrastructure.Gateways;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -159,5 +160,16 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    var context = services.GetRequiredService<IApplicationDbContext>();
+    var config = services.GetRequiredService<IConfiguration>();
+
+    await DbInitializer.SeedAsync(context, config, logger);
+}
+
 
 app.Run();

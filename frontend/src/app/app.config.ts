@@ -1,4 +1,10 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideZoneChangeDetection,
+  isDevMode,
+  provideAppInitializer,
+  inject,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -11,12 +17,17 @@ import { loadingInterceptor } from './core/interceptors/loading-interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideToastr } from 'ngx-toastr';
 import { provideServiceWorker } from '@angular/service-worker';
+import { TenantService } from './core/services/tenant-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
+    }),
+    provideAppInitializer(() => {
+      const tenantService = inject(TenantService);
+      return tenantService.loadTenantConfig();
     }),
     provideAnimationsAsync(),
     provideToastr({
