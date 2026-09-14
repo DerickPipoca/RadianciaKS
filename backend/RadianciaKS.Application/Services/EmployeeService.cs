@@ -36,9 +36,9 @@ namespace RadianciaKS.Application.Services
             var employeeToAdd = _mapper.ToEntity(dto);
             string? password = EncryptPassword(dto.Password);
             employeeToAdd.PasswordHash = password!;
-            var employee = await _context.Employees.AddAsync(employeeToAdd);
+            await _context.Employees.AddAsync(employeeToAdd);
             await _context.SaveChangesAsync();
-            return _mapper.ToDto(employee.Entity);
+            return _mapper.ToDto(employeeToAdd);
         }
 
         public async Task DeleteEmployee(Guid id)

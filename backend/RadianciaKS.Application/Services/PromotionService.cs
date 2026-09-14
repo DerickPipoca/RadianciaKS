@@ -199,6 +199,7 @@ namespace RadianciaKS.Application.Services
             promotion.PromotionalPrice = dto.PromotionalPrice;
 
             _context.PromotionModifiers.RemoveRange(promotion.PromotionModifiers);
+            promotion.PromotionModifiers.Clear();
 
             var newModifiers = dto.PromotionModifiers.Select(mod => new PromotionModifier
             {

@@ -47,6 +47,7 @@ namespace RadianciaKS.Application.Services
                 newItem.OrderId = orderId;
                 newItem.KdsStatus = KdsStatus.Pending;
 
+                order.Items.Add(newItem);
                 _context.OrderItems.Add(newItem);
             }
 
@@ -348,15 +349,15 @@ namespace RadianciaKS.Application.Services
                 orderToAdd = await CheckoutOrderAsync(orderToAdd, employeeId);
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _context.BeginTransactionAsync();
             try
             {
-                var order = await _context.Orders.AddAsync(orderToAdd);
+                await _context.Orders.AddAsync(orderToAdd);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var orderResponseDto = _mapper.ToDto(order.Entity);
+                var orderResponseDto = _mapper.ToDto(orderToAdd);
                 await _kdsNotification.NotifyOrderUpdatedAsync(tenantId, orderResponseDto);
 
                 return orderResponseDto;

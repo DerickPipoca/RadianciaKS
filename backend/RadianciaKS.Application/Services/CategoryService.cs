@@ -27,9 +27,9 @@ namespace RadianciaKS.Application.Services
         {
             await _validator.ValidateAndThrowAsync(dto);
             var categoryToAdd = _mapper.ToEntity(dto);
-            var category = _context.Categories.Add(categoryToAdd);
+            _context.Categories.Add(categoryToAdd);
             await _context.SaveChangesAsync();
-            return _mapper.ToDto(category.Entity);
+            return _mapper.ToDto(categoryToAdd);
         }
 
         public async Task DeleteCategory(Guid id)

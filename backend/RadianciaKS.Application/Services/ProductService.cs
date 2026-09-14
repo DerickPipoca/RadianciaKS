@@ -44,6 +44,7 @@ namespace RadianciaKS.Application.Services
                 Price = originalProduct.Price,
                 ImagePath = originalProduct.ImagePath,
                 CategoryId = originalProduct.CategoryId,
+                Category = originalProduct.Category,
 
                 ModifierGroups = originalProduct.ModifierGroups.Select(g => new ModifierGroup
                 {
@@ -82,9 +83,9 @@ namespace RadianciaKS.Application.Services
 
             productToAdd.Category = category;
 
-            var product = _context.Products.Add(productToAdd);
+            _context.Products.Add(productToAdd);
             await _context.SaveChangesAsync();
-            return _mapper.ToDto(product.Entity);
+            return _mapper.ToDto(productToAdd);
         }
 
         public async Task DeleteProduct(Guid id)

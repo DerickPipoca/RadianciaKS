@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Domain.Interfaces;
 using RadianciaKS.Domain.Models;
@@ -32,6 +33,11 @@ namespace RadianciaKS.Infrastructure.Context
         public DbSet<OrderItemModifier> OrderItemModifiers { get; set; }
 
         public DbSet<AuditLog> AuditLogs { get; set; }
+
+        public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            return Database.BeginTransactionAsync(cancellationToken);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

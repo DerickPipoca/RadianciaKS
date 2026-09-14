@@ -30,6 +30,7 @@
     <ProjectReference Include="..\RadianciaKS.Domain\RadianciaKS.Domain.csproj" />
     <ProjectReference Include="..\RadianciaKS.Application\RadianciaKS.Application.csproj" />
     <ProjectReference Include="..\RadianciaKS.Infrastructure\RadianciaKS.Infrastructure.csproj" />
+    <ProjectReference Include="..\RadianciaKS.Api\RadianciaKS.Api.csproj" />
   </ItemGroup>
 
 </Project>

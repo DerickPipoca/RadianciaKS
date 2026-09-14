@@ -73,6 +73,8 @@ builder.Services.AddScoped<ICashShiftService, CashShiftService>();
 builder.Services.AddScoped<IModifierService, ModifierService>();
 
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryService).Assembly);
 
