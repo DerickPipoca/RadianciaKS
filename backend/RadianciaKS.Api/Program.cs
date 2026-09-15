@@ -163,15 +163,21 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    var context = services.GetRequiredService<IApplicationDbContext>();
-    var config = services.GetRequiredService<IConfiguration>();
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        var context = services.GetRequiredService<IApplicationDbContext>();
+        var config = services.GetRequiredService<IConfiguration>();
 
-    await DbInitializer.SeedAsync(context, config, logger);
+        await DbInitializer.SeedAsync(context, config, logger);
+    }
 }
 
 
+
 app.Run();
+
+public partial class Program { }

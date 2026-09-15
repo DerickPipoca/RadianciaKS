@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadianciaKS.Api", "Radianci
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadianciaKS.UnitTests", "RadianciaKS.UnitTests\RadianciaKS.UnitTests.csproj", "{4A88FB3C-2C5D-4DAA-8672-7045FFB5D60E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadianciaKS.IntegrationTests", "RadianciaKS.IntegrationTests\RadianciaKS.IntegrationTests.csproj", "{1C13A1F8-0E09-4FE3-96A8-E145C3823CEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{4A88FB3C-2C5D-4DAA-8672-7045FFB5D60E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A88FB3C-2C5D-4DAA-8672-7045FFB5D60E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A88FB3C-2C5D-4DAA-8672-7045FFB5D60E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C13A1F8-0E09-4FE3-96A8-E145C3823CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C13A1F8-0E09-4FE3-96A8-E145C3823CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C13A1F8-0E09-4FE3-96A8-E145C3823CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C13A1F8-0E09-4FE3-96A8-E145C3823CEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

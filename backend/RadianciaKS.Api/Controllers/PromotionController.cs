@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.Product;
 using RadianciaKS.Application.DTOs.Promotion;
 using RadianciaKS.Application.Services.Interfaces;

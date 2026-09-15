@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Domain.Interfaces;
 using RadianciaKS.Domain.Models;
+using RadianciaKS.Infrastructure.Data;
 using RadianciaKS.Infrastructure.Data.Auditing;
 
 namespace RadianciaKS.Infrastructure.Context
@@ -34,9 +35,14 @@ namespace RadianciaKS.Infrastructure.Context
 
         public DbSet<AuditLog> AuditLogs { get; set; }
 
-        public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
-            return Database.BeginTransactionAsync(cancellationToken);
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+            {
+                return new InMemoryNullTransaction();
+            }
+
+            return await Database.BeginTransactionAsync();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

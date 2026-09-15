@@ -20,14 +20,14 @@ namespace RadianciaKS.Api.Controllers
         public async Task<IActionResult> CreateOrder([FromBody] OrderRequestDto dto)
         {
             var order = await _orderService.CreateOrder(dto);
-            return CreatedAtAction(nameof(CreateOrder), new { id = order.Id }, order);
+            return CreatedAtAction(nameof(GetOrderById), new { orderId = order.Id }, order);
         }
 
         [HttpPost("{orderId}/item")]
         public async Task<IActionResult> AddItemToOrder(Guid orderId, [FromBody] OrderItemRequestDto itemDto)
         {
             var order = await _orderService.AddItemToOrder(orderId, itemDto);
-            return CreatedAtAction(nameof(AddItemToOrder), new { id = order.Id }, order);
+            return CreatedAtAction(nameof(GetOrderById), new { orderId = order.Id }, order);
         }
 
         [HttpPost("{orderId}/items")]
@@ -37,8 +37,7 @@ namespace RadianciaKS.Api.Controllers
                 return BadRequest(new { Message = "Nenhum item foi enviado para adição." });
 
             var order = await _orderService.AddItemsToOrder(orderId, itemsDto);
-
-            return Ok(order);
+            return CreatedAtAction(nameof(GetOrderById), new { orderId = order.Id }, order);
         }
 
         [HttpPost("{orderId}/checkout")]

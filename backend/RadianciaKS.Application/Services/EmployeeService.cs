@@ -115,24 +115,38 @@ namespace RadianciaKS.Application.Services
         private void EnsureTargetPermission(Domain.Models.Employee targetEmployee)
         {
             var currentUserId = _userProvider.GetUserId();
-            var currentUserRoleStr = _userProvider.GetUserRole();
 
-            if (targetEmployee.Id == _userProvider.GetUserId())
+            if (targetEmployee.Id == currentUserId)
                 throw new ArgumentException("Não é possível alterar a conta logada pela mesma.");
 
-            if (string.IsNullOrEmpty(currentUserRoleStr) || !Enum.TryParse<EmployeeRole>(currentUserRoleStr, out var currentUserRole))
-                throw new ArgumentException("Usuário não autenticado ou com cargo inválido.");
+            var currentUserRole = GetCurrentUserRole();
 
-            if (currentUserRole == EmployeeRole.Admin) return;
+            if (currentUserRole == EmployeeRole.Admin)
+                return;
 
             if (currentUserRole == EmployeeRole.Manager)
             {
-                if (targetEmployee.Role == EmployeeRole.Admin)
-                    throw new ArgumentException("Gerentes não podem alterar ou excluir Administradores.");
-
-                if (targetEmployee.Role == EmployeeRole.Manager && targetEmployee.Id != currentUserId)
-                    throw new ArgumentException("Gerentes não podem alterar ou excluir outros Gerentes.");
+                ValidateManagerPermission(targetEmployee, currentUserId);
             }
+        }
+
+        private EmployeeRole GetCurrentUserRole()
+        {
+            var roleStr = _userProvider.GetUserRole();
+
+            if (string.IsNullOrEmpty(roleStr) || !Enum.TryParse<EmployeeRole>(roleStr, out var role))
+                throw new ArgumentException("Usuário não autenticado ou com cargo inválido.");
+
+            return role;
+        }
+
+        private static void ValidateManagerPermission(Domain.Models.Employee targetEmployee, Guid? currentUserId)
+        {
+            if (targetEmployee.Role == EmployeeRole.Admin)
+                throw new ArgumentException("Gerentes não podem alterar ou excluir Administradores.");
+
+            if (targetEmployee.Role == EmployeeRole.Manager && targetEmployee.Id != currentUserId)
+                throw new ArgumentException("Gerentes não podem alterar ou excluir outros Gerentes.");
         }
 
         private void EnsureRoleAssignmentPermission(EmployeeRole newRole)

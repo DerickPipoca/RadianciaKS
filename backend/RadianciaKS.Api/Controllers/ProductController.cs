@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RadianciaKS.Application.DTOs;
 using RadianciaKS.Application.DTOs.Product;
 using RadianciaKS.Application.Services.Interfaces;
 
@@ -22,7 +21,7 @@ namespace RadianciaKS.Api.Controllers
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequestDto dto)
         {
             var product = await _productService.CreateProduct(dto);
-            return CreatedAtAction(nameof(CreateProduct), new { id = product.Id }, product);
+            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
         }
 
         [HttpPost("{id}/duplicate")]

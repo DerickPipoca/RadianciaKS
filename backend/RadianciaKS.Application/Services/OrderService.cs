@@ -83,8 +83,12 @@ namespace RadianciaKS.Application.Services
             var order = await FindOrderByIdAsync(orderId);
 
             var newItem = await BuildOrderItemAsync(itemDto);
+            newItem.OrderId = orderId;
+            newItem.KdsStatus = KdsStatus.Pending;
 
             order.Items.Add(newItem);
+            _context.OrderItems?.Add(newItem);
+
             decimal subTotal = order.Items.Sum(i => i.UnitPrice * i.Quantity);
 
             bool isFeeApplied = order.ServiceFeePercentage > 0;
@@ -530,75 +534,84 @@ namespace RadianciaKS.Application.Services
             newItem.Id = Guid.NewGuid();
             newItem.ProductId = product.Id;
             newItem.Product = product;
-
             newItem.OriginalUnitPrice = product.Price;
 
-            decimal basePrice = product.Price;
-            decimal modifiersTotal = 0;
-            Promotion? activePromotion = null;
-
-            if (itemDto.PromotionId.HasValue)
+            var activePromotion = await ResolveActivePromotionAsync(itemDto.PromotionId, product.Id);
+            if (activePromotion != null)
             {
-                activePromotion = await _context.Promotions
-                    .Include(p => p.PromotionModifiers)
-                    .FirstOrDefaultAsync(p => p.Id == itemDto.PromotionId.Value && p.Running);
-
-                if (activePromotion == null)
-                    throw new ArgumentException("Promoção não encontrada ou inativa.");
-
-                if (activePromotion.BaseProductId != product.Id)
-                    throw new ArgumentException("Esta promoção não se aplica a este produto.");
-
-                if (activePromotion.PromotionalPrice.HasValue)
-                {
-                    basePrice = activePromotion.PromotionalPrice.Value;
-                }
-
                 newItem.PromotionId = activePromotion.Id;
             }
 
-            if (itemDto.SelectedModifierIds != null && itemDto.SelectedModifierIds.Any())
-            {
-                var modifiers = await _context.ModifierOptions
-                    .Include(m => m.ModifierGroup)
-                    .Where(m => itemDto.SelectedModifierIds.Contains(m.Id))
-                    .ToListAsync();
+            decimal basePrice = activePromotion?.PromotionalPrice ?? product.Price;
+            var (modifiers, modifiersTotal) = await ProcessModifiersAsync(itemDto.SelectedModifierIds, activePromotion);
 
-                foreach (var modId in itemDto.SelectedModifierIds)
-                {
-                    var modifierOption = modifiers.FirstOrDefault(m => m.Id == modId);
-                    if (modifierOption == null)
-                        throw new ArgumentException("Opção adicional não encontrada.");
-
-                    decimal modPrice = modifierOption.AdditionalPrice;
-
-                    if (activePromotion != null)
-                    {
-                        var overrideRule = activePromotion.PromotionModifiers
-                            .FirstOrDefault(pm => pm.ModifierOptionId == modId);
-
-                        if (overrideRule != null)
-                        {
-                            modPrice = overrideRule.OverridePrice;
-                        }
-                    }
-
-                    newItem.SelectedModifiers.Add(new OrderItemModifier
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = modifierOption.Name,
-                        GroupName = modifierOption.ModifierGroup.Name,
-                        AdditionalPrice = modPrice,
-                        OriginalAdditionalPrice = modifierOption.AdditionalPrice
-                    });
-
-                    modifiersTotal += modPrice;
-                }
-            }
-
+            newItem.SelectedModifiers = modifiers;
             newItem.UnitPrice = basePrice + modifiersTotal;
 
             return newItem;
+        }
+
+        private async Task<Promotion?> ResolveActivePromotionAsync(Guid? promotionId, Guid productId)
+        {
+            if (!promotionId.HasValue)
+                return null;
+
+            var activePromotion = await _context.Promotions
+                .Include(p => p.PromotionModifiers)
+                .FirstOrDefaultAsync(p => p.Id == promotionId.Value && p.Running);
+
+            if (activePromotion == null)
+                throw new ArgumentException("Promoção não encontrada ou inativa.");
+
+            if (activePromotion.BaseProductId != productId)
+                throw new ArgumentException("Esta promoção não se aplica a este produto.");
+
+            return activePromotion;
+        }
+
+        private async Task<(List<OrderItemModifier> Modifiers, decimal Total)> ProcessModifiersAsync(
+            List<Guid>? selectedModifierIds,
+            Promotion? activePromotion)
+        {
+            if (selectedModifierIds == null || !selectedModifierIds.Any())
+                return (new List<OrderItemModifier>(), 0m);
+
+            var modifierOptions = await _context.ModifierOptions
+                .Include(m => m.ModifierGroup)
+                .Where(m => selectedModifierIds.Contains(m.Id))
+                .ToListAsync();
+
+            var modifiers = new List<OrderItemModifier>();
+            decimal modifiersTotal = 0m;
+
+            foreach (var modId in selectedModifierIds)
+            {
+                var modifierOption = modifierOptions.FirstOrDefault(m => m.Id == modId)
+                    ?? throw new ArgumentException("Opção adicional não encontrada.");
+
+                decimal modPrice = ResolveModifierPrice(modifierOption, activePromotion);
+
+                modifiers.Add(new OrderItemModifier
+                {
+                    Id = Guid.NewGuid(),
+                    Name = modifierOption.Name,
+                    GroupName = modifierOption.ModifierGroup.Name,
+                    AdditionalPrice = modPrice,
+                    OriginalAdditionalPrice = modifierOption.AdditionalPrice
+                });
+
+                modifiersTotal += modPrice;
+            }
+
+            return (modifiers, modifiersTotal);
+        }
+
+        private static decimal ResolveModifierPrice(ModifierOption modifierOption, Promotion? activePromotion)
+        {
+            var overrideRule = activePromotion?.PromotionModifiers
+                .FirstOrDefault(pm => pm.ModifierOptionId == modifierOption.Id);
+
+            return overrideRule?.OverridePrice ?? modifierOption.AdditionalPrice;
         }
 
         private async Task<Order> FindOrderByIdAsync(Guid orderId)
