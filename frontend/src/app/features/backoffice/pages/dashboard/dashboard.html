@@ -286,7 +286,7 @@
               @for (team of metrics.waiterProductivity; track team.employeeName) {
                 <tr>
                   <td class="employee-name">{{ team.employeeName }}</td>
-                  <td class="text-secondary">{{ team.employeeRole }}</td>
+                  <td class="text-secondary">{{ getEmployeeRoleName(team.employeeRole) }}</td>
                   <td class="actions-cell bold text-blue">{{ team.completedTasks }}</td>
                 </tr>
               } @empty {

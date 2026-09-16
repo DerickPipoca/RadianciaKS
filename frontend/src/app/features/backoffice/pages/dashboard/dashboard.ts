@@ -24,6 +24,7 @@ import {
 } from 'lucide-angular';
 import { CashShiftHistory } from '../../../../core/models/cash-shift.model';
 import { CashShiftService } from '../../../../core/services/cash-shift-service';
+import { EmployeeRole } from '../../../../core/enums/employee-role';
 
 @Component({
   selector: 'app-dashboard',
@@ -204,5 +205,20 @@ export class Dashboard implements OnInit {
 
     this.chartData.datasets[0].data = points.map((p) => p.value);
     this.chartData = { ...this.chartData };
+  }
+
+  ROLE_NAMES: Record<string, string> = {
+    Admin: 'Admin',
+    Cashier: 'Caixa',
+    Kitchen: 'Cozinha',
+    Manager: 'Gerente',
+    Waiter: 'Garçom',
+  };
+  getEmployeeRoleName(role?: EmployeeRole | string | null): string {
+    if (!role) {
+      return 'Funcionário';
+    }
+
+    return this.ROLE_NAMES[role] ?? 'Funcionário';
   }
 }
