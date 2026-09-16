@@ -46,8 +46,8 @@ namespace RadianciaKS.Infrastructure.Data
                     {
                         TenantId = seedTenantId,
                         Name = "Administrador",
-                        CPF = "11111111100",
-                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@2026"),
+                        CPF = configuration["ADMIN_INITIAL_CPF"]!,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["ADMIN_INITIAL_PASSWORD"]),
                         Role = EmployeeRole.Admin
                     });
                 }

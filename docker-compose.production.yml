@@ -29,6 +29,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - JwtSettings__Secret=${JWT_SECRET}
       - JwtSettings__ExpiryInMinutes=${JWT_EXPIRATION_HOURS:-12}
+      - ADMIN_INITIAL_CPF=${ADMIN_INITIAL_CPF}
+      - ADMIN_INITIAL_PASSWORD=${ADMIN_INITIAL_PASSWORD}
 
   frontend:
     image: ghcr.io/derickpipoca/radianciaks-frontend:latest
