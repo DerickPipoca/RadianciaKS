@@ -1,0 +1,43 @@
+name: Backend CI (.NET 8)
+
+on:
+  push:
+    branches: [master, develop]
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [master, develop]
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci.yml"
+
+jobs:
+  build-and-test:
+    name: Build, Test & Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Setup do .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restaurar Dependências (NuGet)
+        run: dotnet restore ./backend
+
+      - name: Compilar Solution (Release)
+        run: dotnet build ./backend --no-restore -c Release
+
+      - name: Executar Testes com Coverlet
+        run: >
+          dotnet test ./backend 
+          --no-build 
+          -c Release 
+          --collect:"XPlat Code Coverage" 
+          /p:Threshold=70 
+          /p:ThresholdType=line 
+          /p:CollectCoverage=true
