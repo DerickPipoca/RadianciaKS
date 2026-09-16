@@ -18,5 +18,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
 EXPOSE 8080
 
+RUN apk add --no-cache icu-libs tzdata
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "RadianciaKS.Api.dll"]
