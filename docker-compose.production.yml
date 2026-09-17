@@ -31,6 +31,12 @@ services:
       - JwtSettings__Audience=RadianciaKS_Angular
       - ADMIN_INITIAL_CPF=${ADMIN_INITIAL_CPF}
       - ADMIN_INITIAL_PASSWORD=${ADMIN_INITIAL_PASSWORD}
+      - CloudflareR2__Endpoint=${CLOUDFLARE_R2_ENDPOINT}
+      - CloudflareR2__AccessKeyId=${CLOUDFLARE_R2_ACCESS_KEY_ID}
+      - CloudflareR2__SecretAccessKey=${CLOUDFLARE_R2_SECRET_ACCESS_KEY}
+      - CloudflareR2__BucketName=${CLOUDFLARE_R2_BUCKET_NAME}
+    volumes:
+      - ./backups:/app/backups
 
   frontend:
     image: ghcr.io/derickpipoca/radianciaks-frontend:latest

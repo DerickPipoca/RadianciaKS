@@ -12,9 +12,11 @@ using RadianciaKS.Application.Interfaces;
 using RadianciaKS.Application.Services;
 using RadianciaKS.Application.Services.Auth;
 using RadianciaKS.Application.Services.Interfaces;
+using RadianciaKS.Infrastructure.Configuration;
 using RadianciaKS.Infrastructure.Context;
 using RadianciaKS.Infrastructure.Data;
 using RadianciaKS.Infrastructure.Gateways;
+using RadianciaKS.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,7 +57,13 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSignalR();
 
+builder.Services.Configure<CloudflareR2Settings>(
+    builder.Configuration.GetSection("CloudflareR2"));
+
 //Dependency Injections
+builder.Services.AddSingleton<IBackupQueue, BackupQueue>();
+builder.Services.AddHostedService<BackupBackgroundService>();
+
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>();
 
