@@ -17,13 +17,15 @@ namespace RadianciaKS.Application.Services
         private readonly CashShiftMapper _mapper;
         private readonly ITenantProvider _tenantProvider;
         private readonly IKdsNotificationService _notificationService;
+        private readonly IBackupQueue _backupQueue;
 
-        public CashShiftService(IApplicationDbContext context, IUserProvider userProvider, ITenantProvider tenantProvider, IKdsNotificationService notificationService)
+        public CashShiftService(IApplicationDbContext context, IUserProvider userProvider, ITenantProvider tenantProvider, IKdsNotificationService notificationService, IBackupQueue backupQueue)
         {
             _context = context;
             _userProvider = userProvider;
             _tenantProvider = tenantProvider;
             _notificationService = notificationService;
+            _backupQueue = backupQueue;
             _mapper = new CashShiftMapper();
         }
 
@@ -68,8 +70,10 @@ namespace RadianciaKS.Application.Services
 
             await _context.SaveChangesAsync();
 
-            var tenantId = _tenantProvider.GetTenantId().ToString();
-            await _notificationService.UpdateCashShiftStatusAsync(tenantId, CashShiftStatus.Closed);
+            var tenantGuid = _tenantProvider.GetTenantId();
+            await _notificationService.UpdateCashShiftStatusAsync(tenantGuid.ToString(), CashShiftStatus.Closed);
+
+            await _backupQueue.QueueBackupAsync(tenantGuid);
 
             return _mapper.ToDto(openShift);
         }
@@ -148,6 +152,11 @@ namespace RadianciaKS.Application.Services
             await _notificationService.UpdateCashShiftStatusAsync(tenantId, CashShiftStatus.Open);
 
             return _mapper.ToDto(shift);
+        }
+
+        private async Task BackupAsync(Guid tenantId)
+        {
+            await _backupQueue.QueueBackupAsync(tenantId);
         }
     }
 }

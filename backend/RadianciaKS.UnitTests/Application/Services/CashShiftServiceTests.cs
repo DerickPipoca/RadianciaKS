@@ -14,6 +14,8 @@ namespace RadianciaKS.UnitTests.Application.Services
         private readonly Mock<IUserProvider> _userProviderMock;
         private readonly Mock<ITenantProvider> _tenantProviderMock;
         private readonly Mock<IKdsNotificationService> _notificationServiceMock;
+        private readonly Mock<IBackupQueue> _backupQueueMock;
+
         private readonly CashShiftService _cashShiftService;
 
         public CashShiftServiceTests()
@@ -22,12 +24,14 @@ namespace RadianciaKS.UnitTests.Application.Services
             _userProviderMock = new Mock<IUserProvider>();
             _tenantProviderMock = new Mock<ITenantProvider>();
             _notificationServiceMock = new Mock<IKdsNotificationService>();
+            _backupQueueMock = new Mock<IBackupQueue>();
 
             _cashShiftService = new CashShiftService(
                 _contextMock.Object,
                 _userProviderMock.Object,
                 _tenantProviderMock.Object,
-                _notificationServiceMock.Object
+                _notificationServiceMock.Object,
+                _backupQueueMock.Object
             );
         }
 
