@@ -3,7 +3,7 @@ version: "3.8"
 services:
   db:
     image: postgres:16-alpine
-    container_name: radiancia_postgres
+    container_name: radianciaks_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -16,7 +16,7 @@ services:
 
   api:
     image: ghcr.io/derickpipoca/radianciaks-api:latest
-    container_name: radiancia_api
+    container_name: radianciaks_api
     restart: unless-stopped
     depends_on:
       - db
@@ -34,7 +34,7 @@ services:
 
   frontend:
     image: ghcr.io/derickpipoca/radianciaks-frontend:latest
-    container_name: radiancia_frontend
+    container_name: radianciaks_frontend
     restart: unless-stopped
     depends_on:
       - api
@@ -43,14 +43,16 @@ services:
 
   watchtower:
     image: containrrr/watchtower
-    container_name: radiancia_watchtower
+    container_name: radianciaks_watchtower
     restart: "no"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json:ro
     environment:
+      - DOCKER_API_VERSION=1.44
       - WATCHTOWER_RUN_ONCE=true
       - WATCHTOWER_CLEANUP=true
+      - REPO_USER=derickpipoca
+      - REPO_PASS=${GHCR_TOKEN}
       - TZ=${APP_TIMEZONE:-America/Sao_Paulo}
 
 volumes:
