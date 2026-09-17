@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:16-alpine
@@ -28,7 +26,9 @@ services:
       - TZ=${APP_TIMEZONE:-America/Sao_Paulo}
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - JwtSettings__Secret=${JWT_SECRET}
-      - JwtSettings__ExpiryInMinutes=${JWT_EXPIRATION_HOURS:-12}
+      - JwtSettings__ExpiryInMinutes=${JWT_EXPIRATION_MINUTES}
+      - JwtSettings__Issuer=RadianciaKS_Api
+      - JwtSettings__Audience=RadianciaKS_Angular
       - ADMIN_INITIAL_CPF=${ADMIN_INITIAL_CPF}
       - ADMIN_INITIAL_PASSWORD=${ADMIN_INITIAL_PASSWORD}
 
