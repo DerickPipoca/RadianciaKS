@@ -1,3 +1,4 @@
+import { TenantService } from './tenant-service';
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -5,7 +6,7 @@ import {
   HttpTransportType,
   HubConnectionState,
 } from '@microsoft/signalr';
-import { inject, Injectable, NgZone } from '@angular/core';
+import { inject, Injectable, NgZone, OnInit } from '@angular/core';
 import { OrderResponseDto } from '../models/order.model';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -18,8 +19,9 @@ export class SignalrService {
   private hubConnection: HubConnection | undefined;
   private zone = inject(NgZone);
   public toastrService = inject(ToastrService);
+  public tenantService = inject(TenantService);
 
-  private readonly testTenantId = '8d1ed281-9f3b-4659-8a46-7eb26c5d550e';
+  private tenantId: string | null = null;
   private readonly hubUrl = `${environment.serverUrl}/hubs/kds`;
   public orderUpdated$ = new Subject<OrderResponseDto>();
 
@@ -37,6 +39,8 @@ export class SignalrService {
     if (this.hubConnection && this.hubConnection.state !== HubConnectionState.Disconnected) {
       return;
     }
+
+    this.tenantId = this.tenantService.getTenantId();
 
     if (!this.hubConnection) {
       this.hubConnection = new HubConnectionBuilder()
@@ -89,10 +93,16 @@ export class SignalrService {
   }
 
   private joinKitchenGroup(): void {
+    this.tenantId = this.tenantId || this.tenantService.getTenantId();
+
+    if (!this.tenantId) {
+      console.warn('Não foi possível entrar no grupo da cozinha: TenantId não identificado.');
+      return;
+    }
     if (this.hubConnection) {
       this.hubConnection
-        .invoke('JoinKitchenGroup', this.testTenantId)
-        .then(() => console.log(`Entrou no grupo da cozinha do Tenant: ${this.testTenantId}`))
+        .invoke('JoinKitchenGroup', this.tenantId)
+        .then(() => console.log(`Entrou no grupo da cozinha do Tenant: ${this.tenantId}`))
         .catch((err) => console.error('Erro ao entrar no grupo da cozinha:', err));
     }
   }
