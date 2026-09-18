@@ -18,7 +18,7 @@ namespace RadianciaKS.Infrastructure.Services
         private readonly IConfiguration _configuration;
         private readonly CloudflareR2Settings _r2Settings;
         private readonly ILogger<BackupBackgroundService> _logger;
-        private const string BackupDirectory = "/app/backups";
+        private static readonly string BackupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "backups");
         private const int LocalRetentionDays = 7;
 
         public BackupBackgroundService(
@@ -55,7 +55,7 @@ namespace RadianciaKS.Infrastructure.Services
             Directory.CreateDirectory(BackupDirectory);
 
             var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
-            var fileName = $"backup_{tenantId}_{timestamp}.dump";
+            var fileName = $"backup_{timestamp}.dump";
             var localFilePath = Path.Combine(BackupDirectory, fileName);
 
             _logger.LogInformation("Gerando dump binário PostgreSQL: {FileName}", fileName);
