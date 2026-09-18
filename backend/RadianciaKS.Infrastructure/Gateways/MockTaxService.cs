@@ -7,8 +7,8 @@ namespace RadianciaKS.Infrastructure.Gateways
     {
         public async Task<string> GenerateNfceAsync(Order order)
         {
-            await Task.Delay(1500);
-            return $"https://sandbox.radianciaks.com/nfce/{order.Id}/nfce.pdf";
+            //await Task.Delay(1500);
+            return $"";
         }
     }
 }

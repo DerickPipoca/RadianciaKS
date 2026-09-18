@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RadianciaKS.Application.DTOs.Order;
+using RadianciaKS.Application.Services;
 using RadianciaKS.Application.Services.Interfaces;
 
 namespace RadianciaKS.Api.Controllers
@@ -9,10 +10,12 @@ namespace RadianciaKS.Api.Controllers
     public class PrinterController : ControllerBase
     {
         private readonly IPrintService _printService;
+        private readonly IStoreSettingsService _storeSettingsService;
 
-        public PrinterController(IPrintService printService)
+        public PrinterController(IPrintService printService, IStoreSettingsService storeSettingsService)
         {
             _printService = printService;
+            _storeSettingsService = storeSettingsService;
         }
 
         [HttpPost("receipt")]
@@ -21,9 +24,24 @@ namespace RadianciaKS.Api.Controllers
             try
             {
                 // Alterado temporariamente para salvar na raiz do projeto da API
-                string printerPath = "cupom_teste.bin";
+                string printerPath = "/dev/usb/lp0";
 
-                var success = await _printService.PrintReceiptAsync(order, printerPath);
+                var settings = await _storeSettingsService.GetSettings();
+                byte[]? logoBytes = null;
+
+
+                if (!string.IsNullOrWhiteSpace(settings.SmallLogoPath))
+                {
+                    string cleanPath = settings.SmallLogoPath.TrimStart('/', '\\');
+                    string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", cleanPath);
+
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        logoBytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+                    }
+                }
+
+                var success = await _printService.PrintReceiptAsync(order, printerPath, logoBytes);
 
                 if (success)
                 {

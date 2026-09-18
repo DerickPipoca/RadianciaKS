@@ -59,9 +59,11 @@ namespace RadianciaKS.IntegrationTests.Controllers
         public async Task PrintReceipt_Should_Return200Ok_When_PrintSucceeds()
         {
             var mockPrintService = new Mock<IPrintService>();
-            mockPrintService
-                .Setup(p => p.PrintReceiptAsync(It.IsAny<OrderResponseDto>(), It.IsAny<string>()))
-                .ReturnsAsync(true);
+            mockPrintService.Setup(p => p.PrintReceiptAsync(
+                It.IsAny<OrderResponseDto>(),
+                It.IsAny<string>(),
+                It.IsAny<byte[]?>()))
+            .ReturnsAsync(true);
 
             var client = _factory.WithWebHostBuilder(builder =>
             {
@@ -84,9 +86,11 @@ namespace RadianciaKS.IntegrationTests.Controllers
         public async Task PrintReceipt_Should_Return400BadRequest_When_PrintFails()
         {
             var mockPrintService = new Mock<IPrintService>();
-            mockPrintService
-                .Setup(p => p.PrintReceiptAsync(It.IsAny<OrderResponseDto>(), It.IsAny<string>()))
-                .ReturnsAsync(false);
+            mockPrintService.Setup(p => p.PrintReceiptAsync(
+                It.IsAny<OrderResponseDto>(),
+                It.IsAny<string>(),
+                It.IsAny<byte[]?>()))
+            .ReturnsAsync(false);
 
             var client = _factory.WithWebHostBuilder(builder =>
             {
@@ -109,9 +113,11 @@ namespace RadianciaKS.IntegrationTests.Controllers
         public async Task PrintReceipt_Should_Return500InternalServerError_When_ServiceThrowsException()
         {
             var mockPrintService = new Mock<IPrintService>();
-            mockPrintService
-                .Setup(p => p.PrintReceiptAsync(It.IsAny<OrderResponseDto>(), It.IsAny<string>()))
-                .ThrowsAsync(new InvalidOperationException("Falha na porta de comunicação da impressora."));
+            mockPrintService.Setup(p => p.PrintReceiptAsync(
+                It.IsAny<OrderResponseDto>(),
+                It.IsAny<string>(),
+                It.IsAny<byte[]?>()))
+            .ThrowsAsync(new InvalidOperationException("Falha na porta de comunicação da impressora."));
 
             var client = _factory.WithWebHostBuilder(builder =>
             {

@@ -1,9 +1,14 @@
 using System.Globalization;
+using System.Net.Sockets;
+using System.Text;
 using ESCPOS_NET.Emitters;
 using ESCPOS_NET.Utilities;
 using RadianciaKS.Application.DTOs.Order;
 using RadianciaKS.Application.Services.Interfaces;
 using RadianciaKS.Domain.Enums;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace RadianciaKS.Application.Services
 {
@@ -12,6 +17,7 @@ namespace RadianciaKS.Application.Services
         private readonly EPSON _epson;
         private const int PrinterColumns = 48;
         private readonly IStoreSettingsService _storeSettingsService;
+        private readonly CultureInfo _culturePtBr = new("pt-BR");
 
         public PrintService(IStoreSettingsService storeSettingsService)
         {
@@ -19,14 +25,30 @@ namespace RadianciaKS.Application.Services
             _storeSettingsService = storeSettingsService;
         }
 
-        public async Task<bool> PrintReceiptAsync(OrderResponseDto order, string printerPath)
+        public async Task<bool> PrintReceiptAsync(OrderResponseDto order, string printerPath, byte[]? logoBytes = null)
         {
             try
             {
-                var receiptBytes = await DrawReceipt(order);
+                var receiptBytes = await DrawReceipt(order, logoBytes);
 
-                await File.WriteAllBytesAsync(printerPath, receiptBytes);
+                var isLinuxDevice = printerPath.StartsWith("/dev/", StringComparison.OrdinalIgnoreCase);
 
+                if (File.Exists(printerPath) || (!isLinuxDevice && Path.HasExtension(printerPath)))
+                {
+                    var directory = Path.GetDirectoryName(printerPath);
+                    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    await File.WriteAllBytesAsync(printerPath, receiptBytes);
+                    return true;
+                }
+
+                using var client = new TcpClient();
+                await client.ConnectAsync("host.docker.internal", 9100);
+                await using var stream = client.GetStream();
+                await stream.WriteAsync(receiptBytes);
                 return true;
             }
             catch (Exception ex)
@@ -35,43 +57,89 @@ namespace RadianciaKS.Application.Services
             }
         }
 
-        private async Task<byte[]> DrawReceipt(OrderResponseDto order)
+        private async Task<byte[]> DrawReceipt(OrderResponseDto order, byte[]? logoBytes)
         {
             var settings = await _storeSettingsService.GetSettings();
             var receipt = new List<byte[]>
             {
                 _epson.Initialize(),
-                _epson.CenterAlign(),
-                _epson.SetStyles(PrintStyle.Bold | PrintStyle.DoubleWidth | PrintStyle.DoubleHeight),
-                _epson.PrintLine(settings.StoreName),
-                _epson.SetStyles(PrintStyle.None),
-                _epson.PrintLine(new string('-', PrinterColumns)),
-
-                _epson.CenterAlign(),
-                _epson.PrintLine("Pedidos"),
-                _epson.PrintLine(""),
-                _epson.LeftAlign()
+                _epson.CenterAlign()
             };
+
+            if (logoBytes != null && logoBytes.Length > 0)
+            {
+                byte[] rasterLogo = ConvertImageToEscPosRaster(logoBytes, maxWidth: 350);
+                if (rasterLogo.Length > 0)
+                {
+                    receipt.Add(rasterLogo);
+                }
+            }
+
+            receipt.Add(_epson.SetStyles(PrintStyle.Bold | PrintStyle.DoubleWidth | PrintStyle.DoubleHeight));
+            receipt.Add(_epson.PrintLine(Sanitize(settings.StoreName)));
+            receipt.Add(_epson.SetStyles(PrintStyle.None));
+            receipt.Add(_epson.PrintLine(new string('-', PrinterColumns)));
+
+            receipt.Add(_epson.CenterAlign());
+            receipt.Add(_epson.PrintLine("PEDIDOS"));
+            receipt.Add(_epson.PrintLine(""));
+            receipt.Add(_epson.LeftAlign());
 
             foreach (var item in order.Items)
             {
                 decimal itemTotal = item.UnitPrice * item.Quantity;
-                string priceFormatted = $"R$ {itemTotal.ToString("F2", CultureInfo.InvariantCulture)}";
+                string priceFormatted = $"R$ {itemTotal.ToString("F2", _culturePtBr)}";
 
-                receipt.Add(_epson.PrintLine(FormatLine($"{item.Quantity}x {item.ProductName}", priceFormatted)));
+                receipt.Add(_epson.PrintLine(FormatLine($"{item.Quantity}x {Sanitize(item.ProductName)}", priceFormatted)));
 
                 if (item.SelectedModifiers != null && item.SelectedModifiers.Any())
                 {
-                    foreach (var mod in item.SelectedModifiers)
+                    var groupedModifiers = item.SelectedModifiers
+                        .GroupBy(m => string.IsNullOrWhiteSpace(m.GroupName) ? "Modificadores" : m.GroupName);
+
+                    foreach (var group in groupedModifiers)
                     {
-                        receipt.Add(_epson.PrintLine($"  + {mod.Name}"));
+                        receipt.Add(_epson.PrintLine($"  {Sanitize(group.Key)}:"));
+
+                        foreach (var mod in group)
+                        {
+                            receipt.Add(_epson.PrintLine(FormatLine($"  + {Sanitize(mod.Name)}", "(Incl.)")));
+                        }
                     }
+                }
+
+                decimal baseOriginal = item.OriginalUnitPrice ?? item.UnitPrice;
+
+                decimal modifiersOriginal = item.SelectedModifiers?
+                    .Sum(m => m.OriginalAdditionalPrice ?? m.AdditionalPrice) ?? 0m;
+
+                decimal unitOriginalTotal = baseOriginal + modifiersOriginal;
+                decimal unitChargedTotal = item.UnitPrice;
+
+                if (unitOriginalTotal > unitChargedTotal)
+                {
+                    decimal unitSavings = unitOriginalTotal - unitChargedTotal;
+                    decimal totalSavings = unitSavings * item.Quantity;
+
+                    string promoText = item.Quantity > 1
+                        ? $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} un | Economia: R$ {totalSavings.ToString("F2", _culturePtBr)})"
+                        : $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} | Economia: R$ {totalSavings.ToString("F2", _culturePtBr)})";
+
+                    if (promoText.Length > PrinterColumns)
+                    {
+                        promoText = item.Quantity > 1
+                            ? $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} un | Econ: R$ {totalSavings.ToString("F2", _culturePtBr)})"
+                            : $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} | Econ: R$ {totalSavings.ToString("F2", _culturePtBr)})";
+                    }
+
+                    receipt.Add(_epson.PrintLine(Sanitize(promoText)));
                 }
             }
 
+            receipt.Add(_epson.LeftAlign());
             receipt.Add(_epson.PrintLine(new string('-', PrinterColumns)));
             receipt.Add(_epson.CenterAlign());
-            receipt.Add(_epson.PrintLine("Pagamentos"));
+            receipt.Add(_epson.PrintLine("PAGAMENTOS"));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.LeftAlign());
 
@@ -79,55 +147,69 @@ namespace RadianciaKS.Application.Services
             {
                 foreach (var payment in order.Payments)
                 {
-                    string paymentAmount = $"R$ {payment.Amount.ToString("F2", CultureInfo.InvariantCulture)}";
-                    receipt.Add(_epson.PrintLine(FormatLine($"+ {GetPaymentMethodName(payment.Method)}", paymentAmount)));
+                    string paymentAmount = $"R$ {payment.Amount.ToString("F2", _culturePtBr)}";
+                    string methodName = Sanitize(GetPaymentMethodName(payment.Method));
+                    receipt.Add(_epson.PrintLine(FormatLine($"+ {methodName}", paymentAmount)));
                 }
             }
             else
             {
                 receipt.Add(_epson.CenterAlign());
                 receipt.Add(_epson.SetStyles(PrintStyle.Bold));
-                receipt.Add(_epson.PrintLine("NÃO PAGO"));
+                receipt.Add(_epson.PrintLine("NAO PAGO"));
                 receipt.Add(_epson.SetStyles(PrintStyle.None));
+                receipt.Add(_epson.LeftAlign());
             }
 
             receipt.Add(_epson.LeftAlign());
             receipt.Add(_epson.PrintLine(new string('-', PrinterColumns)));
 
             decimal serviceChargeValue = order.ServiceFeeAmount;
+            if (serviceChargeValue > 0)
+            {
+                receipt.Add(_epson.RightAlign());
+                receipt.Add(_epson.SetStyles(PrintStyle.Bold));
+                receipt.Add(_epson.PrintLine(Sanitize($"Taxa ({settings.ServiceCharge}%): R$ {serviceChargeValue.ToString("F2", _culturePtBr)}")));
+            }
 
             receipt.Add(_epson.RightAlign());
-            receipt.Add(_epson.SetStyles(PrintStyle.Bold));
-            receipt.Add(_epson.PrintLine($"Taxa ({settings.ServiceCharge}%): R$ {serviceChargeValue.ToString("F2", CultureInfo.InvariantCulture)}"));
-
             receipt.Add(_epson.SetStyles(PrintStyle.DoubleHeight | PrintStyle.DoubleWidth | PrintStyle.Bold));
-            receipt.Add(_epson.PrintLine($"TOTAL: R$ {order.TotalAmount.ToString("F2", CultureInfo.InvariantCulture)}"));
+            receipt.Add(_epson.PrintLine($"TOTAL: R$ {order.TotalAmount.ToString("F2", _culturePtBr)}"));
             receipt.Add(_epson.SetStyles(PrintStyle.None));
             receipt.Add(_epson.PrintLine(""));
 
-            receipt.Add(_epson.CenterAlign());
-            receipt.Add(_epson.PrintLine("Consulte sua Nota Fiscal:"));
-            receipt.Add(_epson.PrintLine(""));
+            if (!string.IsNullOrWhiteSpace(order.ReceiptUrl))
+            {
+                receipt.Add(_epson.CenterAlign());
+                receipt.Add(_epson.PrintLine("Consulte sua Nota Fiscal:"));
+                receipt.Add(_epson.PrintLine(""));
+                receipt.Add(_epson.PrintQRCode(order.ReceiptUrl));
+                receipt.Add(_epson.PrintLine(""));
+            }
 
-            string qrCodeUrl = !string.IsNullOrEmpty(order.ReceiptUrl) ? order.ReceiptUrl : "https://sua-url-fiscal.com/nfce/pendente";
-            receipt.Add(_epson.PrintQRCode(qrCodeUrl));
-            receipt.Add(_epson.PrintLine(""));
-
-            string paidBy = string.IsNullOrEmpty(order.PaidByName) ? "n/a" : order.PaidByName;
+            string paidBy = string.IsNullOrEmpty(order.PaidByName) ? "N/A" : Sanitize(order.PaidByName);
+            string createdBy = string.IsNullOrEmpty(order.CreatedByName) ? "N/A" : Sanitize(order.CreatedByName);
 
             receipt.Add(_epson.CenterAlign());
             receipt.Add(_epson.PrintLine($"{order.CreatedAt:dd/MM/yyyy | HH:mm}"));
-            receipt.Add(_epson.PrintLine($"Garçom: {order.CreatedByName} | Cobrador: {paidBy}"));
-            receipt.Add(_epson.PrintLine($"Endereço: {settings.Address}"));
-            receipt.Add(_epson.PrintLine($"CNPJ: {settings.CNPJ}"));
+            receipt.Add(_epson.PrintLine(Sanitize($"Garcom: {createdBy} | Caixa: {paidBy}")));
+
+            if (!string.IsNullOrWhiteSpace(settings.Address))
+                receipt.Add(_epson.PrintLine(Sanitize($"Endereco: {settings.Address}")));
+
+            if (!string.IsNullOrWhiteSpace(settings.CNPJ))
+                receipt.Add(_epson.PrintLine($"CNPJ: {settings.CNPJ}"));
 
             if (!string.IsNullOrEmpty(settings.ReceiptFooter))
-            {
-                receipt.Add(_epson.PrintLine(settings.ReceiptFooter));
-            }
+                receipt.Add(_epson.PrintLine(Sanitize(settings.ReceiptFooter)));
 
-            receipt.Add(_epson.PrintLine("SISTEMA RADIÂNCIA"));
+            receipt.Add(_epson.PrintLine("SISTEMA RADIANCIA KS"));
+            receipt.Add(_epson.PrintLine("Acesse: www.radianciasistemas.com.br"));
 
+            // Avanço de papel para o corte da guilhotina
+            receipt.Add(_epson.PrintLine(""));
+            receipt.Add(_epson.PrintLine(""));
+            receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.FullCut());
@@ -141,10 +223,12 @@ namespace RadianciaKS.Application.Services
 
             if (left.Length > maxLeftLength)
             {
-                left = left.Substring(0, maxLeftLength - 3) + "...";
+                left = left.Substring(0, Math.Max(0, maxLeftLength - 3)) + "...";
             }
 
             int spaceCount = PrinterColumns - (left.Length + right.Length);
+            if (spaceCount < 1) spaceCount = 1;
+
             return left + new string(' ', spaceCount) + right;
         }
 
@@ -154,10 +238,86 @@ namespace RadianciaKS.Application.Services
             {
                 PaymentMethod.Cash => "Dinheiro",
                 PaymentMethod.Pix => "PIX",
-                PaymentMethod.CreditCard => "Crédito",
-                PaymentMethod.DebitCard => "Débito",
+                PaymentMethod.CreditCard => "Credito",
+                PaymentMethod.DebitCard => "Debito",
                 _ => "Outro"
             };
+        }
+
+        private static byte[] ConvertImageToEscPosRaster(byte[] imageBytes, int maxWidth = 350)
+        {
+            try
+            {
+                using var image = Image.Load<Rgba32>(imageBytes);
+
+                if (image.Width > maxWidth)
+                {
+                    double ratio = (double)maxWidth / image.Width;
+                    int newHeight = (int)(image.Height * ratio);
+                    image.Mutate(ctx => ctx.Resize(maxWidth, newHeight));
+                }
+
+                int width = image.Width;
+                int height = image.Height;
+                int bytesPerLine = (width + 7) / 8;
+
+                byte[] rasterPayload = new byte[bytesPerLine * height];
+
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        var pixel = image[x, y];
+
+                        if (pixel.A > 128)
+                        {
+                            double luminance = (0.299 * pixel.R) + (0.587 * pixel.G) + (0.114 * pixel.B);
+                            if (luminance < 165)
+                            {
+                                int byteIndex = (y * bytesPerLine) + (x / 8);
+                                int bitIndex = 7 - (x % 8);
+                                rasterPayload[byteIndex] |= (byte)(1 << bitIndex);
+                            }
+                        }
+                    }
+                }
+
+                byte xL = (byte)(bytesPerLine & 0xFF);
+                byte xH = (byte)((bytesPerLine >> 8) & 0xFF);
+                byte yL = (byte)(height & 0xFF);
+                byte yH = (byte)((height >> 8) & 0xFF);
+
+                byte[] header = new byte[] { 0x1D, 0x76, 0x30, 0x00, xL, xH, yL, yH };
+
+                byte[] result = new byte[header.Length + rasterPayload.Length];
+                Buffer.BlockCopy(header, 0, result, 0, header.Length);
+                Buffer.BlockCopy(rasterPayload, 0, result, header.Length, rasterPayload.Length);
+
+                return result;
+            }
+            catch
+            {
+                return Array.Empty<byte>();
+            }
+        }
+
+        private static string Sanitize(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+            var normalized = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(normalized.Length);
+
+            foreach (var c in normalized)
+            {
+                var category = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (category != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }

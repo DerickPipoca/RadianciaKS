@@ -4,6 +4,6 @@ namespace RadianciaKS.Application.Services.Interfaces
 {
     public interface IPrintService
     {
-        Task<bool> PrintReceiptAsync(OrderResponseDto order, string printerName = "GenericPrinter");
+        Task<bool> PrintReceiptAsync(OrderResponseDto order, string printerName = "GenericPrinter", byte[]? logoBytes = null);
     }
 }
