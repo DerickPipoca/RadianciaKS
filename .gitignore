@@ -539,3 +539,11 @@ docker-compose.override.yml
 wwwroot/
 
 *teste.bin
+
+# Dumps e arquivos de backup locais
+backups/
+*.dump
+
+# Configurações locais com segredos
+appsettings.Development.json
+appsettings.*.local.json
