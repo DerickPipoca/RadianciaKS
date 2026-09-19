@@ -44,6 +44,8 @@ services:
 
   frontend:
     image: ghcr.io/derickpipoca/radianciaks-frontend:latest
+    build:
+      context: ./frontend
     container_name: radianciaks_frontend
     restart: unless-stopped
     depends_on:
