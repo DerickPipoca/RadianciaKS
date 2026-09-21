@@ -9,6 +9,7 @@ namespace RadianciaKS.Application.Interfaces
         Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
         Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 
+        DbSet<SystemLicense> SystemLicenses { get; set; }
         DbSet<Category> Categories { get; }
         DbSet<Product> Products { get; }
         DbSet<Order> Orders { get; }

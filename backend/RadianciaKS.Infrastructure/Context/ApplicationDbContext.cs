@@ -19,6 +19,7 @@ namespace RadianciaKS.Infrastructure.Context
             _userProvider = userProvider;
         }
 
+        public DbSet<SystemLicense> SystemLicenses { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
