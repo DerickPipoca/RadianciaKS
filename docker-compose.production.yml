@@ -63,7 +63,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: radianciaks_tunnel
     restart: unless-stopped
-    command: tunnel --no-autoupdate --url http://frontend:80
+    command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - frontend
       - api

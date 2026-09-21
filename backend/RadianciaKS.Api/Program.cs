@@ -166,11 +166,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
-
 if (!app.Environment.IsEnvironment("Testing"))
 {
     using (var scope = app.Services.CreateScope())
@@ -183,8 +178,6 @@ if (!app.Environment.IsEnvironment("Testing"))
         await DbInitializer.SeedAsync(context, config, logger);
     }
 }
-
-
 
 app.Run();
 
