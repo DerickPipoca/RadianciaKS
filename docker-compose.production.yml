@@ -24,6 +24,7 @@ services:
       - "${API_PORT:-8080}:8080"
     environment:
       - KEYGEN_LICENSE_KEY=${KEYGEN_LICENSE_KEY}
+      - Keygen__MachineName=${KEYGEN_MACHINE_NAME:-Servidor Local Radiância KS}
       - Keygen__AccountId=${KEYGEN_ACCOUNT_ID}
       - Keygen__BaseUrl=https://api.keygen.sh/v1/accounts/
       - Keygen__TimeoutSeconds=15

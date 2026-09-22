@@ -88,7 +88,7 @@ namespace RadianciaKS.Infrastructure.Services
                         license.LicenseKey,
                         result.LicenseId,
                         license.MachineFingerprint,
-                        "Servidor Local Radiância KS",
+                        _settings.MachineName,
                         ct);
 
                     if (registered)
