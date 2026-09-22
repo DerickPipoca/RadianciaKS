@@ -9,6 +9,36 @@ namespace RadianciaKS.Infrastructure.Data
 {
     public static class DbInitializer
     {
+        public static async Task SeedSystemLicenseAsync(IApplicationDbContext context, IConfiguration configuration)
+        {
+            var licenseKey = configuration["KEYGEN_LICENSE_KEY"]
+                             ?? configuration["Keygen:LicenseKey"];
+
+            if (string.IsNullOrWhiteSpace(licenseKey))
+            {
+                return;
+            }
+
+            var existingLicense = await context.SystemLicenses.FirstOrDefaultAsync();
+
+            if (existingLicense == null)
+            {
+                var initialLicense = new SystemLicense
+                {
+                    Id = Guid.NewGuid(),
+                    LicenseKey = licenseKey.Trim(),
+                    Status = LicenseStatus.UNVALIDATED,
+                    ExpiresAt = DateTimeOffset.UtcNow.AddDays(32),
+                    LastValidatedAt = null,
+                    LastKnownSystemTime = DateTimeOffset.UtcNow,
+                    CreatedAt = DateTimeOffset.UtcNow
+                };
+
+                await context.SystemLicenses.AddAsync(initialLicense);
+                await context.SaveChangesAsync();
+            }
+        }
+
         public static async Task SeedAsync(IApplicationDbContext context, IConfiguration configuration, ILogger logger)
         {
             try
@@ -18,6 +48,8 @@ namespace RadianciaKS.Infrastructure.Data
                     logger.LogInformation("[RADIÂNCIA_KS] Aplicando migrações pendentes...");
                     await context.Database.MigrateAsync();
                 }
+
+                await SeedSystemLicenseAsync(context, configuration);
 
                 var rawTenantId = configuration["TENANT_ID"]
                     ?? Environment.GetEnvironmentVariable("TENANT_ID");

@@ -16,6 +16,7 @@ using RadianciaKS.Infrastructure.Configuration;
 using RadianciaKS.Infrastructure.Context;
 using RadianciaKS.Infrastructure.Data;
 using RadianciaKS.Infrastructure.Gateways;
+using RadianciaKS.Infrastructure.Licensing.Configuration;
 using RadianciaKS.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +57,18 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSignalR();
+
+builder.Services.Configure<KeygenSettings>(builder.Configuration.GetSection(KeygenSettings.SectionName));
+
+builder.Services.AddHttpClient<IKeygenService, KeygenService>((sp, client) =>
+{
+    var settings = builder.Configuration.GetSection(KeygenSettings.SectionName).Get<KeygenSettings>() ?? new KeygenSettings();
+    client.BaseAddress = new Uri(settings.BaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
+    client.DefaultRequestHeaders.Add("Accept", "application/vnd.api+json");
+});
+
+builder.Services.AddHostedService<LicenseHeartbeatBackgroundService>();
 
 builder.Services.Configure<CloudflareR2Settings>(
     builder.Configuration.GetSection("CloudflareR2"));
@@ -145,6 +158,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<LicenseValidationMiddleware>();
 
 app.UseCors("AllowAngularApp");
 app.MapHub<KdsHub>("/hubs/kds");

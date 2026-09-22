@@ -23,6 +23,11 @@ services:
     ports:
       - "${API_PORT:-8080}:8080"
     environment:
+      - KEYGEN_LICENSE_KEY=${KEYGEN_LICENSE_KEY}
+      - Keygen__AccountId=${KEYGEN_ACCOUNT_ID}
+      - Keygen__BaseUrl=https://api.keygen.sh/v1/accounts/
+      - Keygen__TimeoutSeconds=15
+      - Keygen__HeartbeatHours=6
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - TENANT_ID=${TENANT_ID}
       - TZ=${APP_TIMEZONE:-America/Sao_Paulo}
