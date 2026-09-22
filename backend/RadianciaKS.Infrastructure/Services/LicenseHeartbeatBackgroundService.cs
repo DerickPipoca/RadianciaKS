@@ -76,15 +76,17 @@ namespace RadianciaKS.Infrastructure.Services
                 var result = await keygenService.ValidateKeyAsync(license.LicenseKey, license.MachineFingerprint, ct);
 
                 if (result.IsOnline &&
-                        (result.Code == "NO_MACHINE" ||
-                        result.Code == "NO_MACHINES" ||
-                        result.Code == "FINGERPRINT_SCOPE_MISMATCH"))
+                    !string.IsNullOrWhiteSpace(result.LicenseId) &&
+                    (result.Code == "NO_MACHINE" ||
+                    result.Code == "NO_MACHINES" ||
+                    result.Code == "FINGERPRINT_SCOPE_MISMATCH"))
                 {
-                    _logger.LogWarning("[KEYGEN] Licença exige máquina ({Code}). Registrando fingerprint {Fingerprint}...",
-                        result.Code, license.MachineFingerprint);
+                    _logger.LogWarning("[KEYGEN] Licença exige máquina ({Code}). Registrando fingerprint {Fingerprint} para a licença {LicenseId}...",
+                        result.Code, license.MachineFingerprint, result.LicenseId);
 
                     var registered = await keygenService.RegisterMachineAsync(
                         license.LicenseKey,
+                        result.LicenseId,
                         license.MachineFingerprint,
                         "Servidor Local Radiância KS",
                         ct);

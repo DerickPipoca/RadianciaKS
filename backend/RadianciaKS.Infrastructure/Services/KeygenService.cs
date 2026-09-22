@@ -26,7 +26,7 @@ namespace RadianciaKS.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<bool> RegisterMachineAsync(string licenseKey, string fingerprint, string machineName, CancellationToken ct = default)
+        public async Task<bool> RegisterMachineAsync(string licenseKey, string licenseId, string fingerprint, string machineName, CancellationToken ct = default)
         {
             var endpoint = $"{_settings.AccountId}/machines";
             var payload = new KeygenRegisterMachineRequest
@@ -38,6 +38,17 @@ namespace RadianciaKS.Infrastructure.Services
                         Fingerprint = fingerprint.Trim(),
                         Name = machineName,
                         Platform = Environment.OSVersion.Platform.ToString()
+                    },
+                    Relationships = new KeygenMachineRelationshipsRequest
+                    {
+                        License = new KeygenLicenseRelationshipRequest
+                        {
+                            Data = new KeygenResourceIdentifier
+                            {
+                                Type = "licenses",
+                                Id = licenseId
+                            }
+                        }
                     }
                 }
             };
@@ -81,7 +92,7 @@ namespace RadianciaKS.Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(licenseKey))
             {
-                return new KeygenValidationResult(false, false, "EMPTY_KEY", null, "Chave de licença não configurada.");
+                return new KeygenValidationResult(false, false, "EMPTY_KEY", null, null, "Chave de licença não configurada.");
             }
 
             var endpoint = $"{_settings.AccountId}/licenses/actions/validate-key";
@@ -108,7 +119,7 @@ namespace RadianciaKS.Infrastructure.Services
 
                 if (result?.Meta == null)
                 {
-                    return new KeygenValidationResult(true, false, "MALFORMED_RESPONSE", null, "Resposta vazia ou inválida.");
+                    return new KeygenValidationResult(true, false, "MALFORMED_RESPONSE", null, null, "Resposta vazia ou inválida.");
                 }
 
                 return new KeygenValidationResult(
@@ -116,13 +127,14 @@ namespace RadianciaKS.Infrastructure.Services
                     IsValid: result.Meta.Valid,
                     Code: result.Meta.Code,
                     Expiry: result.Data?.Attributes.Expiry,
+                    LicenseId: result.Data?.Id,
                     ErrorMessage: result.Meta.Detail
                 );
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
             {
                 _logger.LogInformation("Falha de conexão ao validar licença no Keygen (restaurante offline ou timeout): {Message}", ex.Message);
-                return new KeygenValidationResult(false, false, "OFFLINE", null, ex.Message);
+                return new KeygenValidationResult(false, false, "OFFLINE", null, null, ex.Message);
             }
         }
     }

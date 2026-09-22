@@ -7,7 +7,7 @@ namespace RadianciaKS.Infrastructure.Gateways
     {
         public async Task<string> GenerateNfceAsync(Order order)
         {
-            //await Task.Delay(1500);
+            await Task.Delay(1);
             return $"";
         }
     }

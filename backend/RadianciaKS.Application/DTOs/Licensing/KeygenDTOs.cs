@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace RadianciaKS.Application.DTOs.Licensing
 {
-    // Payload de Validação
     public class KeygenValidateRequest
     {
         [JsonPropertyName("meta")]
@@ -63,7 +62,6 @@ namespace RadianciaKS.Application.DTOs.Licensing
         public string Status { get; set; } = string.Empty;
     }
 
-    // Payload de Ativação de Máquina (POST /machines)
     public class KeygenRegisterMachineRequest
     {
         [JsonPropertyName("data")]
@@ -77,6 +75,9 @@ namespace RadianciaKS.Application.DTOs.Licensing
 
         [JsonPropertyName("attributes")]
         public KeygenMachineAttributesRequest Attributes { get; set; } = new();
+
+        [JsonPropertyName("relationships")]
+        public KeygenMachineRelationshipsRequest Relationships { get; set; } = new();
     }
 
     public class KeygenMachineAttributesRequest
@@ -89,5 +90,26 @@ namespace RadianciaKS.Application.DTOs.Licensing
 
         [JsonPropertyName("platform")]
         public string? Platform { get; set; }
+    }
+
+    public class KeygenMachineRelationshipsRequest
+    {
+        [JsonPropertyName("license")]
+        public KeygenLicenseRelationshipRequest License { get; set; } = new();
+    }
+
+    public class KeygenLicenseRelationshipRequest
+    {
+        [JsonPropertyName("data")]
+        public KeygenResourceIdentifier Data { get; set; } = new();
+    }
+
+    public class KeygenResourceIdentifier
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "licenses";
+
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = string.Empty;
     }
 }
