@@ -2,11 +2,13 @@ import { Routes } from '@angular/router';
 import { Login } from './features/auth/login/login';
 import { authGuard } from './core/guards/auth-guard';
 import { LandingPage } from './features/landing-page/landing-page';
+import { guestGuard } from './core/guards/guest-guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: Login,
+    canActivate: [guestGuard],
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {

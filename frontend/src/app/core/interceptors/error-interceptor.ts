@@ -3,19 +3,29 @@ import { inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { AuthService } from '../services/auth-service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toastr = inject(ToastrService);
+  const authService = inject(AuthService);
 
   return next(req).pipe(
     catchError((httpError: HttpErrorResponse) => {
       let errorMessage = 'Ocorreu um erro inesperado ao comunicar com o servidor.';
+      const isLoginRequest = req.url.includes('/auth/login');
 
       if (httpError.status === 0) {
         errorMessage =
           'Não foi possível conectar ao servidor. Verifique se o sistema está em execução.';
       } else if (httpError.status === 401) {
-        errorMessage = 'Credenciais inválidas ou sessão expirada. Verifique seu login.';
+        if (isLoginRequest) {
+          // Erro de digitação na tela de login: não desloga, apenas avisa
+          errorMessage = 'CPF ou senha incorretos.';
+        } else {
+          // Sessão caiu no meio do uso: limpa o storage e redireciona
+          errorMessage = 'Sua sessão expirou. Faça login novamente para continuar.';
+          authService.logout();
+        }
       } else if (httpError.error) {
         if (typeof httpError.error === 'string') {
           errorMessage = httpError.error;
