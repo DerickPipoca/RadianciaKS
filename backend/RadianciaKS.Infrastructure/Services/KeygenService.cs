@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -67,6 +68,7 @@ namespace RadianciaKS.Infrastructure.Services
                 if (response.IsSuccessStatusCode)
                 {
                     _logger.LogInformation("[KEYGEN] Máquina registrada com sucesso. Fingerprint: {Fingerprint}", fingerprint);
+                    _logger.LogInformation("[KEYGEN] Máquina: {MachineName}", machineName);
                     return true;
                 }
 

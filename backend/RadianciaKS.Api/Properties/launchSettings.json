@@ -16,8 +16,7 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://0.0.0.0:8080",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "TENANT_ID": "8d1ed281-9f3b-4659-8a46-7eb26c5d550e"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "https": {
