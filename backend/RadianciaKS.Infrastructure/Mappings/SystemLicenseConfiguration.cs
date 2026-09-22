@@ -24,6 +24,9 @@ namespace RadianciaKS.Infrastructure.Mappings
                 .HasMaxLength(30)
                 .IsRequired();
 
+            builder.Property(l => l.MachineFingerprint)
+                .HasMaxLength(100);
+
             builder.Property(l => l.ExpiresAt)
                 .IsRequired();
 

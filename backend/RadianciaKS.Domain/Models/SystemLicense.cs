@@ -12,6 +12,8 @@ namespace RadianciaKS.Domain.Models
         public DateTimeOffset LastKnownSystemTime { get; set; } = DateTimeOffset.UtcNow;
         public string? LicenseFile { get; set; }
 
+        public string? MachineFingerprint { get; set; }
+
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? UpdatedAt { get; set; }
 

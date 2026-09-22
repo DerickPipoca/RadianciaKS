@@ -4,6 +4,7 @@ namespace RadianciaKS.Application.Services.Interfaces
 {
     public interface IKeygenService
     {
-        Task<KeygenValidationResult> ValidateKeyAsync(string licenseKey, CancellationToken ct = default);
+        Task<KeygenValidationResult> ValidateKeyAsync(string licenseKey, string? fingerprint = null, CancellationToken ct = default);
+        Task<bool> RegisterMachineAsync(string licenseKey, string fingerprint, string machineName, CancellationToken ct = default);
     }
 }

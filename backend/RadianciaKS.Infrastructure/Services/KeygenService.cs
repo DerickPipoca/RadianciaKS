@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -25,7 +26,58 @@ namespace RadianciaKS.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<KeygenValidationResult> ValidateKeyAsync(string licenseKey, CancellationToken ct = default)
+        public async Task<bool> RegisterMachineAsync(string licenseKey, string fingerprint, string machineName, CancellationToken ct = default)
+        {
+            var endpoint = $"{_settings.AccountId}/machines";
+            var payload = new KeygenRegisterMachineRequest
+            {
+                Data = new KeygenMachineDataRequest
+                {
+                    Attributes = new KeygenMachineAttributesRequest
+                    {
+                        Fingerprint = fingerprint.Trim(),
+                        Name = machineName,
+                        Platform = Environment.OSVersion.Platform.ToString()
+                    }
+                }
+            };
+
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
+                request.Headers.Authorization = new AuthenticationHeaderValue("License", licenseKey.Trim());
+                request.Content = new StringContent(
+                    JsonSerializer.Serialize(payload),
+                    Encoding.UTF8,
+                    "application/vnd.api+json");
+
+                var response = await _httpClient.SendAsync(request, ct);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("[KEYGEN] Máquina registrada com sucesso. Fingerprint: {Fingerprint}", fingerprint);
+                    return true;
+                }
+
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
+
+                if (errorBody.Contains("FINGERPRINT_TAKEN"))
+                {
+                    _logger.LogInformation("[KEYGEN] Máquina já se encontrava registrada no Keygen.");
+                    return true;
+                }
+
+                _logger.LogError("[KEYGEN] Erro ao registrar máquina. Status {StatusCode}: {ErrorBody}", response.StatusCode, errorBody);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[KEYGEN] Falha ao tentar registrar máquina no Keygen.");
+                return false;
+            }
+        }
+
+        public async Task<KeygenValidationResult> ValidateKeyAsync(string licenseKey, string? fingerprint = null, CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(licenseKey))
             {
@@ -35,9 +87,15 @@ namespace RadianciaKS.Infrastructure.Services
             var endpoint = $"{_settings.AccountId}/licenses/actions/validate-key";
             var requestPayload = new KeygenValidateRequest
             {
-                Meta = new KeygenValidateMetaRequest { Key = licenseKey.Trim() }
+                Meta = new KeygenValidateMetaRequest
+                {
+                    Key = licenseKey.Trim(),
+                    Scope = !string.IsNullOrWhiteSpace(fingerprint)
+                        ? new KeygenValidateScopeRequest { Fingerprint = fingerprint.Trim() }
+                        : null
+                }
             };
-    
+
             try
             {
                 using var content = new StringContent(
@@ -46,14 +104,6 @@ namespace RadianciaKS.Infrastructure.Services
                     "application/vnd.api+json");
 
                 var response = await _httpClient.PostAsync(endpoint, content, ct);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync(ct);
-                    _logger.LogWarning("Keygen devolveu status {StatusCode}: {ErrorBody}", response.StatusCode, errorBody);
-                    return new KeygenValidationResult(true, false, "HTTP_ERROR", null, $"Status {(int)response.StatusCode}");
-                }
-
                 var result = await response.Content.ReadFromJsonAsync<KeygenValidateResponse>(cancellationToken: ct);
 
                 if (result?.Meta == null)
@@ -65,12 +115,13 @@ namespace RadianciaKS.Infrastructure.Services
                     IsOnline: true,
                     IsValid: result.Meta.Valid,
                     Code: result.Meta.Code,
-                    Expiry: result.Data?.Attributes.Expiry
+                    Expiry: result.Data?.Attributes.Expiry,
+                    ErrorMessage: result.Meta.Detail
                 );
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
             {
-                _logger.LogInformation("Falha de ligação ao validar licença no Keygen (servidor offline ou timeout): {Message}", ex.Message);
+                _logger.LogInformation("Falha de conexão ao validar licença no Keygen (restaurante offline ou timeout): {Message}", ex.Message);
                 return new KeygenValidationResult(false, false, "OFFLINE", null, ex.Message);
             }
         }

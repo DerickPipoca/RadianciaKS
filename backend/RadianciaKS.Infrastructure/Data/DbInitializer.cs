@@ -27,6 +27,7 @@ namespace RadianciaKS.Infrastructure.Data
                 {
                     Id = Guid.NewGuid(),
                     LicenseKey = licenseKey.Trim(),
+                    MachineFingerprint = Guid.NewGuid().ToString("N"),
                     Status = LicenseStatus.UNVALIDATED,
                     ExpiresAt = DateTimeOffset.UtcNow.AddDays(32),
                     LastValidatedAt = null,
