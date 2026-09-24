@@ -13,7 +13,7 @@
         (signalrService.cashShiftStatus$ | async) === 'Aberto'
       "
       [class.is-loading]="
-        (signalrService.connectionStatus$ | async) === 'Conectado' &&
+        (signalrService.connectionStatus$ | async) === 'Conectando' ||
         (signalrService.cashShiftStatus$ | async) === 'Carregando...'
       "
     >
@@ -21,17 +21,23 @@
       <div class="indicator-text">
         <span class="title">Sistema</span>
 
-        @if ((signalrService.connectionStatus$ | async) === 'Desconectado') {
+        @if (
+          (signalrService.connectionStatus$ | async) === 'Conectando' ||
+          (signalrService.cashShiftStatus$ | async) === 'Carregando...'
+        ) {
+          <span class="status-loading">Verificando...</span>
+        } @else if ((signalrService.connectionStatus$ | async) === 'Desconectado') {
           <span class="status-closed">Offline</span>
         } @else if ((signalrService.cashShiftStatus$ | async) === 'Aberto') {
           <span class="status-open">Aberto</span>
         } @else if ((signalrService.cashShiftStatus$ | async) === 'Fechado') {
           <span class="status-closed">Fechado</span>
         } @else {
-          <span class="status-loading">Verificando</span>
+          <span class="status-loading">Verificando...</span>
         }
       </div>
     </div>
+
     <div class="theme-toggle">
       <button class="theme-toggle-btn" (click)="themeService.toggleTheme()">
         @if (themeService.isDarkMode()) {
@@ -41,6 +47,7 @@
         }
       </button>
     </div>
+
     @if (isLoggedIn) {
       <div class="user-profile" (click)="toggleDropdown()">
         <div class="info">

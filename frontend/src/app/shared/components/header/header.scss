@@ -169,7 +169,7 @@ header {
       color: var(--green-status);
     }
     .status-loading {
-      color: var(--text-secondary);
+      color: #666;
     }
   }
 
@@ -179,7 +179,7 @@ header {
   }
 
   &.is-loading .indicator-dot {
-    background-color: var(--text-secondary);
-    box-shadow: 0 0 8px rgba(150, 150, 150, 0.6);
+    background-color: #666;
+    box-shadow: 0 0 8px #666;
   }
 }

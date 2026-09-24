@@ -30,13 +30,25 @@ export class SignalrService {
   private orderCanceledSource = new Subject<OrderResponseDto>();
   public orderCanceled$ = this.orderCanceledSource.asObservable();
 
-  public connectionStatus$ = new BehaviorSubject<'Conectado' | 'Desconectado'>('Desconectado');
+  public connectionStatus$ = new BehaviorSubject<'Conectado' | 'Desconectado' | 'Conectando'>(
+    'Desconectado',
+  );
   public cashShiftStatus$ = new BehaviorSubject<'Aberto' | 'Fechado' | 'Carregando...'>(
     'Carregando...',
   );
 
-  public startConnection(): void {
-    if (this.hubConnection && this.hubConnection.state !== HubConnectionState.Disconnected) {
+  public async startConnection(): Promise<void> {
+    // Se já estiver conectado ou em processo de conexão, ignora chamadas duplicadas
+    if (
+      this.hubConnection?.state === HubConnectionState.Connected ||
+      this.hubConnection?.state === HubConnectionState.Connecting
+    ) {
+      return;
+    }
+
+    // Se estiver a desconectar de uma chamada anterior, aguarda 300ms antes de reiniciar
+    if (this.hubConnection?.state === HubConnectionState.Disconnecting) {
+      setTimeout(() => this.startConnection(), 300);
       return;
     }
 
@@ -48,8 +60,8 @@ export class SignalrService {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
-        .configureLogging(LogLevel.Information)
-        .withAutomaticReconnect()
+        .configureLogging(LogLevel.Warning)
+        .withAutomaticReconnect([0, 2000, 5000, 10000])
         .build();
 
       this.hubConnection.on('ReceiveOrderCanceled', (order: OrderResponseDto) => {
@@ -57,39 +69,49 @@ export class SignalrService {
       });
 
       this.hubConnection.on('UpdateSystemStatus', (status) => {
-        if (status === 0 || status === 'Open' || status === 'Aberto' || status === 1) {
-          this.cashShiftStatus$.next('Aberto');
-          this.toastrService.info('Caixa aberto!');
-        } else {
-          this.cashShiftStatus$.next('Fechado');
-          this.toastrService.warning('Caixa fechado!');
-        }
+        this.zone.run(() => {
+          if (status === 0 || status === 'Open' || status === 'Aberto' || status === 1) {
+            this.cashShiftStatus$.next('Aberto');
+            this.toastrService.info('Caixa aberto!');
+          } else {
+            this.cashShiftStatus$.next('Fechado');
+            this.toastrService.warning('Caixa fechado!');
+          }
+        });
+      });
+
+      // Evento de oscilação/reconexão
+      this.hubConnection.onreconnecting(() => {
+        this.zone.run(() => this.connectionStatus$.next('Conectando'));
       });
 
       this.hubConnection.onreconnected(() => {
-        console.log('SignalR reconectado! Reentrando no grupo...');
-        this.connectionStatus$.next('Conectado');
-        this.joinKitchenGroup();
+        this.zone.run(() => {
+          console.log('[SignalR] Reconectado com sucesso!');
+          this.connectionStatus$.next('Conectado');
+          this.joinKitchenGroup();
+        });
       });
 
       this.hubConnection.onclose(() => {
-        this.connectionStatus$.next('Desconectado');
+        this.zone.run(() => this.connectionStatus$.next('Desconectado'));
       });
 
       this.addListeners();
     }
 
-    this.hubConnection
-      .start()
-      .then(() => {
-        console.log('SignalR conectado!');
+    try {
+      this.connectionStatus$.next('Conectando');
+      await this.hubConnection.start();
+      this.zone.run(() => {
+        console.log('[SignalR] Conectado!');
         this.connectionStatus$.next('Conectado');
         this.joinKitchenGroup();
-      })
-      .catch((err) => {
-        console.error('Erro ao conectar ao SignalR: ', err);
-        this.connectionStatus$.next('Desconectado');
       });
+    } catch (err) {
+      console.error('[SignalR] Erro ao iniciar:', err);
+      this.zone.run(() => this.connectionStatus$.next('Desconectado'));
+    }
   }
 
   private joinKitchenGroup(): void {
@@ -126,14 +148,14 @@ export class SignalrService {
   }
 
   public stopConnection(): void {
-    if (this.hubConnection) {
+    if (this.hubConnection && this.hubConnection.state === HubConnectionState.Connected) {
+      console.trace('[SignalR] stopConnection chamado por:');
       this.hubConnection
         .stop()
         .then(() => {
-          console.log('Conexão SignalR terminada.');
-          this.connectionStatus$.next('Desconectado');
+          this.zone.run(() => this.connectionStatus$.next('Desconectado'));
         })
-        .catch((err) => console.error('Erro ao parar conexão:', err));
+        .catch((err) => console.error('[SignalR] Erro ao parar:', err));
     }
   }
 }

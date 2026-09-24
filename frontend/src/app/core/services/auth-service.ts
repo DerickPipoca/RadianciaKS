@@ -13,7 +13,7 @@ export class AuthService {
   private router = inject(Router);
   private readonly apiUrl = 'auth';
 
-  private loggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private loggedInSubject = new BehaviorSubject<boolean>(this.hasValidToken());
 
   public isLoggedIn$ = this.loggedInSubject.asObservable();
 
@@ -51,7 +51,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.hasToken();
+    return this.hasValidToken();
   }
 
   getUser(): UserDto {

@@ -12,17 +12,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((httpError: HttpErrorResponse) => {
       let errorMessage = 'Ocorreu um erro inesperado ao comunicar com o servidor.';
-      const isLoginRequest = req.url.includes('/auth/login');
+      const isLoginRequest = req.url.includes('auth/login');
 
       if (httpError.status === 0) {
         errorMessage =
           'Não foi possível conectar ao servidor. Verifique se o sistema está em execução.';
       } else if (httpError.status === 401) {
         if (isLoginRequest) {
-          // Erro de digitação na tela de login: não desloga, apenas avisa
           errorMessage = 'CPF ou senha incorretos.';
         } else {
-          // Sessão caiu no meio do uso: limpa o storage e redireciona
           errorMessage = 'Sua sessão expirou. Faça login novamente para continuar.';
           authService.logout();
         }
@@ -51,7 +49,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       console.error('[Error Interceptor Capturado]:', errorMessage);
-      toastr.error(errorMessage, 'Atenção', { enableHtml: true });
+      toastr.error(errorMessage, 'Atenção', {
+        enableHtml: true,
+      });
 
       return throwError(() => new Error(errorMessage));
     }),
