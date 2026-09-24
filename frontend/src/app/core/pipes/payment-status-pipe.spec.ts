@@ -1,8 +1,8 @@
-import { PaymentStatusPipePipe } from './payment-status-pipe-pipe';
+import { PaymentStatusLabelPipe } from './payment-status-pipe';
 
 describe('PaymentStatusPipePipe', () => {
   it('create an instance', () => {
-    const pipe = new PaymentStatusPipePipe();
+    const pipe = new PaymentStatusLabelPipe();
     expect(pipe).toBeTruthy();
   });
 });

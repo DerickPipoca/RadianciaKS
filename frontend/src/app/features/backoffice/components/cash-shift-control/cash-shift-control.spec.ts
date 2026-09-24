@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CashShiftControl } from './cash-shift-control';
+import { CashShiftControlComponent } from './cash-shift-control';
 
 describe('CashShiftControl', () => {
-  let component: CashShiftControl;
-  let fixture: ComponentFixture<CashShiftControl>;
+  let component: CashShiftControlComponent;
+  let fixture: ComponentFixture<CashShiftControlComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CashShiftControl]
-    })
-    .compileComponents();
+      imports: [CashShiftControlComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(CashShiftControl);
+    fixture = TestBed.createComponent(CashShiftControlComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

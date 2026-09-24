@@ -4,7 +4,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { tenantInterceptor } from './tenant-interceptor';
 
 describe('tenantInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) => 
+  const interceptor: HttpInterceptorFn = (req, next) =>
     TestBed.runInInjectionContext(() => tenantInterceptor(req, next));
 
   beforeEach(() => {

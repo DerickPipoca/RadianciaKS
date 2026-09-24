@@ -20,14 +20,14 @@ import { InputComponent } from '../../../../shared/components/input-component/in
 import {
   OrderStatusClassPipe,
   OrderStatusLabelPipe,
-} from '../../../../core/pipes/order-status-pipe-pipe';
+} from '../../../../core/pipes/order-status-pipe';
 import {
   PaymentStatusLabelPipe,
   PaymentStatusClassPipe,
-} from '../../../../core/pipes/payment-status-pipe-pipe';
+} from '../../../../core/pipes/payment-status-pipe';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ClickOutsideDirective } from '../../../../core/directives/click-outside-directive';
-import { GroupByPipe } from "../../../../core/pipes/group-by-pipe";
+import { GroupByPipe } from '../../../../core/pipes/group-by-pipe';
 
 @Component({
   selector: 'app-open-orders',
@@ -41,8 +41,8 @@ import { GroupByPipe } from "../../../../core/pipes/group-by-pipe";
     PaymentStatusClassPipe,
     ClickOutsideDirective,
     ModalComponent,
-    GroupByPipe
-],
+    GroupByPipe,
+  ],
   templateUrl: './open-orders.html',
   styleUrl: './open-orders.scss',
 })

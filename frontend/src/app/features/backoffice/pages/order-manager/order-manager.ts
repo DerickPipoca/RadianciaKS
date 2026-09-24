@@ -13,11 +13,11 @@ import { PaymentStatus } from '../../../../core/enums/payment-status';
 import {
   OrderStatusClassPipe,
   OrderStatusLabelPipe,
-} from '../../../../core/pipes/order-status-pipe-pipe';
+} from '../../../../core/pipes/order-status-pipe';
 import {
   PaymentStatusClassPipe,
   PaymentStatusLabelPipe,
-} from '../../../../core/pipes/payment-status-pipe-pipe';
+} from '../../../../core/pipes/payment-status-pipe';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { ModalComponent } from '../../../../shared/components/modal-component/modal-component';
 import { ToastrService } from 'ngx-toastr';

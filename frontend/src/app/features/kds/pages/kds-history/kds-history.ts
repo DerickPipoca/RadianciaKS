@@ -10,7 +10,7 @@ import { InputComponent } from '../../../../shared/components/input-component/in
 import {
   OrderStatusClassPipe,
   OrderStatusLabelPipe,
-} from '../../../../core/pipes/order-status-pipe-pipe';
+} from '../../../../core/pipes/order-status-pipe';
 import { Pagination } from '../../../../shared/components/pagination/pagination';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrderItemModifierResponseDto } from '../../../../core/models/modifier.model';

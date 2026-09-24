@@ -13,7 +13,7 @@ import { tenantInterceptor } from './core/interceptors/tenant-interceptor';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import { loadingInterceptor } from './core/interceptors/loading-interceptor';
+import { LoadingInterceptor } from './core/interceptors/loading-interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideToastr } from 'ngx-toastr';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -40,8 +40,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([
         tenantInterceptor,
-        loadingInterceptor,
-        loadingInterceptor,
+        LoadingInterceptor,
+        LoadingInterceptor,
         errorInterceptor,
         authInterceptor,
       ]),
