@@ -4,18 +4,23 @@ using RadianciaKS.Application.DTOs.Payment;
 using RadianciaKS.Application.DTOs.StoreSettings;
 using RadianciaKS.Application.Services;
 using RadianciaKS.Application.Services.Interfaces;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace RadianciaKS.UnitTests.Application.Services
 {
     public class PrintServiceTests : IDisposable
     {
         private readonly Mock<IStoreSettingsService> _storeSettingsServiceMock;
+        private readonly PrintService _printService;
         private readonly string _tempFilePath;
 
         public PrintServiceTests()
         {
             _storeSettingsServiceMock = new Mock<IStoreSettingsService>();
             _tempFilePath = Path.Combine(Path.GetTempPath(), $"receipt_test_{Guid.NewGuid():N}.bin");
+
+            _printService = new PrintService(_storeSettingsServiceMock.Object);
         }
 
         public void Dispose()
@@ -134,6 +139,152 @@ namespace RadianciaKS.UnitTests.Application.Services
             File.Exists(_tempFilePath).ShouldBeTrue();
             var fileBytes = await File.ReadAllBytesAsync(_tempFilePath);
             fileBytes.Length.ShouldBeGreaterThan(0);
+        }
+
+        [Fact]
+        public async Task PrintReceiptAsync_WithValidLogo_ShouldGenerateEscPosRasterAndPrintSuccessfully()
+        {
+            SetupStoreSettingsMock();
+            // Arrange: gera imagem 24x8 contendo pixels pretos, brancos e transparentes
+            byte[] logoBytes = CreateTestImageBytes(width: 24, height: 8);
+            var order = CreateSampleOrder();
+            string tempFile = Path.GetTempFileName();
+
+            try
+            {
+                // Act
+                bool result = await _printService.PrintReceiptAsync(order, tempFile, logoBytes);
+
+                // Assert
+                Assert.True(result);
+                byte[] writtenBytes = await File.ReadAllBytesAsync(tempFile);
+
+                // Cabeçalho de imagem ESC/POS Raster: GS 'v' '0' 0 (0x1D, 0x76, 0x30, 0x00)
+                byte[] expectedRasterHeader = new byte[] { 0x1D, 0x76, 0x30, 0x00 };
+                Assert.True(writtenBytes.AsSpan().IndexOf(expectedRasterHeader) >= 0);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        [Fact]
+        public async Task PrintReceiptAsync_WithLogoWiderThanMaxWidth_ShouldResizeAndGenerateRaster()
+        {
+            SetupStoreSettingsMock();
+            // Arrange: largura 400px (superior ao maxWidth de 350px) para testar o Resize
+            byte[] logoBytes = CreateTestImageBytes(width: 400, height: 100);
+            var order = CreateSampleOrder();
+            string tempFile = Path.GetTempFileName();
+
+            try
+            {
+                // Act
+                bool result = await _printService.PrintReceiptAsync(order, tempFile, logoBytes);
+
+                // Assert
+                Assert.True(result);
+                byte[] writtenBytes = await File.ReadAllBytesAsync(tempFile);
+                byte[] expectedRasterHeader = new byte[] { 0x1D, 0x76, 0x30, 0x00 };
+                Assert.True(writtenBytes.AsSpan().IndexOf(expectedRasterHeader) >= 0);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        [Fact]
+        public async Task PrintReceiptAsync_WithCorruptLogoBytes_ShouldHandleCatchGracefullyAndPrintReceipt()
+        {
+            // Arrange
+            SetupStoreSettingsMock();
+            byte[] corruptLogoBytes = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 };
+            var order = CreateSampleOrder();
+            string tempFile = Path.GetTempFileName();
+
+            try
+            {
+                // Act
+                bool result = await _printService.PrintReceiptAsync(order, tempFile, corruptLogoBytes);
+
+                // Assert
+                Assert.True(result);
+                byte[] writtenBytes = await File.ReadAllBytesAsync(tempFile);
+                Assert.NotEmpty(writtenBytes);
+                byte[] expectedRasterHeader = new byte[] { 0x1D, 0x76, 0x30, 0x00 };
+                Assert.False(writtenBytes.AsSpan().IndexOf(expectedRasterHeader) >= 0);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        private static byte[] CreateTestImageBytes(int width, int height)
+        {
+            using var image = new Image<Rgba32>(width, height);
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (x % 3 == 0)
+                    {
+                        // Preto opaco (alpha > 128, luminância < 165 -> seta bit no raster)
+                        image[x, y] = new Rgba32(0, 0, 0, 255);
+                    }
+                    else if (x % 3 == 1)
+                    {
+                        // Branco opaco (alpha > 128, luminância >= 165 -> não seta bit)
+                        image[x, y] = new Rgba32(255, 255, 255, 255);
+                    }
+                    else
+                    {
+                        // Transparente (alpha <= 128 -> ignorado)
+                        image[x, y] = new Rgba32(0, 0, 0, 50);
+                    }
+                }
+            }
+
+            using var ms = new MemoryStream();
+            image.SaveAsPng(ms);
+            return ms.ToArray();
+        }
+
+        private static OrderResponseDto CreateSampleOrder()
+        {
+            return new OrderResponseDto
+            {
+                Id = Guid.NewGuid(),
+                TotalAmount = 55.00m,
+                ServiceFeeAmount = 5.00m,
+                CreatedAt = DateTime.Now,
+                Items = new List<OrderItemResponseDto>
+                {
+                    new()
+                    {
+                        ProductName = "X-Burguer Especial",
+                        Quantity = 1,
+                        UnitPrice = 50.00m
+                    }
+                },
+                Payments = new List<PaymentResponseDto>()
+            };
+        }
+
+        private void SetupStoreSettingsMock()
+        {
+            _storeSettingsServiceMock.Setup(s => s.GetSettings())
+                .ReturnsAsync(new StoreSettingsResponseDto
+                {
+                    StoreName = "Radiância KS Grill",
+                    ServiceCharge = 10m,
+                    CNPJ = "12.345.678/0001-90",
+                    Address = "Av. Principal, 100",
+                    ReceiptFooter = "Obrigado pela preferência!"
+                });
         }
 
         [Fact]

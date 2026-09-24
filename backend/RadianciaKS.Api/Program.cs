@@ -77,6 +77,8 @@ builder.Services.Configure<CloudflareR2Settings>(
 builder.Services.AddSingleton<IBackupQueue, BackupQueue>();
 builder.Services.AddHostedService<BackupBackgroundService>();
 
+builder.Services.AddScoped<ILicenseSyncService, LicenseSyncService>();
+
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>();
 

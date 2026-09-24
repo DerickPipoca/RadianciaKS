@@ -3,7 +3,10 @@ using System.Net.Sockets;
 using System.Text;
 using ESCPOS_NET.Emitters;
 using ESCPOS_NET.Utilities;
+using RadianciaKS.Application.DTOs.Modifier;
 using RadianciaKS.Application.DTOs.Order;
+using RadianciaKS.Application.DTOs.Payment;
+using RadianciaKS.Application.DTOs.StoreSettings;
 using RadianciaKS.Application.Services.Interfaces;
 using RadianciaKS.Domain.Enums;
 using SixLabors.ImageSharp;
@@ -30,7 +33,6 @@ namespace RadianciaKS.Application.Services
             try
             {
                 var receiptBytes = await DrawReceipt(order, logoBytes);
-
                 var isLinuxDevice = printerPath.StartsWith("/dev/", StringComparison.OrdinalIgnoreCase);
 
                 if (File.Exists(printerPath) || (!isLinuxDevice && Path.HasExtension(printerPath)))
@@ -59,13 +61,29 @@ namespace RadianciaKS.Application.Services
 
         private async Task<byte[]> DrawReceipt(OrderResponseDto order, byte[]? logoBytes)
         {
-            var settings = await _storeSettingsService.GetSettings();
+            var settings = await _storeSettingsService.GetSettings() ?? new StoreSettingsResponseDto
+            {
+                StoreName = "ERRO AO RECEBER DADOS DA LOJA!",
+                ServiceCharge = 0m
+            };
+
             var receipt = new List<byte[]>
             {
                 _epson.Initialize(),
                 _epson.CenterAlign()
             };
 
+            AppendHeader(receipt, settings, logoBytes);
+            AppendItems(receipt, order.Items);
+            AppendPayments(receipt, order.Payments);
+            AppendTotals(receipt, order, settings.ServiceCharge);
+            AppendFooter(receipt, order, settings);
+
+            return ByteSplicer.Combine(receipt.ToArray());
+        }
+
+        private void AppendHeader(List<byte[]> receipt, StoreSettingsResponseDto settings, byte[]? logoBytes)
+        {
             if (logoBytes != null && logoBytes.Length > 0)
             {
                 byte[] rasterLogo = ConvertImageToEscPosRaster(logoBytes, maxWidth: 350);
@@ -84,68 +102,77 @@ namespace RadianciaKS.Application.Services
             receipt.Add(_epson.PrintLine("PEDIDOS"));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.LeftAlign());
+        }
 
-            foreach (var item in order.Items)
+        private void AppendItems(List<byte[]> receipt, IEnumerable<OrderItemResponseDto> items)
+        {
+            foreach (var item in items)
             {
                 decimal itemTotal = item.UnitPrice * item.Quantity;
                 string priceFormatted = $"R$ {itemTotal.ToString("F2", _culturePtBr)}";
 
                 receipt.Add(_epson.PrintLine(FormatLine($"{item.Quantity}x {Sanitize(item.ProductName)}", priceFormatted)));
 
-                if (item.SelectedModifiers != null && item.SelectedModifiers.Any())
-                {
-                    var groupedModifiers = item.SelectedModifiers
-                        .GroupBy(m => string.IsNullOrWhiteSpace(m.GroupName) ? "Modificadores" : m.GroupName);
-
-                    foreach (var group in groupedModifiers)
-                    {
-                        receipt.Add(_epson.PrintLine($"  {Sanitize(group.Key)}:"));
-
-                        foreach (var mod in group)
-                        {
-                            receipt.Add(_epson.PrintLine(FormatLine($"  + {Sanitize(mod.Name)}", "(Incl.)")));
-                        }
-                    }
-                }
-
-                decimal baseOriginal = item.OriginalUnitPrice ?? item.UnitPrice;
-
-                decimal modifiersOriginal = item.SelectedModifiers?
-                    .Sum(m => m.OriginalAdditionalPrice ?? m.AdditionalPrice) ?? 0m;
-
-                decimal unitOriginalTotal = baseOriginal + modifiersOriginal;
-                decimal unitChargedTotal = item.UnitPrice;
-
-                if (unitOriginalTotal > unitChargedTotal)
-                {
-                    decimal unitSavings = unitOriginalTotal - unitChargedTotal;
-                    decimal totalSavings = unitSavings * item.Quantity;
-
-                    string promoText = item.Quantity > 1
-                        ? $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} un | Economia: R$ {totalSavings.ToString("F2", _culturePtBr)})"
-                        : $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} | Economia: R$ {totalSavings.ToString("F2", _culturePtBr)})";
-
-                    if (promoText.Length > PrinterColumns)
-                    {
-                        promoText = item.Quantity > 1
-                            ? $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} un | Econ: R$ {totalSavings.ToString("F2", _culturePtBr)})"
-                            : $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)} | Econ: R$ {totalSavings.ToString("F2", _culturePtBr)})";
-                    }
-
-                    receipt.Add(_epson.PrintLine(Sanitize(promoText)));
-                }
+                AppendModifiers(receipt, item.SelectedModifiers);
+                AppendPromotionalSavings(receipt, item);
             }
 
             receipt.Add(_epson.LeftAlign());
             receipt.Add(_epson.PrintLine(new string('-', PrinterColumns)));
+        }
+
+        private void AppendModifiers(List<byte[]> receipt, IEnumerable<OrderItemModifierResponseDto>? modifiers)
+        {
+            if (modifiers == null || !modifiers.Any()) return;
+
+            var groupedModifiers = modifiers
+                .GroupBy(m => string.IsNullOrWhiteSpace(m.GroupName) ? "Modificadores" : m.GroupName);
+
+            foreach (var group in groupedModifiers)
+            {
+                receipt.Add(_epson.PrintLine($"  {Sanitize(group.Key)}:"));
+                foreach (var mod in group)
+                {
+                    receipt.Add(_epson.PrintLine(FormatLine($"  + {Sanitize(mod.Name)}", "(Incl.)")));
+                }
+            }
+        }
+
+        private void AppendPromotionalSavings(List<byte[]> receipt, OrderItemResponseDto item)
+        {
+            decimal baseOriginal = item.OriginalUnitPrice ?? item.UnitPrice;
+            decimal modifiersOriginal = item.SelectedModifiers?
+                .Sum(m => m.OriginalAdditionalPrice ?? m.AdditionalPrice) ?? 0m;
+
+            decimal unitOriginalTotal = baseOriginal + modifiersOriginal;
+            decimal unitChargedTotal = item.UnitPrice;
+
+            if (unitOriginalTotal <= unitChargedTotal) return;
+
+            decimal unitSavings = unitOriginalTotal - unitChargedTotal;
+            decimal totalSavings = unitSavings * item.Quantity;
+
+            string suffix = item.Quantity > 1 ? " un" : "";
+            string promoText = $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)}{suffix} | Economia: R$ {totalSavings.ToString("F2", _culturePtBr)})";
+
+            if (promoText.Length > PrinterColumns)
+            {
+                promoText = $"  (Era: R$ {unitOriginalTotal.ToString("F2", _culturePtBr)}{suffix} | Econ: R$ {totalSavings.ToString("F2", _culturePtBr)})";
+            }
+
+            receipt.Add(_epson.PrintLine(Sanitize(promoText)));
+        }
+
+        private void AppendPayments(List<byte[]> receipt, IEnumerable<PaymentResponseDto>? payments)
+        {
             receipt.Add(_epson.CenterAlign());
             receipt.Add(_epson.PrintLine("PAGAMENTOS"));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.LeftAlign());
 
-            if (order.Payments != null && order.Payments.Any())
+            if (payments != null && payments.Any())
             {
-                foreach (var payment in order.Payments)
+                foreach (var payment in payments)
                 {
                     string paymentAmount = $"R$ {payment.Amount.ToString("F2", _culturePtBr)}";
                     string methodName = Sanitize(GetPaymentMethodName(payment.Method));
@@ -163,13 +190,15 @@ namespace RadianciaKS.Application.Services
 
             receipt.Add(_epson.LeftAlign());
             receipt.Add(_epson.PrintLine(new string('-', PrinterColumns)));
+        }
 
-            decimal serviceChargeValue = order.ServiceFeeAmount;
-            if (serviceChargeValue > 0)
+        private void AppendTotals(List<byte[]> receipt, OrderResponseDto order, decimal serviceChargePercent)
+        {
+            if (order.ServiceFeeAmount > 0)
             {
                 receipt.Add(_epson.RightAlign());
                 receipt.Add(_epson.SetStyles(PrintStyle.Bold));
-                receipt.Add(_epson.PrintLine(Sanitize($"Taxa ({settings.ServiceCharge}%): R$ {serviceChargeValue.ToString("F2", _culturePtBr)}")));
+                receipt.Add(_epson.PrintLine(Sanitize($"Taxa ({serviceChargePercent}%): R$ {order.ServiceFeeAmount.ToString("F2", _culturePtBr)}")));
             }
 
             receipt.Add(_epson.RightAlign());
@@ -177,7 +206,10 @@ namespace RadianciaKS.Application.Services
             receipt.Add(_epson.PrintLine($"TOTAL: R$ {order.TotalAmount.ToString("F2", _culturePtBr)}"));
             receipt.Add(_epson.SetStyles(PrintStyle.None));
             receipt.Add(_epson.PrintLine(""));
+        }
 
+        private void AppendFooter(List<byte[]> receipt, OrderResponseDto order, StoreSettingsResponseDto settings)
+        {
             if (!string.IsNullOrWhiteSpace(order.ReceiptUrl))
             {
                 receipt.Add(_epson.CenterAlign());
@@ -206,15 +238,12 @@ namespace RadianciaKS.Application.Services
             receipt.Add(_epson.PrintLine("SISTEMA RADIANCIA KS"));
             receipt.Add(_epson.PrintLine("Acesse: www.radianciasistemas.com.br"));
 
-            // Avanço de papel para o corte da guilhotina
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.PrintLine(""));
             receipt.Add(_epson.FullCut());
-
-            return ByteSplicer.Combine(receipt.ToArray());
         }
 
         private string FormatLine(string left, string right)
