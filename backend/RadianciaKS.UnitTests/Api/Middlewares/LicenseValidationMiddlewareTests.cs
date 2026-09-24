@@ -20,7 +20,7 @@ namespace RadianciaKS.UnitTests.Api.Middlewares
         [InlineData("/api/auth/login", "POST")]
         [InlineData("/api/auth/refresh", "POST")]
         [InlineData("/swagger/index.html", "GET")]
-        [InlineData("/shubs/kds", "GET")]
+        [InlineData("/hubs/kds", "GET")]
         [InlineData("/api/orders", "OPTIONS")]
         [InlineData("/api/products", "options")]
         public async Task InvokeAsync_WhenRequestIsBypassed_ShouldCallNextWithoutQueryingDatabase(string path, string method)

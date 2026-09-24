@@ -15,12 +15,15 @@ namespace RadianciaKS.Api.Middlewares
 
         public async Task InvokeAsync(HttpContext context, IApplicationDbContext dbContext)
         {
-            var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+            var rawPath = context.Request.Path.Value ?? string.Empty;
+            // Garante que o path comece com barra e esteja em minúsculo
+            var path = rawPath.StartsWith('/') ? rawPath.ToLowerInvariant() : $"/{rawPath.ToLowerInvariant()}";
 
-            if (path.StartsWith("/api/auth") ||
+            if (HttpMethods.IsOptions(context.Request.Method) ||
+                path.StartsWith("/api/auth") ||
                 path.StartsWith("/swagger") ||
-                path.StartsWith("/hubs/") ||
-                context.Request.Method.Equals("OPTIONS", StringComparison.OrdinalIgnoreCase))
+                path.StartsWith("/hubs") ||
+                path.StartsWith("/health"))
             {
                 await _next(context);
                 return;
