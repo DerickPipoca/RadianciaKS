@@ -342,7 +342,6 @@
       background-color: var(--primary-color);
 
       &:before {
-        transform: translateX(16px);
         background-color: $dark-base;
       }
     }

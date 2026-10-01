@@ -59,7 +59,6 @@
       box-shadow 0.2s;
 
     &:hover {
-      transform: translateY(-4px);
       box-shadow: $shadow-md;
 
       .bg-img {
@@ -151,7 +150,6 @@
       box-shadow 0.2s;
 
     &:hover {
-      transform: translateY(-2px);
       box-shadow: $shadow-md;
       border-color: rgba(#ffd369, 0.5);
     }

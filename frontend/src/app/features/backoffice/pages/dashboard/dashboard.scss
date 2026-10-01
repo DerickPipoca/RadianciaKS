@@ -96,7 +96,7 @@
     }
     .btn-icon {
       width: 32px;
-      height: 32px;
+      height: px;
       margin-right: 8px;
     }
   }
@@ -207,14 +207,9 @@
     padding: 16px;
     border: 1px solid var(--border-color);
     cursor: pointer;
-    transition: transform 0.2s;
 
     &.open {
       border: 1px solid var(--green-status);
-    }
-
-    &:hover {
-      transform: translateY(-2px);
     }
 
     .card-header {
@@ -293,10 +288,6 @@
     gap: 20px;
     box-shadow: $shadow-md;
     transition: transform 0.2s;
-
-    &:hover {
-      transform: translateY(-2px);
-    }
 
     &.summary-card {
       border: none;
