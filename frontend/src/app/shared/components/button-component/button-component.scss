@@ -35,6 +35,11 @@
     color: var(--text-primary);
   }
 
+  &.green {
+    background-color: var(--green-status);
+    color: $dark-base;
+  }
+
   &.danger {
     background-color: var(--red-status);
     color: white;

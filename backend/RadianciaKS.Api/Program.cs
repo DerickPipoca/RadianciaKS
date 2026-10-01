@@ -79,6 +79,8 @@ builder.Services.AddHostedService<BackupBackgroundService>();
 
 builder.Services.AddScoped<ILicenseSyncService, LicenseSyncService>();
 
+builder.Services.AddScoped<ICashShiftExportService, CashShiftExportService>();
+
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IKdsNotificationService, SignalRNotificationService>();
 

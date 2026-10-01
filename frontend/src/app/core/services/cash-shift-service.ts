@@ -47,4 +47,10 @@ export class CashShiftService {
     const urlEndPoint = `${this.endPoint}/history`;
     return this.http.get<CashShiftHistory[]>(urlEndPoint);
   }
+
+  exportToExcel(id: string): Observable<Blob> {
+    return this.http.get(`${this.endPoint}/${id}/export-excel`, {
+      responseType: 'blob',
+    });
+  }
 }

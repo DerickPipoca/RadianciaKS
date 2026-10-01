@@ -11,10 +11,12 @@ namespace RadianciaKS.Api.Controllers
     public class CashShiftController : ControllerBase
     {
         private readonly ICashShiftService _cashShiftService;
+        private readonly ICashShiftExportService _cashShiftExportService;
 
-        public CashShiftController(ICashShiftService cashShiftService)
+        public CashShiftController(ICashShiftService cashShiftService, ICashShiftExportService cashShiftExportService)
         {
             _cashShiftService = cashShiftService;
+            _cashShiftExportService = cashShiftExportService;
         }
 
         [HttpGet("current")]
@@ -51,6 +53,13 @@ namespace RadianciaKS.Api.Controllers
 
             var history = await _cashShiftService.GetCashShiftHistoryAsync(queryParameters);
             return Ok(history);
+        }
+
+        [HttpGet("{id:guid}/export-excel")]
+        public async Task<IActionResult> ExportToExcel([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            var fileResult = await _cashShiftExportService.ExportCashShiftToExcelAsync(id, cancellationToken);
+            return File(fileResult.Content, fileResult.ContentType, fileResult.FileName);
         }
     }
 }

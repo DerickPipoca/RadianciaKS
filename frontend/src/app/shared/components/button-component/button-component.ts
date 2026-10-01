@@ -8,7 +8,7 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './button-component.scss',
 })
 export class ButtonComponent {
-  @Input() variant: 'primary' | 'secondary' | 'danger' = 'primary';
+  @Input() variant: 'primary' | 'secondary' | 'green' | 'danger' = 'primary';
   @Input() isLoading: boolean = false;
   @Input() disabled: boolean = false;
   @Input() type: 'button' | 'submit' = 'button';

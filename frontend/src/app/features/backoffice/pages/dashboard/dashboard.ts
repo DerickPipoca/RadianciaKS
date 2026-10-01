@@ -21,6 +21,7 @@ import {
   Percent,
   ChevronDown,
   ChevronRight,
+  Download,
 } from 'lucide-angular';
 import { CashShiftHistory } from '../../../../core/models/cash-shift.model';
 import { CashShiftService } from '../../../../core/services/cash-shift-service';
@@ -47,8 +48,10 @@ export class Dashboard implements OnInit {
   readonly Users = Users;
   readonly ChevronDown = ChevronDown;
   readonly ChevronRight = ChevronRight;
+  readonly Download = Download;
 
   loading = false;
+  exporting = false;
   errorMessage = '';
 
   private orderService = inject(OrderService);
@@ -102,6 +105,31 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadShiftHistory();
+  }
+
+  exportShiftExcel(): void {
+    if (!this.selectedShiftId || this.exporting) return;
+
+    this.exporting = true;
+    this.cashShiftService.exportToExcel(this.selectedShiftId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Nome padrão do arquivo para o navegador
+        const dateStr = new Date().toISOString().slice(0, 10);
+        link.download = `Fechamento_Caixa_${dateStr}.xlsx`;
+
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.exporting = false;
+      },
+      error: () => {
+        this.errorMessage = 'Erro ao descarregar a folha de cálculo do turno.';
+        this.exporting = false;
+      },
+    });
   }
 
   loadShiftHistory() {

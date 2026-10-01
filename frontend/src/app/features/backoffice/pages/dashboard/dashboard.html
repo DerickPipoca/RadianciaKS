@@ -95,6 +95,17 @@
       </div>
 
       <div class="header-actions">
+        @if (metrics?.shiftStatus === 2) {
+          <app-button-component
+            variant="green"
+            size="md"
+            (click)="exportShiftExcel()"
+            [disabled]="exporting"
+          >
+            <lucide-icon [img]="Download" [size]="64" class="icon btn-icon" />
+            {{ exporting ? 'A exportar...' : 'Exportar Excel' }}
+          </app-button-component>
+        }
         <app-button-component
           variant="primary"
           size="md"
