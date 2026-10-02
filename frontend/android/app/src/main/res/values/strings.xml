@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Radiância KS</string>
+    <string name="title_activity_main">Radiância KS</string>
+    <string name="package_name">br.com.radianciasistemas.ks.app</string>
+    <string name="custom_url_scheme">br.com.radianciasistemas.ks.app</string>
+</resources>

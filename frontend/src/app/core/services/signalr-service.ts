@@ -6,25 +6,27 @@ import {
   HttpTransportType,
   HubConnectionState,
 } from '@microsoft/signalr';
-import { inject, Injectable, NgZone, OnInit } from '@angular/core';
+import { effect, inject, Injectable, NgZone, OnInit } from '@angular/core';
 import { OrderResponseDto } from '../models/order.model';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { environment } from '../../../environment/environment';
+import { EndpointService } from './endpoint-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SignalrService {
   private hubConnection: HubConnection | undefined;
+  private currentHubUrl: string = '';
+
   private zone = inject(NgZone);
   public toastrService = inject(ToastrService);
   public tenantService = inject(TenantService);
+  public endpointService = inject(EndpointService);
 
   private tenantId: string | null = null;
-  private readonly hubUrl = `${environment.serverUrl}/hubs/kds`;
-  public orderUpdated$ = new Subject<OrderResponseDto>();
 
+  public orderUpdated$ = new Subject<OrderResponseDto>();
   public orderDelivered$ = new Subject<OrderResponseDto | any>();
 
   private orderCanceledSource = new Subject<OrderResponseDto>();
@@ -37,8 +39,29 @@ export class SignalrService {
     'Carregando...',
   );
 
+  constructor() {
+    effect(() => {
+      const activeRoute = this.endpointService.activeRoute();
+      const targetUrl = this.getHubUrl();
+
+      if (this.currentHubUrl && this.currentHubUrl !== targetUrl) {
+        console.log(
+          `[SignalR] Rota comutada para '${activeRoute}'. Reiniciando socket para: ${targetUrl}`,
+        );
+        this.zone.run(() => {
+          this.reconnect();
+        });
+      }
+    });
+  }
+
+  private getHubUrl(): string {
+    const apiBase = this.endpointService.activeBaseUrl();
+    const serverBase = apiBase.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+    return `${serverBase}/hubs/kds`;
+  }
+
   public async startConnection(): Promise<void> {
-    // Se já estiver conectado ou em processo de conexão, ignora chamadas duplicadas
     if (
       this.hubConnection?.state === HubConnectionState.Connected ||
       this.hubConnection?.state === HubConnectionState.Connecting
@@ -46,65 +69,31 @@ export class SignalrService {
       return;
     }
 
-    // Se estiver a desconectar de uma chamada anterior, aguarda 300ms antes de reiniciar
     if (this.hubConnection?.state === HubConnectionState.Disconnecting) {
       setTimeout(() => this.startConnection(), 300);
       return;
     }
 
     this.tenantId = this.tenantService.getTenantId();
+    const targetUrl = this.getHubUrl();
 
-    if (!this.hubConnection) {
-      this.hubConnection = new HubConnectionBuilder()
-        .withUrl(this.hubUrl, {
-          skipNegotiation: true,
-          transport: HttpTransportType.WebSockets,
-        })
-        .configureLogging(LogLevel.Warning)
-        .withAutomaticReconnect([0, 2000, 5000, 10000])
-        .build();
-
-      this.hubConnection.on('ReceiveOrderCanceled', (order: OrderResponseDto) => {
-        this.orderCanceledSource.next(order);
-      });
-
-      this.hubConnection.on('UpdateSystemStatus', (status) => {
-        this.zone.run(() => {
-          if (status === 0 || status === 'Open' || status === 'Aberto' || status === 1) {
-            this.cashShiftStatus$.next('Aberto');
-            this.toastrService.info('Caixa aberto!');
-          } else {
-            this.cashShiftStatus$.next('Fechado');
-            this.toastrService.warning('Caixa fechado!');
-          }
-        });
-      });
-
-      // Evento de oscilação/reconexão
-      this.hubConnection.onreconnecting(() => {
-        this.zone.run(() => this.connectionStatus$.next('Conectando'));
-      });
-
-      this.hubConnection.onreconnected(() => {
-        this.zone.run(() => {
-          console.log('[SignalR] Reconectado com sucesso!');
-          this.connectionStatus$.next('Conectado');
-          this.joinKitchenGroup();
-        });
-      });
-
-      this.hubConnection.onclose(() => {
-        this.zone.run(() => this.connectionStatus$.next('Desconectado'));
-      });
-
-      this.addListeners();
+    // Se o hub ainda não foi construído ou se a URL alvo mudou
+    if (!this.hubConnection || this.currentHubUrl !== targetUrl) {
+      if (this.hubConnection) {
+        try {
+          await this.hubConnection.stop();
+        } catch {
+          // Ignora falha de encerramento de conexão antiga
+        }
+      }
+      this.buildConnection(targetUrl);
     }
 
     try {
       this.connectionStatus$.next('Conectando');
-      await this.hubConnection.start();
+      await this.hubConnection!.start();
       this.zone.run(() => {
-        console.log('[SignalR] Conectado!');
+        console.log(`[SignalR] Conectado com sucesso em: ${targetUrl}`);
         this.connectionStatus$.next('Conectado');
         this.joinKitchenGroup();
       });
@@ -112,6 +101,65 @@ export class SignalrService {
       console.error('[SignalR] Erro ao iniciar:', err);
       this.zone.run(() => this.connectionStatus$.next('Desconectado'));
     }
+  }
+
+  public async reconnect(): Promise<void> {
+    if (this.hubConnection) {
+      try {
+        await this.hubConnection.stop();
+      } catch {
+        // Ignora erro ao forçar desconexão
+      }
+      this.hubConnection = undefined;
+    }
+    await this.startConnection();
+  }
+
+  private buildConnection(url: string): void {
+    this.currentHubUrl = url;
+
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl(url, {
+        skipNegotiation: true,
+        transport: HttpTransportType.WebSockets,
+      })
+      .configureLogging(LogLevel.Warning)
+      .withAutomaticReconnect([0, 2000, 5000, 10000])
+      .build();
+
+    this.hubConnection.on('ReceiveOrderCanceled', (order: OrderResponseDto) => {
+      this.zone.run(() => this.orderCanceledSource.next(order));
+    });
+
+    this.hubConnection.on('UpdateSystemStatus', (status) => {
+      this.zone.run(() => {
+        if (status === 0 || status === 'Open' || status === 'Aberto' || status === 1) {
+          this.cashShiftStatus$.next('Aberto');
+          this.toastrService.info('Caixa aberto!');
+        } else {
+          this.cashShiftStatus$.next('Fechado');
+          this.toastrService.warning('Caixa fechado!');
+        }
+      });
+    });
+
+    this.hubConnection.onreconnecting(() => {
+      this.zone.run(() => this.connectionStatus$.next('Conectando'));
+    });
+
+    this.hubConnection.onreconnected(() => {
+      this.zone.run(() => {
+        console.log('[SignalR] Reconectado com sucesso!');
+        this.connectionStatus$.next('Conectado');
+        this.joinKitchenGroup();
+      });
+    });
+
+    this.hubConnection.onclose(() => {
+      this.zone.run(() => this.connectionStatus$.next('Desconectado'));
+    });
+
+    this.addListeners();
   }
 
   private joinKitchenGroup(): void {

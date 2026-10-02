@@ -556,3 +556,26 @@ test-results/
 *.summary.json
 k6-reports/
 *.log
+
+# --- Android & Gradle (Capacitor) ---
+# Caminho da SDK local da sua máquina (CRÍTICO: nunca comitar)
+local.properties
+**/local.properties
+
+# Caches do Gradle e saídas de build do Android
+.gradle/
+**/[Bb]uild/
+android/app/build/
+android/.gradle/
+
+# Binários instaláveis (APKs e App Bundles)
+*.apk
+*.aab
+
+# Arquivos de workspace do Android Studio / JetBrains
+*.iml
+.cxx/
+captures/
+
+# (Opcional) Build web sincronizado pelo Capacitor
+android/app/src/main/assets/public/
