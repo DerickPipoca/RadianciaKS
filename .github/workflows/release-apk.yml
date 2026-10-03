@@ -31,7 +31,7 @@ jobs:
           java-version: "17"
 
       - name: Install Frontend Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build Angular App
         run: npm run build
