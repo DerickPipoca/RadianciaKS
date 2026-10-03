@@ -43,6 +43,7 @@ services:
       - CloudflareR2__AccessKeyId=${CLOUDFLARE_R2_ACCESS_KEY_ID}
       - CloudflareR2__SecretAccessKey=${CLOUDFLARE_R2_SECRET_ACCESS_KEY}
       - CloudflareR2__BucketName=${CLOUDFLARE_R2_BUCKET_NAME}
+      - CLOUD_API_URL=${CLOUD_API_URL}
     volumes:
       - ./backups:/app/backups
       - radiancia_uploads:/app/wwwroot/uploads

@@ -15,6 +15,7 @@ import { Pagination } from '../../../../shared/components/pagination/pagination'
 import { PromotionResponseDto } from '../../../../core/models/promotion.model';
 import { PromotionService } from '../../../../core/services/promotion-service';
 import { environment } from '../../../../../environment/environment';
+import { ServerImagePipe } from '../../../../core/pipes/server-image-pipe';
 
 @Component({
   selector: 'app-catalog',
@@ -26,13 +27,12 @@ import { environment } from '../../../../../environment/environment';
     InputComponent,
     LucideAngularModule,
     Pagination,
-  ],
+    ServerImagePipe
+],
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss',
 })
 export class Catalog implements OnInit, OnDestroy {
-  public serverUrl = environment.serverUrl;
-
   readonly TextSearch = TextSearch;
   readonly Utensils = Utensils;
   readonly Flame = Flame;

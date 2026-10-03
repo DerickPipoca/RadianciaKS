@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Network, ConnectionType } from '@capacitor/network';
 import { environment } from '../../../environment/environment';
+import { TenantService } from './tenant-service';
 
 export type ActiveRoute = 'local' | 'cloud';
 
@@ -8,8 +9,12 @@ export type ActiveRoute = 'local' | 'cloud';
   providedIn: 'root',
 })
 export class EndpointService {
-  private readonly localBase = environment.localApiUrl.replace(/\/+$/, '');
-  private readonly cloudBase = environment.cloudApiUrl.replace(/\/+$/, '');
+  private tenantService = inject(TenantService);
+  public readonly localBase = 'http://192.168.0.67:8080/api';
+
+  public get cloudBase(): string {
+    return this.tenantService.getCloudApiUrl();
+  }
 
   public activeRoute = signal<ActiveRoute>('local');
   public activeBaseUrl = signal<string>(this.localBase);
@@ -40,15 +45,15 @@ export class EndpointService {
   }
 
   public switchToCloud(): void {
-    if (this.activeRoute() !== 'cloud') {
-      this.activeRoute.set('cloud');
+    if (this.activeBaseUrl() !== this.cloudBase) {
+      console.warn(`[Failover] Comutando para a nuvem: ${this.cloudBase}`);
       this.activeBaseUrl.set(this.cloudBase);
     }
   }
 
   public switchToLocal(): void {
-    if (this.activeRoute() !== 'local') {
-      this.activeRoute.set('local');
+    if (this.activeBaseUrl() !== this.localBase) {
+      console.log(`[Failover] Restaurando rede local: ${this.localBase}`);
       this.activeBaseUrl.set(this.localBase);
     }
   }
@@ -58,16 +63,23 @@ export class EndpointService {
   }
 
   public rewriteUrl(url: string, targetBase: string = this.activeBaseUrl()): string {
-    if (url.startsWith(this.localBase)) {
-      return url.replace(this.localBase, targetBase);
+    if (url.startsWith('assets/') || url.startsWith('/assets/')) {
+      return url;
     }
-    if (url.startsWith(this.cloudBase)) {
-      return url.replace(this.cloudBase, targetBase);
+
+    const apiIndex = url.indexOf('/api');
+    if (apiIndex !== -1) {
+      const pathAfterApi = url.substring(apiIndex + 4);
+      const cleanPath = pathAfterApi.startsWith('/') ? pathAfterApi : `/${pathAfterApi}`;
+      return `${targetBase}${cleanPath}`;
     }
-    if (url.startsWith('/api')) {
-      return `${targetBase}${url.replace('/api', '')}`;
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
     }
-    return url;
+
+    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    return `${targetBase}${cleanPath}`;
   }
 
   public async checkLocalAvailability(): Promise<boolean> {
@@ -75,7 +87,7 @@ export class EndpointService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 1500);
 
-      const response = await fetch(`${this.localBase}/Config/store`, {
+      const response = await fetch(`${this.localBase}/StoreSettings`, {
         method: 'GET',
         signal: controller.signal,
       });
@@ -85,9 +97,7 @@ export class EndpointService {
         this.switchToLocal();
         return true;
       }
-    } catch {
-    
-    }
+    } catch {}
 
     this.switchToCloud();
     return false;

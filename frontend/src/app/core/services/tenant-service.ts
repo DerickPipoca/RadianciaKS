@@ -4,15 +4,21 @@ import { environment } from '../../../environment/environment';
 import { firstValueFrom, tap } from 'rxjs';
 export interface TenantResponse {
   tenantId: string;
+  cloudApiUrl: string;
 }
 @Injectable({
   providedIn: 'root',
 })
 export class TenantService {
   private http = inject(HttpClient);
+
   private currentTenantId = signal<string | null>(localStorage.getItem('tenant_id'));
+  private currentCloudApiUrl = signal<string>(
+    localStorage.getItem('cloud_api_url') || environment.cloudApiUrl,
+  );
 
   readonly tenantId = this.currentTenantId.asReadonly();
+  readonly cloudApiUrl = this.currentCloudApiUrl.asReadonly();
 
   async loadTenantConfig(): Promise<TenantResponse | void> {
     try {
@@ -22,6 +28,11 @@ export class TenantService {
             if (response?.tenantId) {
               this.currentTenantId.set(response.tenantId);
               localStorage.setItem('tenant_id', response.tenantId);
+            }
+
+            if (response?.cloudApiUrl) {
+              this.currentCloudApiUrl.set(response.cloudApiUrl);
+              localStorage.setItem('cloud_api_url', response.cloudApiUrl);
             }
           }),
         ),
@@ -36,5 +47,9 @@ export class TenantService {
 
   getTenantId(): string | null {
     return this.currentTenantId();
+  }
+
+  getCloudApiUrl(): string {
+    return this.currentCloudApiUrl();
   }
 }

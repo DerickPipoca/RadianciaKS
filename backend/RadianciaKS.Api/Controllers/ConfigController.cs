@@ -20,11 +20,21 @@ namespace RadianciaKS.Api.Controllers
         {
             var tenantId = _configuration["TENANT_ID"]
                 ?? Environment.GetEnvironmentVariable("TENANT_ID");
-            
-            if(tenantId == null)
+
+            var cloudUrl = _configuration["CLOUD_API_URL"]
+                ?? Environment.GetEnvironmentVariable("CLOUD_API_URL");
+
+            if (tenantId == null)
                 throw new ArgumentException("Variavel de ambiente 'TENANT_ID' não definida...");
 
-            return Ok(new { tenantId });
+            if (cloudUrl == null)
+                throw new ArgumentException("Variavel de ambiente 'CLOUD_API_URL' não definida...");
+
+            return Ok(new
+            {
+                tenantId = Guid.Parse(tenantId),
+                cloudApiUrl = cloudUrl
+            });
         }
     }
 }

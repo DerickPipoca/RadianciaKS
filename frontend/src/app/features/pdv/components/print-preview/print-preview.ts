@@ -6,17 +6,16 @@ import { StoreSettingsResponseDto } from '../../../../core/models/store-settings
 import { PaymentMethod } from '../../../../core/enums/payment-method';
 import * as QRCode from 'qrcode';
 import { environment } from '../../../../../environment/environment';
+import { ServerImagePipe } from '../../../../core/pipes/server-image-pipe';
 
 @Component({
   selector: 'app-print-preview',
-  imports: [CommonModule],
+  imports: [CommonModule, ServerImagePipe],
   templateUrl: './print-preview.html',
   styleUrl: './print-preview.scss',
 })
 export class PrintPreview implements OnInit {
   @Input() order!: OrderResponseDto;
-
-  public serverUrl = environment.serverUrl;
 
   public qrCodeDataUrl: string = '';
 

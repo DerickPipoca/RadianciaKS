@@ -31,21 +31,40 @@ namespace RadianciaKS.IntegrationTests.Controllers
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-            json.TryGetProperty("tenantId", out var tenantProperty).ShouldBeTrue();
-            tenantProperty.GetString().ShouldNotBeNullOrWhiteSpace();
+
+            json.TryGetProperty("tenantId", out var tenantProp).ShouldBeTrue();
+            tenantProp.GetString().ShouldNotBeNullOrWhiteSpace();
+
+            json.TryGetProperty("cloudApiUrl", out var cloudProp).ShouldBeTrue();
+            cloudProp.GetString().ShouldNotBeNullOrWhiteSpace();
         }
 
         [Fact]
-        public async Task GetTenantConfig_Should_ReturnExpectedTenantId_FromTestingConfiguration()
+        public async Task GetTenantConfig_Should_ReturnExpectedConfiguration_FromTestingEnvironment()
         {
             var response = await _client.GetAsync("/api/config/tenant");
 
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+
             var tenantId = json.GetProperty("tenantId").GetString();
+            var cloudApiUrl = json.GetProperty("cloudApiUrl").GetString();
 
             tenantId.ShouldBe(TestTenantProvider.DefaultTenantId.ToString());
+
+            cloudApiUrl.ShouldBe(CustomWebApplicationFactory.DefaultCloudApiUrl);
+        }
+
+        [Fact]
+        public async Task GetTenantConfig_Should_ReturnValidGuidFormat()
+        {
+            var response = await _client.GetAsync("/api/config/tenant");
+
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+            var tenantIdString = json.GetProperty("tenantId").GetString();
+
+            Guid.TryParse(tenantIdString, out _).ShouldBeTrue();
         }
     }
 }

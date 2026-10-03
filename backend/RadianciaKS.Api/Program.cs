@@ -162,10 +162,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseMiddleware<LicenseValidationMiddleware>();
 
 app.UseCors("AllowAngularApp");
-app.MapHub<KdsHub>("/hubs/kds");
 
 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 if (!Directory.Exists(uploadsPath))
@@ -173,16 +171,21 @@ if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 }
 
+app.UseStaticFiles();
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(uploadsPath),
     RequestPath = "/uploads"
 });
 
+app.UseMiddleware<LicenseValidationMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<KdsHub>("/hubs/kds");
 
 if (!app.Environment.IsEnvironment("Testing"))
 {

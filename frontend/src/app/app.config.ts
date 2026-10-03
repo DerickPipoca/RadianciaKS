@@ -19,11 +19,12 @@ import { provideToastr } from 'ngx-toastr';
 import { provideServiceWorker } from '@angular/service-worker';
 import { TenantService } from './core/services/tenant-service';
 import { failoverInterceptor } from './core/interceptors/failover-interceptor';
+import { Capacitor } from '@capacitor/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
+      enabled: !isDevMode() && !Capacitor.isNativePlatform(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
     provideAppInitializer(() => {
@@ -40,11 +41,11 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([
+        errorInterceptor,
         failoverInterceptor,
         LoadingInterceptor,
         tenantInterceptor,
         authInterceptor,
-        errorInterceptor,
       ]),
     ),
     provideCharts(withDefaultRegisterables()),

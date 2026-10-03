@@ -10,26 +10,14 @@ export const tenantInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  let targetUrl = req.url;
-
-  if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-    const pathWithSlash = targetUrl.startsWith('/') ? targetUrl : `/${targetUrl}`;
-
-    if (pathWithSlash.startsWith('/api')) {
-      targetUrl = pathWithSlash;
-    } else {
-      targetUrl = `/api${pathWithSlash}`;
-    }
-  }
-
-  if (targetUrl.includes('/config/tenant')) {
-    return next(req.clone({ url: targetUrl }));
+  if (req.url.includes('/config/tenant')) {
+    return next(req);
   }
 
   const activeTenantId = tenantService.getTenantId();
 
+  // Injeta o cabeçalho se o tenant estiver definido
   const apiReq = req.clone({
-    url: targetUrl,
     setHeaders: activeTenantId ? { 'X-Tenant-Id': activeTenantId } : {},
   });
 

@@ -13,6 +13,7 @@ import { ModalComponent } from '../../../../shared/components/modal-component/mo
 import { ToastrService } from 'ngx-toastr';
 import { UploadService } from '../../../../core/services/upload-service';
 import { environment } from '../../../../../environment/environment';
+import { ServerImagePipe } from '../../../../core/pipes/server-image-pipe';
 
 @Component({
   selector: 'app-category-manager',
@@ -23,13 +24,13 @@ import { environment } from '../../../../../environment/environment';
     InputComponent,
     LucideAngularModule,
     ModalComponent,
-  ],
+    ServerImagePipe
+],
   templateUrl: './category-manager.html',
   styleUrl: './category-manager.scss',
 })
 export class CategoryManager extends BaseCrud<CategoryRequestDto, CategoryResponseDto, string> {
   private toastr = inject(ToastrService);
-  public serverUrl = environment.serverUrl;
   TextSearch = TextSearch;
 
   private categoryService = inject(CategoryService);

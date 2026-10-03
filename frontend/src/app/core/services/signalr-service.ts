@@ -56,9 +56,8 @@ export class SignalrService {
   }
 
   private getHubUrl(): string {
-    const apiBase = this.endpointService.activeBaseUrl();
-    const serverBase = apiBase.replace(/\/api\/?$/, '').replace(/\/+$/, '');
-    return `${serverBase}/hubs/kds`;
+    const base = this.endpointService.activeBaseUrl();
+    return `${base.replace(/\/api\/?$/, '')}/hubs/kds`;
   }
 
   public async startConnection(): Promise<void> {

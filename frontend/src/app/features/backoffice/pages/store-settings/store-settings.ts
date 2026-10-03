@@ -7,18 +7,18 @@ import { StoreSettingsRequestDto } from '../../../../core/models/store-settings.
 import { StoreSettingsService } from '../../../../core/services/store-settings-service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../../../environment/environment';
+import { ServerImagePipe } from '../../../../core/pipes/server-image-pipe';
 
 @Component({
   selector: 'app-store-settings',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, ServerImagePipe],
   templateUrl: './store-settings.html',
   styleUrl: './store-settings.scss',
 })
 export class StoreSettings implements OnInit {
   private toastr = inject(ToastrService);
   private storeService = inject(StoreSettingsService);
-  
-  public serverUrl = environment.serverUrl;
+
   settings: StoreSettingsRequestDto = {
     storeName: '',
     cnpj: '',

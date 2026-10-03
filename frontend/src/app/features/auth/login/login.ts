@@ -8,10 +8,11 @@ import { InputComponent } from '../../../shared/components/input-component/input
 import { StoreSettingsService } from '../../../core/services/store-settings-service';
 import { StoreSettingsResponseDto } from '../../../core/models/store-settings.model';
 import { environment } from '../../../../environment/environment';
+import { ServerImagePipe } from '../../../core/pipes/server-image-pipe';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, ServerImagePipe],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -19,7 +20,6 @@ export class Login implements OnInit {
   private storeService = inject(StoreSettingsService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  public serverUrl = environment.serverUrl;
 
   credentials = { cpf: '', password: '' };
   errorMessage = signal<string | null>(null);

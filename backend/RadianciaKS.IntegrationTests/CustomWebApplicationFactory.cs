@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -16,8 +17,22 @@ namespace RadianciaKS.IntegrationTests
     {
         private readonly string _databaseName = Guid.NewGuid().ToString();
 
+        // Constante pública para reutilizar nos asserts dos testes
+        public const string DefaultCloudApiUrl = "https://test-ks.radianciasistemas.com.br/api";
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            // 1. Injeta as configurações em memória no IConfiguration
+            builder.ConfigureAppConfiguration((context, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["TENANT_ID"] = TestTenantProvider.DefaultTenantId.ToString(),
+                    ["CLOUD_API_URL"] = DefaultCloudApiUrl
+                });
+            });
+
+            // 2. Configura serviços e banco em memória
             builder.ConfigureServices(services =>
             {
                 var dbDescriptor = services.SingleOrDefault(

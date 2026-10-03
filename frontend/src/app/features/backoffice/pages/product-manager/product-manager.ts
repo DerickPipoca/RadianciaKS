@@ -18,6 +18,7 @@ import { ToastrService } from 'ngx-toastr';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UploadService } from '../../../../core/services/upload-service';
 import { environment } from '../../../../../environment/environment';
+import { ServerImagePipe } from '../../../../core/pipes/server-image-pipe';
 
 @Component({
   selector: 'app-product-manager',
@@ -29,7 +30,8 @@ import { environment } from '../../../../../environment/environment';
     LucideAngularModule,
     Pagination,
     ModalComponent,
-  ],
+    ServerImagePipe
+],
   templateUrl: './product-manager.html',
   styleUrl: './product-manager.scss',
 })
@@ -41,8 +43,6 @@ export class ProductManager
   readonly Hamburger = Hamburger;
   readonly ImagePlus = ImagePlus;
   readonly Copy = Copy;
-
-  public serverUrl = environment.serverUrl;
 
   searchSubject = new Subject<string>();
 

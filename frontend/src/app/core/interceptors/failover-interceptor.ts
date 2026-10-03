@@ -19,6 +19,8 @@ export const failoverInterceptor: HttpInterceptorFn = (
   const activeUrl = endpointService.rewriteUrl(req.url);
   const adjustedReq = req.clone({ url: activeUrl });
 
+  console.log('>>> [INTERCEPTOR ATIVO]:', req.url, '-> REESCRITO PARA:', activeUrl);
+
   // Apenas chamadas na rota local precisam de timeout agressivo para failover rápido
   if (endpointService.isUsingLocal()) {
     return next(adjustedReq).pipe(

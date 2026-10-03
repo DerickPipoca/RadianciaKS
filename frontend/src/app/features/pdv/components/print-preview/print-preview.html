@@ -1,7 +1,7 @@
 <div id="print-section" class="receipt-container" *ngIf="settings && order">
   <div style="text-align: center">
     <img
-      [src]="serverUrl + settings.smallLogoPath"
+      [src]="settings.smallLogoPath | serverImage"
       style="max-width: 60px; filter: grayscale(100%)"
     />
     <h2>{{ settings.storeName }}</h2>
