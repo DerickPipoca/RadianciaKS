@@ -56,8 +56,13 @@ export class SignalrService {
   }
 
   private getHubUrl(): string {
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+      return `${window.location.origin}/hubs/kds`;
+    }
+
     const base = this.endpointService.activeBaseUrl();
-    return `${base.replace(/\/api\/?$/, '')}/hubs/kds`;
+    const serverRoot = base.replace(/\/api\/?$/, '');
+    return `${serverRoot}/hubs/kds`;
   }
 
   public async startConnection(): Promise<void> {
@@ -119,8 +124,7 @@ export class SignalrService {
 
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(url, {
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
+        transport: HttpTransportType.WebSockets | HttpTransportType.LongPolling,
       })
       .configureLogging(LogLevel.Warning)
       .withAutomaticReconnect([0, 2000, 5000, 10000])
