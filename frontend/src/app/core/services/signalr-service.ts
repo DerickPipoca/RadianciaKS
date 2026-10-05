@@ -155,6 +155,8 @@ export class SignalrService {
         console.log('[SignalR] Reconectado com sucesso!');
         this.connectionStatus$.next('Conectado');
         this.joinKitchenGroup();
+
+        this.orderUpdated$.next({} as any);
       });
     });
 

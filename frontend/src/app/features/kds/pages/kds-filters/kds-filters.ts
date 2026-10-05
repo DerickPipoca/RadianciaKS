@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, forkJoin, interval } from 'rxjs';
 import { SignalrService } from '../../../../core/services/signalr-service';
 import { OrderResponseDto } from '../../../../core/models/order.model';
 import { KdsService } from '../../../../core/services/kds-service';
@@ -54,8 +54,11 @@ export class KdsFilters implements OnInit, OnDestroy {
       }
     }
 
-    this.timerInterval = setInterval(() => {}, 60000);
-    this.loadCategories();
+    interval(45000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadPendingOrders();
+      });
 
     this.timerInterval = setInterval(() => {}, 60000);
 
@@ -162,6 +165,8 @@ export class KdsFilters implements OnInit, OnDestroy {
     const pendingItems = order.items.filter((i) => i.kdsStatus !== KdsStatus.Done);
     if (pendingItems.length === 0) return;
 
+    this.removeOrderFromScreen(order.id);
+
     const requests = pendingItems.map((item) =>
       this.kdsService.updateItemStatus(order.id, item.id, KdsStatus.Done),
     );
@@ -176,6 +181,10 @@ export class KdsFilters implements OnInit, OnDestroy {
   }
 
   handleOrderUpdate(updatedOrder: OrderResponseDto): void {
+    if (!updatedOrder || !updatedOrder.id) {
+      this.loadPendingOrders();
+      return;
+    }
     const shouldRemove =
       updatedOrder.orderStatus === OrderStatus.ReadyToServe ||
       updatedOrder.orderStatus === OrderStatus.Delivered ||
@@ -279,6 +288,13 @@ export class KdsFilters implements OnInit, OnDestroy {
       return 'bg-orange';
     } else {
       return 'bg-green';
+    }
+  }
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      this.loadPendingOrders();
     }
   }
 }

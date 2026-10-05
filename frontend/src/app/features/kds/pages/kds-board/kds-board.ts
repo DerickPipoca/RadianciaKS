@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
 import { LucideAngularModule, Rows3, History, Funnel } from 'lucide-angular';
 import { SignalrService } from '../../../../core/services/signalr-service';
 import { KdsService } from '../../../../core/services/kds-service';
@@ -8,7 +8,7 @@ import { OrderResponseDto } from '../../../../core/models/order.model';
 import { KdsStatus } from '../../../../core/enums/kds-status';
 import { OrderStatus } from '../../../../core/enums/order-status';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { concatMap, forkJoin, from, toArray } from 'rxjs';
+import { concatMap, forkJoin, from, interval, toArray } from 'rxjs';
 import { OrderItemModifierResponseDto } from '../../../../core/models/modifier.model';
 
 @Component({
@@ -47,6 +47,12 @@ export class KdsBoard implements OnInit, OnDestroy {
     this.destroyRef.onDestroy(() => {
       this.signalrService.stopConnection();
     });
+
+    interval(45000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadPendingItems();
+      });
 
     this.subscriptions.add(
       this.signalrService.orderCanceled$
@@ -128,6 +134,10 @@ export class KdsBoard implements OnInit, OnDestroy {
   }
 
   handleOrderUpdate(updatedOrder: OrderResponseDto): void {
+    if (!updatedOrder || !updatedOrder.id) {
+      this.loadPendingItems();
+      return;
+    }
     const shouldRemove =
       updatedOrder.orderStatus === OrderStatus.ReadyToServe ||
       updatedOrder.orderStatus === OrderStatus.Delivered ||
@@ -219,6 +229,13 @@ export class KdsBoard implements OnInit, OnDestroy {
       return 'bg-orange';
     } else {
       return 'bg-green';
+    }
+  }
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      this.loadPendingItems();
     }
   }
 }
